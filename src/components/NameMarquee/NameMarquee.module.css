@@ -1,0 +1,47 @@
+.section {
+  width: 100%;
+  padding-block: clamp(1.5rem, 4vw, 2.5rem);
+  background: var(--color-bg);
+  overflow: hidden;
+  border-top: 1px solid var(--color-border);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, 6vw, 4rem);
+  padding-right: clamp(2rem, 6vw, 4rem);
+}
+
+.word {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 10vw, 6rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

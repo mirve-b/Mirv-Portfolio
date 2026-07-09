@@ -1,0 +1,436 @@
+.section {
+  position: relative;
+  width: 100%;
+  padding: clamp(0.75rem, 1.5vw, 1.25rem) 0 clamp(3rem, 8vw, 6rem);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: clamp(16rem, 42vw, 34rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-inline: var(--container-padding);
+}
+
+/* ── Section orchids ── */
+
+.orchidFarLeft {
+  position: absolute;
+  left: clamp(-6rem, -8vw, -3rem);
+  top: 50%;
+  z-index: 0;
+  width: clamp(8rem, 16vw, 13rem);
+  height: auto;
+  opacity: 0.95;
+  transform: translateY(-42%) rotate(-8deg);
+  pointer-events: none;
+}
+
+/* ── About column ── */
+
+.aboutCol {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.aboutContent {
+  width: 100%;
+  max-width: 100%;
+  padding-left: clamp(2rem, 5vw, 4rem);
+}
+
+.heading {
+  font-family: var(--font-body);
+  font-size: clamp(0.875rem, 0.8rem + 0.3vw, 1rem);
+  font-weight: 300;
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  margin: 0 0 0.875rem;
+}
+
+.subheading {
+  font-family: var(--font-body);
+  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.9375rem);
+  font-weight: 200;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  color: var(--color-white);
+  margin: 0 0 1.25rem;
+}
+
+.body {
+  font-family: var(--font-body);
+  font-size: clamp(0.6875rem, 0.62rem + 0.25vw, 0.8125rem);
+  font-weight: 200;
+  letter-spacing: 0.02em;
+  line-height: 1.65;
+  color: var(--color-grey-100);
+  margin: 0;
+}
+
+/* ── Skills collage ── */
+
+.skillsCol {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.collage {
+  position: relative;
+  width: min(100%, 32rem);
+  aspect-ratio: 1 / 1.02;
+  cursor: default;
+}
+
+.collage img:not(.noteLink img) {
+  transition:
+    transform var(--duration-collage) var(--ease-out-expo),
+    opacity var(--duration-collage) var(--ease-smooth),
+    top var(--duration-collage) var(--ease-out-expo),
+    bottom var(--duration-collage) var(--ease-out-expo),
+    left var(--duration-collage) var(--ease-out-expo),
+    right var(--duration-collage) var(--ease-out-expo),
+    width var(--duration-collage) var(--ease-out-expo);
+}
+
+/* ── Skill notes — slide in/out behind front cover ── */
+
+.skillNotes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.collage[data-open] .skillNotes {
+  pointer-events: auto;
+}
+
+.noteLink {
+  position: absolute;
+  display: block;
+  width: clamp(5.25rem, 16vw, 8rem);
+  border: 2px solid transparent;
+  border-radius: 3px;
+  opacity: 0;
+  z-index: 2;
+  text-decoration: none;
+  animation: none;
+}
+
+.noteLink img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform var(--duration-fast) var(--ease-smooth);
+}
+
+.noteArt {
+  top: 8%;
+  left: 4%;
+  transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
+}
+
+.noteUiUx {
+  top: 8%;
+  left: 50%;
+  transform: translate(-50%, 2.5rem) scale(0.88);
+}
+
+.noteDev {
+  top: 8%;
+  right: 4%;
+  transform: translateY(2.5rem) rotate(8deg) scale(0.88);
+}
+
+/* Out: slide up into view, always behind front (z-index 2) */
+@keyframes noteOutArt {
+  0% {
+    transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-0.75rem) rotate(-14deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes noteOutUiUx {
+  0% {
+    transform: translate(-50%, 2.5rem) scale(0.88);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -0.75rem) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes noteOutDev {
+  0% {
+    transform: translateY(2.5rem) rotate(8deg) scale(0.88);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-0.75rem) rotate(14deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* In: slide back down behind front */
+@keyframes noteInArt {
+  0% {
+    transform: translateY(-0.75rem) rotate(-14deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
+    opacity: 0;
+  }
+}
+
+@keyframes noteInUiUx {
+  0% {
+    transform: translate(-50%, -0.75rem) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 2.5rem) scale(0.88);
+    opacity: 0;
+  }
+}
+
+@keyframes noteInDev {
+  0% {
+    transform: translateY(-0.75rem) rotate(14deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(2.5rem) rotate(8deg) scale(0.88);
+    opacity: 0;
+  }
+}
+
+.collage[data-open] .noteArt {
+  animation: noteOutArt var(--duration-folder-note) var(--ease-smooth) forwards;
+}
+
+.collage[data-open] .noteUiUx {
+  animation: noteOutUiUx var(--duration-folder-note) var(--ease-smooth) forwards;
+  animation-delay: 70ms;
+}
+
+.collage[data-open] .noteDev {
+  animation: noteOutDev var(--duration-folder-note) var(--ease-smooth) forwards;
+  animation-delay: 140ms;
+}
+
+.collage[data-closing] .noteArt {
+  animation: noteInArt var(--duration-folder-note) var(--ease-smooth) forwards;
+  animation-delay: 140ms;
+}
+
+.collage[data-closing] .noteUiUx {
+  animation: noteInUiUx var(--duration-folder-note) var(--ease-smooth) forwards;
+  animation-delay: 70ms;
+}
+
+.collage[data-closing] .noteDev {
+  animation: noteInDev var(--duration-folder-note) var(--ease-smooth) forwards;
+}
+
+/* Individual note hover — while slid out behind front */
+.collage[data-open] .noteLink:hover,
+.collage[data-open] .noteLink:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.collage[data-open] .noteLink:hover img,
+.collage[data-open] .noteLink:focus-visible img {
+  transform: scale(1.08);
+}
+
+/* ── Folder — back + notes + front ── */
+
+.folder {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  width: 90%;
+  overflow: visible;
+  transform: translateX(-50%);
+}
+
+.fileBack {
+  position: relative;
+  left: 10%;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.fileFront {
+  position: absolute;
+  top: 15%;
+  left: 11.4%;
+  z-index: 3;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* ── Paperclip ── */
+
+.paperclip {
+  position: absolute;
+  bottom: 49%;
+  right: 10%;
+  z-index: 7;
+  width: clamp(4rem, 8vw, 5rem);
+  height: auto;
+  transform: rotate(0deg);
+}
+
+.collage[data-open] .paperclip,
+.collage:hover .paperclip,
+.collage:focus-within .paperclip {
+  bottom: 70%;
+  right: -10%;
+  transform: rotate(20deg);
+}
+
+/* ── Deco ── */
+
+.deco {
+  position: absolute;
+  left:-5%;
+  bottom: -10%;
+  z-index: 5;
+  width: 70%;
+  height: auto;
+  transform: rotate(0deg);
+}
+
+.collage[data-open] .deco,
+.collage:hover .deco,
+.collage:focus-within .deco {
+  left: -20%;
+  bottom: -25%;
+  width: 55%;
+  transform: rotate(-30deg);
+}
+
+/* ── Orchid cluster — top-right behind file ── */
+
+.orchidTopRight {
+  position: absolute;
+  top: 40%;
+  right: -15%;
+  z-index: 1;
+  width: clamp(5.5rem, 14vw, 9rem);
+  height: auto;
+  transform: rotate(190deg);
+  pointer-events: none;
+}
+
+.collage[data-open] .orchidTopRight,
+.collage:hover .orchidTopRight,
+.collage:focus-within .orchidTopRight {
+  top: 14%;
+  right: -6%;
+  width: clamp(6.5rem, 16vw, 10.5rem);
+  transform: rotate(14deg);
+}
+
+/* ── flower2 accents ── */
+
+.flowerLeft {
+  position: absolute;
+  top: 32%;
+  left: -2%;
+  z-index: 3;
+  width: clamp(4rem, 10vw, 7rem);
+  height: auto;
+  transform: rotate(280deg);
+  pointer-events: none;
+}
+
+.flowerBottomRight {
+  position: absolute;
+  bottom: -15%;
+  right: 25%;
+  z-index: 3;
+  width: clamp(4rem, 8vw, 7rem);
+  height: auto;
+  transform: rotate(180deg) scaleX(-1);
+  pointer-events: none;
+}
+
+.collage[data-open] .flowerLeft,
+.collage:hover .flowerLeft,
+.collage:focus-within .flowerLeft {
+  left: -10%;
+  top: 50%;
+  transform: rotate(250deg);
+}
+
+.collage[data-open] .flowerBottomRight,
+.collage:hover .flowerBottomRight,
+.collage:focus-within .flowerBottomRight {
+  right: 2%;
+  bottom: -20%;
+  transform: rotate(180deg) scaleX(-1);
+}
+
+/* ── Mobile ── */
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: clamp(2.5rem, 8vw, 3.5rem);
+  }
+
+  .aboutContent {
+    max-width: none;
+    padding-left: clamp(2.5rem, 10vw, 3.5rem);
+  }
+
+  .orchidFarLeft {
+    left: -2.5rem;
+    top: 8%;
+    width: clamp(5.5rem, 22vw, 8rem);
+    transform: rotate(-12deg);
+  }
+
+  .collage {
+    width: min(100%, 24rem);
+    margin: 0 auto;
+  }
+
+  .deco {
+    left: 4%;
+    width: 68%;
+  }
+
+  .collage:hover .deco,
+  .collage:focus-within .deco {
+    left: -32%;
+    width: 54%;
+  }
+
+  .noteLink {
+    width: clamp(4.75rem, 22vw, 7rem);
+  }
+}

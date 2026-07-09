@@ -1,0 +1,18 @@
+.app {
+  min-height: 100svh;
+  background-color: var(--color-bg);
+}
+
+.main {
+  min-height: 100svh;
+}
+
+.heroWrap {
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .heroWrap {
+    padding-top: 0;
+  }
+}

@@ -1,0 +1,59 @@
+:root {
+  /* Colors */
+  --color-bg: #000000;
+  --color-accent: #e02c6b;
+  --color-beige: #d4c4b0;
+  --color-white: #ffffff;
+  --color-grey-100: rgba(255, 255, 255, 0.85);
+  --color-grey-200: rgba(255, 255, 255, 0.55);
+  --color-grey-300: rgba(255, 255, 255, 0.35);
+  --color-grey-400: rgba(255, 255, 255, 0.18);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-border-strong: rgba(255, 255, 255, 0.22);
+  --color-surface-glass: rgba(0, 0, 0, 0.55);
+  --color-surface-glass-hover: rgba(0, 0, 0, 0.85);
+
+  /* Typography */
+  --font-display: 'Alumni Sans Pinstripe', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --text-xs: clamp(0.5625rem, 0.5rem + 0.2vw, 0.625rem);
+  --text-sm: clamp(0.6875rem, 0.62rem + 0.2vw, 0.75rem);
+  --text-base: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
+  --text-lg: clamp(1rem, 0.9rem + 0.35vw, 1.125rem);
+  --text-xl: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --text-tagline-divider: 20px;
+  --text-hero-mirve: clamp(5rem, 11.1vw, 10rem);
+  --text-hero-portfolio: calc(var(--text-hero-mirve) * 0.2875);
+
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.14em;
+  --tracking-wider: 0.28em;
+
+  /* Layout */
+  --container-max: 1440px;
+  --container-padding: clamp(1rem, 4vw, 3.75rem);
+  --navbar-height: 7rem;
+  --navbar-brand-left: 3.75rem;
+
+  /* Breakpoints — desktop holds until phone */
+  --bp-mobile: 768px;
+
+  /* Hero title anchors — desktop only (% of hero image) */
+  --hero-title-left: 6%;
+  --hero-title-right: 8%;
+  --hero-title-y: 50%;
+
+  /* Motion */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 200ms;
+  --duration-base: 350ms;
+  --duration-slow: 600ms;
+  --duration-collage: 900ms;
+  --duration-folder-note: 1100ms;
+
+  /* Effects */
+  --blur-glass: 16px;
+  --shadow-subtle: 0 4px 24px rgba(0, 0, 0, 0.4);
+}

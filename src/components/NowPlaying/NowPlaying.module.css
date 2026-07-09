@@ -1,0 +1,239 @@
+.root {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(224, 44, 107, 0.18);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  outline: none;
+  transition:
+    box-shadow var(--duration-base) var(--ease-smooth),
+    border-color var(--duration-base) var(--ease-smooth);
+}
+
+.root:hover,
+.root:focus-visible {
+  border-color: rgba(224, 44, 107, 0.45);
+  box-shadow:
+    0 0 20px rgba(224, 44, 107, 0.22),
+    0 0 40px rgba(224, 44, 107, 0.08);
+}
+
+/* ── Play button ── */
+
+.playButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--color-beige);
+  transition:
+    transform var(--duration-fast) var(--ease-out-expo),
+    background var(--duration-base) var(--ease-smooth);
+}
+
+.playButton:hover {
+  background: rgba(224, 44, 107, 0.12);
+}
+
+.playIcon svg {
+  width: 0.5rem;
+  height: 0.5625rem;
+  margin-left: 1px;
+  opacity: 0.85;
+}
+
+.vinyl {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #1a1a1a 0%,
+    #0a0a0a 55%,
+    #2a1018 100%
+  );
+  border: 1px solid rgba(224, 44, 107, 0.35);
+}
+
+.vinylInner {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 196, 176, 0.15);
+}
+
+.vinylHole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-beige);
+  opacity: 0.6;
+  transform: translate(-50%, -50%);
+}
+
+.pauseOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--color-white);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+.playButton:hover .pauseOverlay {
+  opacity: 1;
+}
+
+.pauseOverlay svg {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+/* ── Meta ── */
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  min-width: 0;
+  padding-top: 0.0625rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--color-white);
+  white-space: nowrap;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.artist {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 200;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--color-beige);
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.duration {
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--color-grey-200);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ── Waveform ── */
+
+.waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.waveBar {
+  width: 2px;
+  min-height: 2px;
+  border-radius: 1px;
+  background: var(--color-beige);
+  transition: height 60ms linear;
+}
+
+/* ── Progress ── */
+
+.progressTrack {
+  width: 100%;
+  height: 2px;
+  margin-top: 0.125rem;
+  border-radius: 1px;
+  background: rgba(212, 196, 176, 0.15);
+  overflow: hidden;
+}
+
+.progressFill {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    rgba(224, 44, 107, 0.55) 100%
+  );
+}
+
+
+/* ── Mobile ── */
+
+@media (max-width: 768px) {
+  .root {
+    gap: 0.5rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  .playButton {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+
+  .artist {
+    display: none;
+  }
+
+  .meta {
+    gap: 0.125rem;
+  }
+
+  .progressTrack {
+    max-width: 5.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    max-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
