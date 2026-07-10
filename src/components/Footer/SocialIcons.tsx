@@ -54,27 +54,11 @@ export function GitHubIcon({ className }: IconProps) {
   )
 }
 
-export function FiverrIcon({ className }: IconProps) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M8.5 15V9h2.2c1.4 0 2.3.8 2.3 2s-.9 2-2.3 2H8.5zm0-3h2c.6 0 .9-.3.9-.7 0-.4-.3-.7-.9-.7h-2V12zm4.5 3V9h3.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 const ICON_MAP = {
   instagram: InstagramIcon,
   linkedin: LinkedInIcon,
   behance: BehanceIcon,
   github: GitHubIcon,
-  fiverr: FiverrIcon,
 } as const
 
 export function SocialIcon({ id }: { id: keyof typeof ICON_MAP }) {

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import artImg from '../../assets/art.png'
 import decoImg from '../../assets/deco.png'
@@ -25,6 +25,7 @@ const SKILL_LINKS = [
 type FolderPhase = 'idle' | 'open' | 'closing'
 
 function SkillsCollage() {
+  const collageRef = useRef<HTMLDivElement>(null)
   const [folderPhase, setFolderPhase] = useState<FolderPhase>('idle')
 
   const openFolder = useCallback(() => {
@@ -46,17 +47,15 @@ function SkillsCollage() {
 
   return (
     <motion.div
+      ref={collageRef}
       className={styles.collage}
       variants={assembleItem}
-      tabIndex={0}
       data-open={folderPhase === 'open' ? '' : undefined}
       data-closing={folderPhase === 'closing' ? '' : undefined}
-      aria-label="Skills collage — hover to reveal navigation notes"
-      onMouseEnter={openFolder}
+      aria-label="Skills collage — hover folder front to reveal navigation notes"
       onMouseLeave={closeFolder}
-      onFocus={openFolder}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+        if (!collageRef.current?.contains(event.relatedTarget as Node | null)) {
           closeFolder()
         }
       }}
@@ -96,7 +95,10 @@ function SkillsCollage() {
           src={fileFrontImg}
           alt="Skills folder"
           className={styles.fileFront}
+          tabIndex={0}
           draggable={false}
+          onMouseEnter={openFolder}
+          onFocus={openFolder}
         />
       </div>
 

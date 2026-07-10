@@ -1,7 +1,7 @@
 .section {
   position: relative;
   width: 100%;
-  padding: clamp(0.75rem, 1.5vw, 1.25rem) 0 clamp(3rem, 8vw, 6rem);
+  padding: 0 0 clamp(7.5rem, 15vw, 11.5rem);
   background: var(--color-bg);
   overflow: hidden;
 }
@@ -9,7 +9,7 @@
 .container {
   display: grid;
   grid-template-columns: clamp(16rem, 42vw, 34rem) minmax(0, 1fr);
-  align-items: center;
+  align-items: start;
   gap: clamp(1.5rem, 4vw, 3rem);
   max-width: var(--container-max);
   margin: 0 auto;
@@ -36,6 +36,7 @@
   position: relative;
   z-index: 1;
   min-width: 0;
+  align-self: center;
 }
 
 .aboutContent {
@@ -83,6 +84,9 @@
   display: flex;
   justify-content: center;
   min-width: 0;
+  padding-right: clamp(3rem, 8vw, 6.5rem);
+  margin-top: clamp(-3.5rem, -6vw, -2rem);
+  margin-bottom: clamp(2rem, 5vw, 4rem);
 }
 
 .collage {
@@ -119,104 +123,105 @@
   position: absolute;
   display: block;
   width: clamp(5.25rem, 16vw, 8rem);
-  border: 2px solid transparent;
+  border: none;
   border-radius: 3px;
-  opacity: 0;
+  opacity: 1;
   z-index: 2;
   text-decoration: none;
   animation: none;
+}
+
+.noteLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 0.7px solid transparent;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: border-color var(--duration-fast) var(--ease-smooth);
 }
 
 .noteLink img {
   display: block;
   width: 100%;
   height: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35))
+    drop-shadow(0 6px 14px rgba(0, 0, 0, 0.22));
   transition: transform var(--duration-fast) var(--ease-smooth);
 }
 
 .noteArt {
   top: 8%;
-  left: 4%;
+  left: 15%;
   transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
 }
 
 .noteUiUx {
   top: 8%;
-  left: 50%;
+  left: 61%;
   transform: translate(-50%, 2.5rem) scale(0.88);
 }
 
 .noteDev {
   top: 8%;
-  right: 4%;
+  left: 82%;
+  right: auto;
   transform: translateY(2.5rem) rotate(8deg) scale(0.88);
 }
 
-/* Out: slide up into view, always behind front (z-index 2) */
+/* Out: slide up — always visible behind front */
 @keyframes noteOutArt {
   0% {
     transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
-    opacity: 0;
   }
   100% {
-    transform: translateY(-0.75rem) rotate(-14deg) scale(1);
-    opacity: 1;
+    transform: translateY(-2.25rem) rotate(-14deg) scale(1);
   }
 }
 
 @keyframes noteOutUiUx {
   0% {
     transform: translate(-50%, 2.5rem) scale(0.88);
-    opacity: 0;
   }
   100% {
-    transform: translate(-50%, -0.75rem) scale(1);
-    opacity: 1;
+    transform: translate(-50%, -2.25rem) scale(1);
   }
 }
 
 @keyframes noteOutDev {
   0% {
     transform: translateY(2.5rem) rotate(8deg) scale(0.88);
-    opacity: 0;
   }
   100% {
-    transform: translateY(-0.75rem) rotate(14deg) scale(1);
-    opacity: 1;
+    transform: translateY(-2.25rem) rotate(14deg) scale(1);
   }
 }
 
 /* In: slide back down behind front */
 @keyframes noteInArt {
   0% {
-    transform: translateY(-0.75rem) rotate(-14deg) scale(1);
-    opacity: 1;
+    transform: translateY(-2.25rem) rotate(-14deg) scale(1);
   }
   100% {
     transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
-    opacity: 0;
   }
 }
 
 @keyframes noteInUiUx {
   0% {
-    transform: translate(-50%, -0.75rem) scale(1);
-    opacity: 1;
+    transform: translate(-50%, -2.25rem) scale(1);
   }
   100% {
     transform: translate(-50%, 2.5rem) scale(0.88);
-    opacity: 0;
   }
 }
 
 @keyframes noteInDev {
   0% {
-    transform: translateY(-0.75rem) rotate(14deg) scale(1);
-    opacity: 1;
+    transform: translateY(-2.25rem) rotate(14deg) scale(1);
   }
   100% {
     transform: translateY(2.5rem) rotate(8deg) scale(0.88);
-    opacity: 0;
   }
 }
 
@@ -248,16 +253,15 @@
   animation: noteInDev var(--duration-folder-note) var(--ease-smooth) forwards;
 }
 
-/* Individual note hover — while slid out behind front */
-.collage[data-open] .noteLink:hover,
-.collage[data-open] .noteLink:focus-visible {
+/* Individual note hover — persistent stroke while hovered */
+.collage[data-open] .noteLink:hover::after,
+.collage[data-open] .noteLink:focus-visible::after {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 1px var(--color-accent);
 }
 
 .collage[data-open] .noteLink:hover img,
 .collage[data-open] .noteLink:focus-visible img {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 /* ── Folder — back + notes + front ── */
@@ -288,7 +292,7 @@
   z-index: 3;
   width: 100%;
   height: auto;
-  pointer-events: none;
+  cursor: pointer;
 }
 
 /* ── Paperclip ── */
@@ -303,11 +307,9 @@
   transform: rotate(0deg);
 }
 
-.collage[data-open] .paperclip,
-.collage:hover .paperclip,
-.collage:focus-within .paperclip {
-  bottom: 70%;
-  right: -10%;
+.collage[data-open] .paperclip {
+  bottom: 10%;
+  right: -18%;
   transform: rotate(20deg);
 }
 
@@ -315,20 +317,18 @@
 
 .deco {
   position: absolute;
-  left:-5%;
-  bottom: -10%;
+  left:-10%;
+  bottom: -18%;
   z-index: 5;
-  width: 70%;
+  width: 75%;
   height: auto;
-  transform: rotate(0deg);
+  transform: rotate(7deg);
 }
 
-.collage[data-open] .deco,
-.collage:hover .deco,
-.collage:focus-within .deco {
+.collage[data-open] .deco {
   left: -20%;
-  bottom: -25%;
-  width: 55%;
+  bottom: -30%;
+  width: 65%;
   transform: rotate(-30deg);
 }
 
@@ -336,8 +336,8 @@
 
 .orchidTopRight {
   position: absolute;
-  top: 40%;
-  right: -15%;
+  top: 30%;
+  right: -27%;
   z-index: 1;
   width: clamp(5.5rem, 14vw, 9rem);
   height: auto;
@@ -345,21 +345,19 @@
   pointer-events: none;
 }
 
-.collage[data-open] .orchidTopRight,
-.collage:hover .orchidTopRight,
-.collage:focus-within .orchidTopRight {
-  top: 14%;
-  right: -6%;
-  width: clamp(6.5rem, 16vw, 10.5rem);
-  transform: rotate(14deg);
+.collage[data-open] .orchidTopRight {
+  top: 40%;
+  right: -30%;
+  width: clamp(5.5rem, 14vw, 9rem);
+  transform: rotate(190deg);
 }
 
 /* ── flower2 accents ── */
 
 .flowerLeft {
   position: absolute;
-  top: 32%;
-  left: -2%;
+  top: 34%;
+  left: 0%;
   z-index: 3;
   width: clamp(4rem, 10vw, 7rem);
   height: auto;
@@ -369,8 +367,8 @@
 
 .flowerBottomRight {
   position: absolute;
-  bottom: -15%;
-  right: 25%;
+  bottom: -30%;
+  right: 23%;
   z-index: 3;
   width: clamp(4rem, 8vw, 7rem);
   height: auto;
@@ -378,19 +376,15 @@
   pointer-events: none;
 }
 
-.collage[data-open] .flowerLeft,
-.collage:hover .flowerLeft,
-.collage:focus-within .flowerLeft {
+.collage[data-open] .flowerLeft {
   left: -10%;
   top: 50%;
   transform: rotate(250deg);
 }
 
-.collage[data-open] .flowerBottomRight,
-.collage:hover .flowerBottomRight,
-.collage:focus-within .flowerBottomRight {
+.collage[data-open] .flowerBottomRight {
   right: 2%;
-  bottom: -20%;
+  bottom: -40%;
   transform: rotate(180deg) scaleX(-1);
 }
 
@@ -414,6 +408,12 @@
     transform: rotate(-12deg);
   }
 
+  .skillsCol {
+    padding-right: 0;
+    margin-top: 0;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
   .collage {
     width: min(100%, 24rem);
     margin: 0 auto;
@@ -424,8 +424,7 @@
     width: 68%;
   }
 
-  .collage:hover .deco,
-  .collage:focus-within .deco {
+  .collage[data-open] .deco {
     left: -32%;
     width: 54%;
   }

@@ -1,9 +1,14 @@
+import { motion, type Variants } from 'framer-motion'
 import bunnyPfp from '../../assets/mifty_bunny_pfp.png'
 import styles from './Navbar.module.css'
 
-export function BunnyLogo() {
+type BunnyLogoProps = {
+  variants?: Variants
+}
+
+export function BunnyLogo({ variants }: BunnyLogoProps) {
   return (
-    <div className={styles.logo}>
+    <motion.div className={styles.logo} variants={variants}>
       <img
         src={bunnyPfp}
         alt=""
@@ -12,6 +17,6 @@ export function BunnyLogo() {
         height={36}
         draggable={false}
       />
-    </div>
+    </motion.div>
   )
 }

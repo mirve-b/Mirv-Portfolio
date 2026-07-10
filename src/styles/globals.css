@@ -68,3 +68,8 @@ ol {
   background: rgba(224, 44, 107, 0.35);
   color: var(--color-white);
 }
+
+html.glass-cursor-active,
+html.glass-cursor-active * {
+  cursor: none !important;
+}

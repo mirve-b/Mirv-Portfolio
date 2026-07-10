@@ -1,13 +1,14 @@
 /** Update these with your real links & email */
-export const CONTACT_EMAIL = 'hello@mirve.studio'
+export const CONTACT_EMAIL = 'blvckmirve@gmail.com'
 
 /**
  * Get a free access key at https://web3forms.com
  * Add to `.env`: VITE_WEB3FORMS_ACCESS_KEY=your_key
  * Submissions are forwarded to the email you register there.
  */
-export const WEB3FORMS_ACCESS_KEY =
+export const WEB3FORMS_ACCESS_KEY = (
   import.meta.env.VITE_WEB3FORMS_ACCESS_KEY ?? ''
+).trim()
 
 export const SOCIAL_LINKS = [
   {
@@ -29,10 +30,5 @@ export const SOCIAL_LINKS = [
     id: 'github',
     label: 'GitHub',
     href: 'https://github.com/mirve-b',
-  },
-  {
-    id: 'fiverr',
-    label: 'Fiverr',
-    href: 'https://www.fiverr.com/',
   },
 ] as const

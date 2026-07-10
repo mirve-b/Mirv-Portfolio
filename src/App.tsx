@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { GlassCursor } from './components/GlassCursor'
 import { AboutSection } from './components/AboutSection'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
@@ -19,6 +20,7 @@ function App() {
 
   return (
     <div className={styles.app}>
+      <GlassCursor />
       <AnimatePresence mode="wait">
         {!showContent ? (
           <IntroSplash key="splash" onComplete={() => setShowContent(true)} />
