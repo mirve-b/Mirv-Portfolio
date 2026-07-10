@@ -9,6 +9,7 @@
 
 .heroWrap {
   position: relative;
+  overflow: visible;
 }
 
 @media (max-width: 768px) {

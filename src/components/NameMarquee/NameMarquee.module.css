@@ -1,6 +1,6 @@
 .section {
   width: 100%;
-  padding-block: clamp(2rem, 5vw, 3.25rem) clamp(0.5rem, 1.25vw, 0.75rem);
+  padding-block: clamp(0.5rem, 1.25vw, 0.75rem);
   background: var(--color-bg);
   overflow: hidden;
   border-top: 1px solid var(--color-border);
@@ -9,11 +9,13 @@
 .track {
   display: flex;
   width: max-content;
-  animation: marquee 32s linear infinite;
+  will-change: transform;
+  animation: marquee 48s linear infinite;
 }
 
 .content {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: clamp(1.25rem, 4vw, 2.5rem);
   padding-right: clamp(1.25rem, 4vw, 2.5rem);
@@ -32,10 +34,10 @@
 
 @keyframes marquee {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 

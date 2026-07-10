@@ -1,15 +1,10 @@
 import { motion } from 'framer-motion'
+import flowerImg from '../../assets/flower2.png'
 import orchidImg from '../../assets/orchid1.png'
 import { NowPlaying } from '../NowPlaying'
-import { BunnyLogo } from './BunnyLogo'
 import styles from './Navbar.module.css'
 
 const brandSpring = { type: 'spring' as const, stiffness: 520, damping: 14 }
-
-const logoHover = {
-  rest: { scale: 1, y: 0 },
-  hover: { scale: 1.1, y: -4, transition: brandSpring },
-}
 
 const textHover = {
   rest: { scale: 1, y: 0 },
@@ -30,7 +25,6 @@ export function Navbar() {
         initial="rest"
         whileHover="hover"
       >
-        <BunnyLogo variants={logoHover} />
         <motion.div className={styles.brandText} variants={textHover}>
           <span className={styles.name}>MIRVÉ</span>
           <span className={styles.tagline}>
@@ -38,6 +32,21 @@ export function Navbar() {
           </span>
         </motion.div>
       </motion.a>
+
+      <div className={styles.cornerFlowers} aria-hidden="true">
+        <img
+          src={flowerImg}
+          alt=""
+          className={styles.cornerFlowerBack}
+          draggable={false}
+        />
+        <img
+          src={flowerImg}
+          alt=""
+          className={styles.cornerFlowerFront}
+          draggable={false}
+        />
+      </div>
 
       <div className={styles.container}>
         <div className={styles.nowPlayingWrap}>

@@ -50,3 +50,9 @@
   text-transform: lowercase;
   white-space: nowrap;
 }
+
+@media (max-width: 768px) {
+  .section {
+    padding-block: clamp(1.25rem, 4vw, 1.75rem) clamp(1.5rem, 5vw, 2.25rem);
+  }
+}

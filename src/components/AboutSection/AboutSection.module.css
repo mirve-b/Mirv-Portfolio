@@ -9,14 +9,25 @@
 .container {
   display: grid;
   grid-template-columns: clamp(16rem, 42vw, 34rem) minmax(0, 1fr);
-  align-items: start;
+  align-items: center;
   gap: clamp(1.5rem, 4vw, 3rem);
   max-width: var(--container-max);
   margin: 0 auto;
   padding-inline: var(--container-padding);
 }
 
-/* ── Section orchids ── */
+/* ── Section edge florals ── */
+
+.flowerFarLeft {
+  position: absolute;
+  left: clamp(-3.5rem, -4.5vw, -1.75rem);
+  top: clamp(18%, 24vw, 28%);
+  z-index: 0;
+  width: clamp(3.25rem, 7vw, 5.25rem);
+  height: auto;
+  transform: rotate(248deg);
+  pointer-events: none;
+}
 
 .orchidFarLeft {
   position: absolute;
@@ -37,6 +48,7 @@
   z-index: 1;
   min-width: 0;
   align-self: center;
+  padding-top: clamp(4rem, 8vw, 6.5rem);
 }
 
 .aboutContent {
@@ -128,7 +140,8 @@
   opacity: 1;
   z-index: 2;
   text-decoration: none;
-  animation: none;
+  backface-visibility: hidden;
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .noteLink::after {
@@ -145,112 +158,59 @@
   display: block;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35))
-    drop-shadow(0 6px 14px rgba(0, 0, 0, 0.22));
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.35),
+    0 6px 14px rgba(0, 0, 0, 0.22);
   transition: transform var(--duration-fast) var(--ease-smooth);
 }
 
 .noteArt {
   top: 8%;
   left: 15%;
-  transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
+  transform: translate3d(0, 2.5rem, 0) rotate(-8deg) scale(0.88);
 }
 
 .noteUiUx {
   top: 8%;
   left: 61%;
-  transform: translate(-50%, 2.5rem) scale(0.88);
+  transform: translate3d(-50%, 2.5rem, 0) scale(0.88);
 }
 
 .noteDev {
   top: 8%;
   left: 82%;
   right: auto;
-  transform: translateY(2.5rem) rotate(8deg) scale(0.88);
-}
-
-/* Out: slide up — always visible behind front */
-@keyframes noteOutArt {
-  0% {
-    transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
-  }
-  100% {
-    transform: translateY(-2.25rem) rotate(-14deg) scale(1);
-  }
-}
-
-@keyframes noteOutUiUx {
-  0% {
-    transform: translate(-50%, 2.5rem) scale(0.88);
-  }
-  100% {
-    transform: translate(-50%, -2.25rem) scale(1);
-  }
-}
-
-@keyframes noteOutDev {
-  0% {
-    transform: translateY(2.5rem) rotate(8deg) scale(0.88);
-  }
-  100% {
-    transform: translateY(-2.25rem) rotate(14deg) scale(1);
-  }
-}
-
-/* In: slide back down behind front */
-@keyframes noteInArt {
-  0% {
-    transform: translateY(-2.25rem) rotate(-14deg) scale(1);
-  }
-  100% {
-    transform: translateY(2.5rem) rotate(-8deg) scale(0.88);
-  }
-}
-
-@keyframes noteInUiUx {
-  0% {
-    transform: translate(-50%, -2.25rem) scale(1);
-  }
-  100% {
-    transform: translate(-50%, 2.5rem) scale(0.88);
-  }
-}
-
-@keyframes noteInDev {
-  0% {
-    transform: translateY(-2.25rem) rotate(14deg) scale(1);
-  }
-  100% {
-    transform: translateY(2.5rem) rotate(8deg) scale(0.88);
-  }
+  transform: translate3d(0, 2.5rem, 0) rotate(8deg) scale(0.88);
 }
 
 .collage[data-open] .noteArt {
-  animation: noteOutArt var(--duration-folder-note) var(--ease-smooth) forwards;
+  transform: translate3d(0, -2.25rem, 0) rotate(-14deg) scale(1);
+  transition-delay: 0ms;
 }
 
 .collage[data-open] .noteUiUx {
-  animation: noteOutUiUx var(--duration-folder-note) var(--ease-smooth) forwards;
-  animation-delay: 70ms;
+  transform: translate3d(-50%, -2.25rem, 0) scale(1);
+  transition-delay: 50ms;
 }
 
 .collage[data-open] .noteDev {
-  animation: noteOutDev var(--duration-folder-note) var(--ease-smooth) forwards;
-  animation-delay: 140ms;
+  transform: translate3d(0, -2.25rem, 0) rotate(14deg) scale(1);
+  transition-delay: 100ms;
 }
 
 .collage[data-closing] .noteArt {
-  animation: noteInArt var(--duration-folder-note) var(--ease-smooth) forwards;
-  animation-delay: 140ms;
+  transform: translate3d(0, 2.5rem, 0) rotate(-8deg) scale(0.88);
+  transition-delay: 100ms;
 }
 
 .collage[data-closing] .noteUiUx {
-  animation: noteInUiUx var(--duration-folder-note) var(--ease-smooth) forwards;
-  animation-delay: 70ms;
+  transform: translate3d(-50%, 2.5rem, 0) scale(0.88);
+  transition-delay: 50ms;
 }
 
 .collage[data-closing] .noteDev {
-  animation: noteInDev var(--duration-folder-note) var(--ease-smooth) forwards;
+  transform: translate3d(0, 2.5rem, 0) rotate(8deg) scale(0.88);
+  transition-delay: 0ms;
 }
 
 /* Individual note hover — persistent stroke while hovered */
@@ -391,6 +351,14 @@
 /* ── Mobile ── */
 
 @media (max-width: 768px) {
+  .section {
+    padding-top: clamp(1rem, 3.5vw, 1.5rem);
+  }
+
+  .aboutCol {
+    padding-top: clamp(0.75rem, 3vw, 1.25rem);
+  }
+
   .container {
     grid-template-columns: 1fr;
     gap: clamp(2.5rem, 8vw, 3.5rem);
@@ -401,9 +369,16 @@
     padding-left: clamp(2.5rem, 10vw, 3.5rem);
   }
 
+  .flowerFarLeft {
+    left: -1.25rem;
+    top: 4%;
+    width: clamp(2.75rem, 12vw, 4rem);
+    transform: rotate(242deg);
+  }
+
   .orchidFarLeft {
     left: -2.5rem;
-    top: 8%;
+    top: 14%;
     width: clamp(5.5rem, 22vw, 8rem);
     transform: rotate(-12deg);
   }
@@ -415,7 +390,7 @@
   }
 
   .collage {
-    width: min(100%, 24rem);
+    width: min(100%, 17.5rem);
     margin: 0 auto;
   }
 
@@ -430,6 +405,6 @@
   }
 
   .noteLink {
-    width: clamp(4.75rem, 22vw, 7rem);
+    width: clamp(4rem, 18vw, 5.75rem);
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GlassCursor } from './components/GlassCursor'
+import { EntryPfp } from './components/EntryPfp'
 import { AboutSection } from './components/AboutSection'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
@@ -25,13 +26,15 @@ function App() {
         {!showContent ? (
           <IntroSplash key="splash" onComplete={() => setShowContent(true)} />
         ) : (
-          <motion.main
-            key="content"
-            className={styles.main}
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer(0.14)}
-          >
+          <>
+            <EntryPfp active={showContent} />
+            <motion.main
+              key="content"
+              className={styles.main}
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer(0.14)}
+            >
             <motion.div variants={fadeDown} className={styles.heroWrap}>
               <Navbar />
               <Hero />
@@ -53,6 +56,7 @@ function App() {
               <Footer />
             </motion.div>
           </motion.main>
+          </>
         )}
       </AnimatePresence>
     </div>

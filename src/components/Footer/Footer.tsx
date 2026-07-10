@@ -1,4 +1,6 @@
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
+import { ScrollPfp } from '../ScrollPfp'
 import { staggerContainer } from '../../lib/motion'
 import { ContactForm } from './ContactForm'
 import { CONTACT_EMAIL, SOCIAL_LINKS } from './constants'
@@ -8,8 +10,10 @@ import styles from './Footer.module.css'
 const springBounce = { type: 'spring' as const, stiffness: 400, damping: 13 }
 
 export function Footer() {
+  const footerRef = useRef<HTMLElement>(null)
+
   return (
-    <footer className={styles.footer} aria-labelledby="footer-heading">
+    <footer ref={footerRef} className={styles.footer} aria-labelledby="footer-heading">
       <div className={styles.container}>
         <motion.div
           className={styles.connectCol}
@@ -66,6 +70,8 @@ export function Footer() {
           <ContactForm />
         </motion.div>
       </div>
+
+      <ScrollPfp zoneRef={footerRef} />
 
       <motion.p
         className={styles.copyright}

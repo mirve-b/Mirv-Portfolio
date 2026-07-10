@@ -1,70 +1,64 @@
-import { type KeyboardEvent } from 'react'
+import { useCallback, useRef, useState, type KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
-import { DEFAULT_TRACK } from './constants'
-import { useNowPlaying } from './hooks/useNowPlaying'
-import { PlayButton } from './PlayButton'
-import { ProgressBar } from './ProgressBar'
+import { PLAYLIST_LABEL, SPOTIFY_PLAYLIST_URI } from './constants'
+import { useSpotifyController } from './hooks/useSpotifyController'
 import styles from './NowPlaying.module.css'
-import type { NowPlayingTrack } from './types'
+import { SpotifyDrawer } from './SpotifyDrawer'
 import { Waveform } from './Waveform'
 
-type NowPlayingProps = {
-  track?: NowPlayingTrack
-}
+export function NowPlaying() {
+  const embedHostRef = useRef<HTMLDivElement>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
-export function NowPlaying({ track = DEFAULT_TRACK }: NowPlayingProps) {
-  const {
-    audioRef,
-    isPlaying,
-    progress,
-    analyser,
-    togglePlayback,
-    formattedCurrent,
-    formattedDuration,
-  } = useNowPlaying()
+  const { isPlaying } = useSpotifyController(embedHostRef, SPOTIFY_PLAYLIST_URI)
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const openDrawer = useCallback(() => {
+    setDrawerOpen(true)
+  }, [])
+
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false)
+  }, [])
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
-      void togglePlayback()
+      openDrawer()
     }
   }
 
   return (
-    <motion.div
-      className={styles.root}
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ scale: 1.03 }}
-      role="group"
-      aria-label={`Now playing: ${track.title} by ${track.artist}`}
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-      onClick={() => void togglePlayback()}
-    >
-      <PlayButton
-        isPlaying={isPlaying}
-        onToggle={() => void togglePlayback()}
+    <div className={styles.wrapper}>
+      <motion.button
+        type="button"
+        className={styles.root}
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.98 }}
+        aria-label={`Open ${PLAYLIST_LABEL}`}
+        aria-expanded={drawerOpen}
+        aria-haspopup="dialog"
+        onClick={openDrawer}
+        onKeyDown={handleKeyDown}
+      >
+        <span className={styles.playIcon} aria-hidden="true">
+          <svg viewBox="0 0 12 14" fill="none">
+            <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
+          </svg>
+        </span>
+        <span className={styles.labelRow}>
+          <span className={styles.label}>{PLAYLIST_LABEL}</span>
+          <Waveform active={isPlaying} />
+        </span>
+      </motion.button>
+
+      <SpotifyDrawer
+        open={drawerOpen}
+        onClose={closeDrawer}
+        embedHostRef={embedHostRef}
       />
-
-      <div className={styles.meta}>
-        <div className={styles.titleRow}>
-          <span className={styles.title}>{track.title}</span>
-          <Waveform analyser={analyser} isPlaying={isPlaying} />
-        </div>
-
-        <div className={styles.detailRow}>
-          <span className={styles.artist}>{track.artist}</span>
-          <span className={styles.duration}>
-            {isPlaying ? formattedCurrent : formattedDuration}
-          </span>
-        </div>
-
-        <ProgressBar progress={progress} isPlaying={isPlaying} />
-      </div>
-
-      <audio ref={audioRef} src={track.audioSrc} preload="metadata" />
-    </motion.div>
+    </div>
   )
 }

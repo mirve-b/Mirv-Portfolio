@@ -14,6 +14,7 @@ import {
   slideFromLeft,
   staggerContainer,
 } from '../../lib/motion'
+import { SkillsPanel } from './SkillsPanel'
 import styles from './AboutSection.module.css'
 
 const SKILL_LINKS = [
@@ -36,8 +37,9 @@ function SkillsCollage() {
     setFolderPhase((phase) => (phase === 'open' ? 'closing' : phase))
   }, [])
 
-  const handleNoteAnimationEnd = useCallback(
-    (event: React.AnimationEvent<HTMLAnchorElement>) => {
+  const handleNoteTransitionEnd = useCallback(
+    (event: React.TransitionEvent<HTMLAnchorElement>) => {
+      if (event.propertyName !== 'transform') return
       if (folderPhase !== 'closing') return
       if (!event.currentTarget.classList.contains(styles.noteDev)) return
       setFolderPhase('idle')
@@ -84,7 +86,7 @@ function SkillsCollage() {
               href={href}
               className={`${styles.noteLink} ${className}`}
               aria-label={label}
-              onAnimationEnd={handleNoteAnimationEnd}
+              onTransitionEnd={handleNoteTransitionEnd}
             >
               <img src={image} alt="" draggable={false} />
             </a>
@@ -140,6 +142,14 @@ export function AboutSection() {
   return (
     <section className={styles.section} aria-labelledby="about-heading">
       <img
+        src={flowerImg}
+        alt=""
+        className={styles.flowerFarLeft}
+        aria-hidden="true"
+        draggable={false}
+      />
+
+      <img
         src={orchidImg}
         alt=""
         className={styles.orchidFarLeft}
@@ -162,10 +172,11 @@ export function AboutSection() {
               Equal parts pixels, logic, and sketchbooks
             </p>
             <p className={styles.body}>
-              I build digital products from concept to implementation,
-              combining product thinking, UI/UX, and software engineering with
-              a foundation in illustration.
+              Product Engineer with a background in illustration — I build
+              user-centered digital products through Flutter, UI/UX, and
+              scalable frontend architecture, from concept to shipped experience.
             </p>
+            <SkillsPanel />
           </div>
         </motion.div>
 

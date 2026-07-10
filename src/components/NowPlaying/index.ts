@@ -1,3 +1,3 @@
 export { NowPlaying } from './NowPlaying'
-export type { NowPlayingTrack } from './types'
-export { DEFAULT_TRACK } from './constants'
+export type { SpotifyConfig } from './types'
+export { PLAYLIST_LABEL, SPOTIFY, SPOTIFY_PLAYLIST_URI } from './constants'

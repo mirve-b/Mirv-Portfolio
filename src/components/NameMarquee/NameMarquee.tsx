@@ -1,6 +1,6 @@
 import styles from './NameMarquee.module.css'
 
-const ITEMS = Array.from({ length: 8 }, () => 'MIRVÉ')
+const ITEMS = Array.from({ length: 24 }, () => 'MIRVÉ')
 
 export function NameMarquee() {
   return (
