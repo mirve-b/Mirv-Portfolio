@@ -136,5 +136,23 @@
 @media (max-width: 768px) {
   .panel {
     gap: 1rem;
+    align-items: center;
+  }
+
+  .block {
+    align-items: center;
+  }
+
+  .sectionLabel,
+  .expertiseHeading {
+    text-align: center;
+  }
+
+  .expertiseList {
+    align-items: center;
+  }
+
+  .toolList {
+    justify-content: center;
   }
 }

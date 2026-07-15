@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import bgImg from './assets/BG.png'
 import { GlassCursor } from './components/GlassCursor'
 import { EntryPfp } from './components/EntryPfp'
 import { AboutSection } from './components/AboutSection'
@@ -9,6 +10,7 @@ import { IntroSplash } from './components/IntroSplash'
 import { NameMarquee } from './components/NameMarquee'
 import { Navbar } from './components/Navbar'
 import { TaglineDivider } from './components/TaglineDivider'
+import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
 import {
   fadeDown,
   fadeUp,
@@ -17,16 +19,24 @@ import {
 import styles from './App.module.css'
 
 function App() {
-  const [showContent, setShowContent] = useState(false)
+  const [showContent, setShowContent] = useState(hasSeenIntro)
+
+  const handleIntroComplete = useCallback(() => {
+    markIntroSeen()
+    setShowContent(true)
+  }, [])
 
   return (
     <div className={styles.app}>
       <GlassCursor />
       <AnimatePresence mode="wait">
         {!showContent ? (
-          <IntroSplash key="splash" onComplete={() => setShowContent(true)} />
+          <IntroSplash key="splash" onComplete={handleIntroComplete} />
         ) : (
           <>
+            <div className={styles.fixedBg} aria-hidden="true">
+              <img src={bgImg} alt="" className={styles.fixedBgImage} draggable={false} />
+            </div>
             <EntryPfp active={showContent} />
             <motion.main
               key="content"

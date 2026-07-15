@@ -23,8 +23,8 @@
   --text-lg: clamp(1rem, 0.9rem + 0.35vw, 1.125rem);
   --text-xl: clamp(1.5rem, 1.25rem + 1vw, 2rem);
   --text-tagline-divider: 20px;
-  --text-hero-mirve: clamp(5rem, 11.1vw, 10rem);
-  --text-hero-portfolio: calc(var(--text-hero-mirve) * 0.2875);
+  --text-hero-mirve: clamp(6rem, 13vw, 12rem);
+  --text-hero-portfolio: calc(var(--text-hero-mirve) * 0.3);
 
   --tracking-tight: -0.02em;
   --tracking-wide: 0.14em;
@@ -56,4 +56,16 @@
   /* Effects */
   --blur-glass: 16px;
   --shadow-subtle: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 1rem;
+    --navbar-height: 7rem;
+    --navbar-brand-left: 1.25rem;
+    --text-hero-mirve: clamp(3rem, 15vw, 4.75rem);
+    --text-hero-portfolio: calc(var(--text-hero-mirve) * 0.34);
+    --text-tagline-divider: 16px;
+    --blur-glass: 0px;
+  }
 }

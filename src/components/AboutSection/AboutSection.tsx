@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import artImg from '../../assets/art.png'
 import decoImg from '../../assets/deco.png'
 import devImg from '../../assets/dev.png'
@@ -9,6 +9,7 @@ import flowerImg from '../../assets/flower2.png'
 import orchidImg from '../../assets/orchid1.png'
 import paperclipImg from '../../assets/PaperClip.png'
 import uiUxImg from '../../assets/ui_ux.png'
+import { useIsMobile } from '../../lib/useIsMobile'
 import {
   assembleItem,
   slideFromLeft,
@@ -25,8 +26,11 @@ const SKILL_LINKS = [
 
 type FolderPhase = 'idle' | 'open' | 'closing'
 
+const bubblePop = { type: 'spring' as const, stiffness: 560, damping: 16 }
+
 function SkillsCollage() {
   const collageRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
   const [folderPhase, setFolderPhase] = useState<FolderPhase>('idle')
 
   const openFolder = useCallback(() => {
@@ -36,6 +40,15 @@ function SkillsCollage() {
   const closeFolder = useCallback(() => {
     setFolderPhase((phase) => (phase === 'open' ? 'closing' : phase))
   }, [])
+
+  const handleAssetTap = useCallback(
+    (event: React.MouseEvent | React.KeyboardEvent) => {
+      if (!isMobile || folderPhase !== 'idle') return
+      event.stopPropagation()
+      openFolder()
+    },
+    [folderPhase, isMobile, openFolder],
+  )
 
   const handleNoteTransitionEnd = useCallback(
     (event: React.TransitionEvent<HTMLAnchorElement>) => {
@@ -47,6 +60,44 @@ function SkillsCollage() {
     [folderPhase],
   )
 
+  useEffect(() => {
+    if (!isMobile || folderPhase !== 'open') return
+
+    const handleOutside = (event: Event) => {
+      if (!collageRef.current?.contains(event.target as Node)) {
+        closeFolder()
+      }
+    }
+
+    const timer = window.setTimeout(() => {
+      document.addEventListener('touchstart', handleOutside, { passive: true })
+      document.addEventListener('click', handleOutside)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener('touchstart', handleOutside)
+      document.removeEventListener('click', handleOutside)
+    }
+  }, [closeFolder, folderPhase, isMobile])
+
+  const mobileTapProps = isMobile
+    ? {
+        role: 'button' as const,
+        tabIndex: 0,
+        onClick: handleAssetTap,
+        onKeyDown: (event: React.KeyboardEvent) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            handleAssetTap(event)
+          }
+        },
+      }
+    : {}
+
+  const tapClass = (baseClass: string) =>
+    isMobile ? `${baseClass} ${styles.mobileTapTarget}` : baseClass
+
   return (
     <motion.div
       ref={collageRef}
@@ -54,20 +105,67 @@ function SkillsCollage() {
       variants={assembleItem}
       data-open={folderPhase === 'open' ? '' : undefined}
       data-closing={folderPhase === 'closing' ? '' : undefined}
+      data-mobile={isMobile ? '' : undefined}
       aria-label="Skills collage — hover folder front to reveal navigation notes"
-      onMouseLeave={closeFolder}
+      onMouseLeave={isMobile ? undefined : closeFolder}
       onBlur={(event) => {
+        if (isMobile) return
         if (!collageRef.current?.contains(event.relatedTarget as Node | null)) {
           closeFolder()
         }
       }}
     >
+      <AnimatePresence mode="wait">
+        {isMobile && folderPhase === 'idle' ? (
+          <motion.div
+            key="tap-bubble"
+            className={`${styles.collageBubbleAnchor} ${styles.collageBubbleTap}`}
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1 }}
+          >
+            <motion.div
+              className={`${styles.collageBubble} ${styles.collageBubbleVibrate}`}
+              aria-hidden="true"
+              initial={{ opacity: 0, scale: 0.45 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.22 }}
+              transition={bubblePop}
+            >
+              TAP!!
+            </motion.div>
+          </motion.div>
+        ) : null}
+
+        {isMobile && folderPhase === 'open' ? (
+          <motion.div
+            key="pick-bubble"
+            className={`${styles.collageBubbleAnchor} ${styles.collageBubblePick}`}
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1 }}
+          >
+            <motion.div
+              className={styles.collageBubble}
+              aria-hidden="true"
+              initial={{ opacity: 0, scale: 0.45, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.88, y: -6 }}
+              transition={bubblePop}
+            >
+              Pick one!!
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <img
         src={orchidImg}
         alt=""
-        className={styles.orchidTopRight}
+        className={tapClass(styles.orchidTopRight)}
         aria-hidden="true"
         draggable={false}
+        {...mobileTapProps}
       />
 
       <div className={styles.folder}>
@@ -96,43 +194,48 @@ function SkillsCollage() {
         <img
           src={fileFrontImg}
           alt="Skills folder"
-          className={styles.fileFront}
+          className={tapClass(styles.fileFront)}
           tabIndex={0}
           draggable={false}
-          onMouseEnter={openFolder}
-          onFocus={openFolder}
+          onMouseEnter={isMobile ? undefined : openFolder}
+          onFocus={isMobile ? undefined : openFolder}
+          {...mobileTapProps}
         />
       </div>
 
       <img
         src={paperclipImg}
         alt=""
-        className={styles.paperclip}
+        className={tapClass(styles.paperclip)}
         aria-hidden="true"
         draggable={false}
+        {...mobileTapProps}
       />
 
       <img
         src={decoImg}
         alt="Mirvé Blvck illustration and note"
-        className={styles.deco}
+        className={tapClass(styles.deco)}
         draggable={false}
+        {...mobileTapProps}
       />
 
       <img
         src={flowerImg}
         alt=""
-        className={styles.flowerLeft}
+        className={tapClass(styles.flowerLeft)}
         aria-hidden="true"
         draggable={false}
+        {...mobileTapProps}
       />
 
       <img
         src={flowerImg}
         alt=""
-        className={styles.flowerBottomRight}
+        className={tapClass(styles.flowerBottomRight)}
         aria-hidden="true"
         draggable={false}
+        {...mobileTapProps}
       />
     </motion.div>
   )

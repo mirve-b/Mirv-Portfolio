@@ -7,6 +7,7 @@ const EMBED_HEIGHT = '352'
 export function useSpotifyController(
   hostRef: RefObject<HTMLDivElement | null>,
   playlistUri: string,
+  enabled: boolean,
 ) {
   const controllerRef = useRef<SpotifyEmbedController | null>(null)
   const [ready, setReady] = useState(false)
@@ -44,7 +45,7 @@ export function useSpotifyController(
   )
 
   useEffect(() => {
-    if (!playlistUri) return
+    if (!playlistUri || !enabled) return
 
     preloadSpotifyIframeApi()
 
@@ -80,7 +81,7 @@ export function useSpotifyController(
       window.clearInterval(retry)
       window.onSpotifyIframeApiReady = previousReady
     }
-  }, [hostRef, mountController, playlistUri])
+  }, [hostRef, mountController, playlistUri, enabled])
 
   return { ready, isPlaying }
 }

@@ -2,6 +2,7 @@ import { useCallback, useRef, useState, type KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
 import { PLAYLIST_LABEL, SPOTIFY_PLAYLIST_URI } from './constants'
 import { useSpotifyController } from './hooks/useSpotifyController'
+import { preloadSpotifyIframeApi } from './spotifyPreload'
 import styles from './NowPlaying.module.css'
 import { SpotifyDrawer } from './SpotifyDrawer'
 import { Waveform } from './Waveform'
@@ -9,10 +10,17 @@ import { Waveform } from './Waveform'
 export function NowPlaying() {
   const embedHostRef = useRef<HTMLDivElement>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [embedActive, setEmbedActive] = useState(false)
 
-  const { isPlaying } = useSpotifyController(embedHostRef, SPOTIFY_PLAYLIST_URI)
+  const { isPlaying } = useSpotifyController(
+    embedHostRef,
+    SPOTIFY_PLAYLIST_URI,
+    embedActive,
+  )
 
-  const openDrawer = useCallback(() => {
+  const openPlayer = useCallback(() => {
+    setEmbedActive(true)
+    preloadSpotifyIframeApi()
     setDrawerOpen(true)
   }, [])
 
@@ -23,7 +31,7 @@ export function NowPlaying() {
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
-      openDrawer()
+      openPlayer()
     }
   }
 
@@ -40,7 +48,7 @@ export function NowPlaying() {
         aria-label={`Open ${PLAYLIST_LABEL}`}
         aria-expanded={drawerOpen}
         aria-haspopup="dialog"
-        onClick={openDrawer}
+        onClick={openPlayer}
         onKeyDown={handleKeyDown}
       >
         <span className={styles.playIcon} aria-hidden="true">
@@ -58,6 +66,7 @@ export function NowPlaying() {
         open={drawerOpen}
         onClose={closeDrawer}
         embedHostRef={embedHostRef}
+        embedActive={embedActive}
       />
     </div>
   )

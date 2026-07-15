@@ -3,10 +3,10 @@
   bottom: 0;
   left: calc(
     max((100vw - min(100vw, var(--container-max))) / 2, 0px) +
-      min(100vw, var(--container-max)) * 0.36
+      min(100vw, var(--container-max)) * 0.32
   );
   z-index: 50;
-  transform: translateX(-58%);
+  transform: translateX(-68%);
   pointer-events: none;
 }
 
@@ -69,17 +69,50 @@
 }
 
 @media (max-width: 768px) {
-  .root {
-    left: 50%;
-    transform: translateX(-62%);
+  .rootMobile {
+    z-index: 1;
   }
 
-  .pfp {
-    height: clamp(7.5rem, 24vw, 10rem);
+  .rootMobile .figureWrapMobile {
+    flex-direction: column;
+    align-items: flex-end;
+    transform: translate3d(0, 115%, 0);
+    transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+    contain: layout style;
   }
 
-  .bubble {
-    max-width: 10rem;
+  .rootMobile .figureWrapMobile[data-revealed] {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .rootMobile .pfp {
+    height: clamp(8.75rem, 32vw, 10.5rem);
+    flex-shrink: 0;
+  }
+
+  .rootMobile .bubble {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: auto;
+    right: 0;
+    align-self: auto;
+    margin-bottom: 0;
+    padding: 0.5rem 0.75rem;
+    max-width: min(9.5rem, calc(100vw - (var(--container-padding) * 2) - 1rem));
     font-size: var(--text-xs);
+    text-align: center;
+    transform: none;
+  }
+
+  .rootMobile .bubble::after {
+    top: 100%;
+    left: auto;
+    right: 1.25rem;
+    bottom: auto;
+    border-right: 1px solid rgba(224, 44, 107, 0.4);
+    border-bottom: 1px solid rgba(224, 44, 107, 0.4);
+    border-top: none;
+    transform: rotate(45deg) translateY(-5px);
   }
 }

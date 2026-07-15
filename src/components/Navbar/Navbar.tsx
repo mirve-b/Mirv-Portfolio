@@ -1,3 +1,4 @@
+import { useCallback, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import flowerImg from '../../assets/flower2.png'
 import orchidImg from '../../assets/orchid1.png'
@@ -16,6 +17,11 @@ const textHover = {
 }
 
 export function Navbar() {
+  const handleBrandClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   return (
     <header className={styles.navbar}>
       <motion.a
@@ -24,6 +30,7 @@ export function Navbar() {
         aria-label="MIRVÉ — Home"
         initial="rest"
         whileHover="hover"
+        onClick={handleBrandClick}
       >
         <motion.div className={styles.brandText} variants={textHover}>
           <span className={styles.name}>MIRVÉ</span>

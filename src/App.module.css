@@ -1,15 +1,44 @@
 .app {
+  position: relative;
   min-height: 100svh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
   background-color: var(--color-bg);
 }
 
+.fixedBg {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 0;
+  width: 1623px;
+  max-width: none;
+  transform: translateX(-50%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.fixedBgImage {
+  display: block;
+  width: 1623px;
+  height: auto;
+  max-width: none;
+  opacity: 0.15;
+}
+
 .main {
+  position: relative;
+  z-index: 1;
   min-height: 100svh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
 }
 
 .heroWrap {
   position: relative;
-  overflow: visible;
+  overflow-x: clip;
 }
 
 @media (max-width: 768px) {

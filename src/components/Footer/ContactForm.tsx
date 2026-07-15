@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type RefObject } from 'react'
 import { motion } from 'framer-motion'
 import { WEB3FORMS_ACCESS_KEY } from './constants'
 import styles from './Footer.module.css'
@@ -7,7 +7,11 @@ type FormStatus = 'idle' | 'sending' | 'success' | 'error'
 
 const springBounce = { type: 'spring' as const, stiffness: 420, damping: 14 }
 
-export function ContactForm() {
+type ContactFormProps = {
+  nameInputRef?: RefObject<HTMLInputElement | null>
+}
+
+export function ContactForm({ nameInputRef }: ContactFormProps) {
   const [status, setStatus] = useState<FormStatus>('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -69,6 +73,7 @@ export function ContactForm() {
           Name
         </label>
         <input
+          ref={nameInputRef}
           id="contact-name"
           name="name"
           type="text"

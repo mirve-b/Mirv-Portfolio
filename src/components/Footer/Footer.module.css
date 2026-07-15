@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   padding: clamp(2.5rem, 6vw, 4rem) 0 0;
-  background: var(--color-bg);
+  background: transparent;
   border-top: 1px solid var(--color-border);
 }
 
@@ -21,6 +21,7 @@
   flex-direction: column;
   gap: 1.25rem;
   min-width: 0;
+  margin-left: clamp(1.25rem, 4vw, 3rem);
 }
 
 .heading {
@@ -95,6 +96,7 @@
 
 .formCol {
   min-width: 0;
+  margin-right: clamp(1.25rem, 4vw, 3rem);
 }
 
 .form {
@@ -203,6 +205,34 @@
   .container {
     grid-template-columns: 1fr;
     gap: 2.5rem;
+  }
+
+  .connectCol {
+    position: relative;
+    padding-right: clamp(5.5rem, 28vw, 7.5rem);
+  }
+
+  .formCol {
+    position: relative;
+    z-index: 2;
+    isolation: isolate;
+    margin-inline: calc(-1 * var(--container-padding));
+    padding-inline: var(--container-padding);
+    padding-top: 0.125rem;
+    background: transparent;
+  }
+
+  .formCol .label,
+  .formCol .field,
+  .formCol .input,
+  .formCol .textarea,
+  .formCol .formFeedback {
+    background: transparent;
+  }
+
+  .formCol .input:focus,
+  .formCol .textarea:focus {
+    background: transparent;
   }
 
   .heading {

@@ -7,12 +7,14 @@ type SpotifyDrawerProps = {
   open: boolean
   onClose: () => void
   embedHostRef: RefObject<HTMLDivElement | null>
+  embedActive: boolean
 }
 
 export function SpotifyDrawer({
   open,
   onClose,
   embedHostRef,
+  embedActive,
 }: SpotifyDrawerProps) {
   const handleBackdropClick = useCallback(() => {
     onClose()
@@ -68,7 +70,11 @@ export function SpotifyDrawer({
             ) : null}
           </div>
 
-          <div ref={embedHostRef} className={styles.playerWrap} />
+          <div ref={embedHostRef} className={styles.playerWrap}>
+            {embedActive ? null : (
+              <div className={styles.playerPlaceholder} aria-hidden="true" />
+            )}
+          </div>
 
           {SPOTIFY.webUrl ? (
             <a

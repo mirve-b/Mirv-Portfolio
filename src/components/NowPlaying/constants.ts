@@ -25,3 +25,10 @@ export const SPOTIFY_PLAYLIST_URI = parsePlaylistUri(
   SPOTIFY.embedUrl,
   SPOTIFY.webUrl,
 )
+
+/** Open playlist in Spotify app / web for full-track playback (mobile). */
+export function openSpotifyPlaylist(): boolean {
+  if (!SPOTIFY.webUrl) return false
+  window.open(SPOTIFY.webUrl, '_blank', 'noopener,noreferrer')
+  return true
+}

@@ -11,6 +11,7 @@ const springBounce = { type: 'spring' as const, stiffness: 400, damping: 13 }
 
 export function Footer() {
   const footerRef = useRef<HTMLElement>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   return (
     <footer ref={footerRef} className={styles.footer} aria-labelledby="footer-heading">
@@ -67,11 +68,11 @@ export function Footer() {
           viewport={{ once: true, margin: '-60px' }}
           transition={{ ...springBounce, delay: 0.1 }}
         >
-          <ContactForm />
+          <ContactForm nameInputRef={nameInputRef} />
         </motion.div>
       </div>
 
-      <ScrollPfp zoneRef={footerRef} />
+      <ScrollPfp zoneRef={footerRef} mobileNameInputRef={nameInputRef} />
 
       <motion.p
         className={styles.copyright}
