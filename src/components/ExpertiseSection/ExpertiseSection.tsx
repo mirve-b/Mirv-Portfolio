@@ -41,18 +41,27 @@ type ExpertiseSectionProps = {
   tabPanelMotionEnabled?: boolean
 }
 
+const thumbnailCache = new Map<ExpertiseCategory, Record<string, string>>()
+
 function useCategoryThumbnails(category: ExpertiseCategory) {
-  const [thumbnails, setThumbnails] = useState<Record<string, string>>({})
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>(
+    () => thumbnailCache.get(category) ?? {},
+  )
   const requestId = useRef(0)
 
   useEffect(() => {
+    const cached = thumbnailCache.get(category)
+    if (cached) {
+      setThumbnails(cached)
+      return
+    }
+
     const currentRequest = ++requestId.current
-    setThumbnails({})
 
     loadCategoryThumbnails(category).then((next) => {
-      if (requestId.current === currentRequest) {
-        setThumbnails(next)
-      }
+      if (requestId.current !== currentRequest) return
+      thumbnailCache.set(category, next)
+      setThumbnails(next)
     })
   }, [category])
 
