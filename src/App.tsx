@@ -1,17 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getProjectById, isProjectOpenable } from './data/portfolioProjects'
+import {
+  loadProjectAssets,
+  mergeProjectWithAssets,
+} from './data/projectAssets'
+import {
+  getProjectMetaById,
+  isProjectOpenable,
+  type PortfolioProject,
+} from './data/portfolioProjects'
 import { GlassCursor } from './components/GlassCursor'
 import { EntryPfp } from './components/EntryPfp'
 import { AboutSection } from './components/AboutSection'
-import { ExpertiseSection } from './components/ExpertiseSection'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
 import { IntroSplash } from './components/IntroSplash'
 import { NameMarquee } from './components/NameMarquee'
 import { Navbar } from './components/Navbar'
-import { ProjectCaseStudy } from './components/ProjectCaseStudy'
-import { ProjectGallery } from './components/ProjectGallery'
 import { TaglineDivider } from './components/TaglineDivider'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
 import { pageSlideTween } from './lib/motion'
@@ -24,16 +29,49 @@ import {
 } from './lib/pageNavigation'
 import styles from './App.module.css'
 
+const ExpertiseSection = lazy(() =>
+  import('./components/ExpertiseSection').then((m) => ({ default: m.ExpertiseSection })),
+)
+const ProjectGallery = lazy(() =>
+  import('./components/ProjectGallery').then((m) => ({ default: m.ProjectGallery })),
+)
+const ProjectCaseStudy = lazy(() =>
+  import('./components/ProjectCaseStudy').then((m) => ({ default: m.ProjectCaseStudy })),
+)
+
 function App() {
   const [showContent, setShowContent] = useState(hasSeenIntro)
   const [route, setRoute] = useState<AppRoute>(() => getStoredRoute())
+  const [loadedProject, setLoadedProject] = useState<PortfolioProject | null>(null)
   const slideDirection = useRef(1)
   const [tabDirection, setTabDirection] = useState(1)
   const restoredFromStorage = useRef(getStoredRoute().type !== 'home')
   const expertiseEnterFromSide = useRef(false)
+  const projectLoadRequest = useRef(0)
 
   useEffect(() => {
     storeRoute(route)
+  }, [route])
+
+  useEffect(() => {
+    if (route.type !== 'project') {
+      setLoadedProject(null)
+      return
+    }
+
+    const meta = getProjectMetaById(route.projectId)
+    if (!meta) {
+      setLoadedProject(null)
+      return
+    }
+
+    const requestId = ++projectLoadRequest.current
+
+    loadProjectAssets(route.projectId).then((assets) => {
+      if (projectLoadRequest.current === requestId) {
+        setLoadedProject(mergeProjectWithAssets(meta, assets))
+      }
+    })
   }, [route])
 
   const navigate = useCallback((next: AppRoute) => {
@@ -76,7 +114,7 @@ function App() {
 
   const openProject = useCallback(
     (projectId: string) => {
-      const project = getProjectById(projectId)
+      const project = getProjectMetaById(projectId)
       if (!project || !isProjectOpenable(project)) return
       restoredFromStorage.current = false
       slideDirection.current = 1
@@ -96,21 +134,21 @@ function App() {
     [navigate],
   )
 
-  const activeProject =
-    route.type === 'project' ? getProjectById(route.projectId) : undefined
+  const activeProjectMeta =
+    route.type === 'project' ? getProjectMetaById(route.projectId) : undefined
 
   useEffect(() => {
-    if (route.type === 'project' && !activeProject) {
+    if (route.type === 'project' && !activeProjectMeta) {
       navigate({ type: 'home' })
     }
-  }, [route, activeProject, navigate])
+  }, [route, activeProjectMeta, navigate])
 
   const isExpertiseStack = route.type === 'expertise' || route.type === 'project'
   const expertiseCategory: ExpertiseCategory =
     route.type === 'expertise'
       ? route.category
-      : route.type === 'project' && activeProject
-        ? activeProject.category
+      : route.type === 'project' && activeProjectMeta
+        ? activeProjectMeta.category
         : 'art'
 
   const showSiteChrome = route.type !== 'project'
@@ -185,19 +223,21 @@ function App() {
                               exit={{ x: '-100%' }}
                               transition={pageSlideTween}
                             >
-                              <ExpertiseSection
-                                category={expertiseCategory}
-                                onCategoryChange={handleCategoryChange}
-                                onOpenProject={openProject}
-                                tabDirection={tabDirection}
-                                motionEnabled
-                              />
+                              <Suspense fallback={null}>
+                                <ExpertiseSection
+                                  category={expertiseCategory}
+                                  onCategoryChange={handleCategoryChange}
+                                  onOpenProject={openProject}
+                                  tabDirection={tabDirection}
+                                  motionEnabled
+                                />
+                              </Suspense>
                             </motion.div>
                           ) : null}
 
-                          {route.type === 'project' && activeProject ? (
+                          {route.type === 'project' && activeProjectMeta ? (
                             <motion.div
-                              key={`project-${activeProject.id}`}
+                              key={`project-${activeProjectMeta.id}`}
                               className={styles.pagePanel}
                               custom={slideDirection.current}
                               initial={
@@ -207,17 +247,25 @@ function App() {
                               exit={{ x: '100%' }}
                               transition={pageSlideTween}
                             >
-                              {activeProject.detailType === 'case-study' ? (
-                                <ProjectCaseStudy
-                                  project={activeProject}
-                                  onBack={() => backToExpertise(activeProject.category)}
-                                />
-                              ) : (
-                                <ProjectGallery
-                                  project={activeProject}
-                                  onBack={() => backToExpertise(activeProject.category)}
-                                />
-                              )}
+                              <Suspense fallback={null}>
+                                {loadedProject ? (
+                                  loadedProject.detailType === 'case-study' ? (
+                                    <ProjectCaseStudy
+                                      project={loadedProject}
+                                      onBack={() =>
+                                        backToExpertise(activeProjectMeta.category)
+                                      }
+                                    />
+                                  ) : (
+                                    <ProjectGallery
+                                      project={loadedProject}
+                                      onBack={() =>
+                                        backToExpertise(activeProjectMeta.category)
+                                      }
+                                    />
+                                  )
+                                ) : null}
+                              </Suspense>
                             </motion.div>
                           ) : null}
                         </AnimatePresence>

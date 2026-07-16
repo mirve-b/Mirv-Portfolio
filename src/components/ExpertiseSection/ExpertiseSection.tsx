@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { loadCategoryThumbnails } from '../../data/projectAssets'
 import {
-  projectsForCategory,
+  getProjectsMetaForCategory,
   isProjectOpenable,
-  preloadProjectGalleryProgressive,
-  preloadProjectOnHover,
+  isVideoShowcase,
+  type PortfolioProjectMeta,
 } from '../../data/portfolioProjects'
 import { startMutedPreview } from '../../lib/mediaUtils'
 import {
@@ -39,6 +40,24 @@ type ExpertiseSectionProps = {
   motionEnabled?: boolean
 }
 
+function useCategoryThumbnails(category: ExpertiseCategory) {
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>({})
+  const requestId = useRef(0)
+
+  useEffect(() => {
+    const currentRequest = ++requestId.current
+    setThumbnails({})
+
+    loadCategoryThumbnails(category).then((next) => {
+      if (requestId.current === currentRequest) {
+        setThumbnails(next)
+      }
+    })
+  }, [category])
+
+  return thumbnails
+}
+
 function CardVideo({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -69,25 +88,130 @@ function CardVideo({ src }: { src: string }) {
       loop
       muted
       playsInline
-      preload="metadata"
+      preload="none"
       draggable={false}
     />
   )
 }
 
+function ShowcaseVideoCard({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [showPlayButton, setShowPlayButton] = useState(true)
+  const [isPaused, setIsPaused] = useState(true)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    video.pause()
+    video.currentTime = 0
+    setShowPlayButton(true)
+    setIsPaused(true)
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          video.pause()
+          setIsPaused(true)
+          setShowPlayButton(true)
+        }
+      },
+      { threshold: 0.15 },
+    )
+
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [src])
+
+  const handlePlayButton = useCallback(async (event: MouseEvent) => {
+    event.stopPropagation()
+    const video = videoRef.current
+    if (!video) return
+
+    setShowPlayButton(false)
+    video.loop = true
+    video.muted = false
+    setIsPaused(false)
+
+    try {
+      await video.play()
+    } catch {
+      video.muted = true
+      await video.play()
+    }
+  }, [])
+
+  const handleVideoClick = useCallback(async () => {
+    if (showPlayButton) return
+
+    const video = videoRef.current
+    if (!video) return
+
+    if (video.paused) {
+      setIsPaused(false)
+      try {
+        await video.play()
+      } catch {
+        /* playback blocked */
+      }
+      return
+    }
+
+    video.pause()
+    setIsPaused(true)
+    setShowPlayButton(true)
+  }, [showPlayButton])
+
+  return (
+    <div className={styles.showcaseVideoWrap}>
+      <video
+        ref={videoRef}
+        src={src}
+        className={styles.showcaseVideo}
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        draggable={false}
+        onClick={handleVideoClick}
+      />
+      {showPlayButton ? (
+        <button
+          type="button"
+          className={styles.showcasePlayButton}
+          aria-label="Play video"
+          onClick={handlePlayButton}
+        >
+          <span className={styles.showcasePlayIcon} aria-hidden="true">
+            <svg viewBox="0 0 12 14" fill="none">
+              <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
+            </svg>
+          </span>
+        </button>
+      ) : null}
+      {!showPlayButton && isPaused ? (
+        <div className={styles.showcasePausedHint} aria-hidden="true" />
+      ) : null}
+    </div>
+  )
+}
+
 function ProjectCard({
   project,
+  thumbnail,
   index,
   onOpenProject,
   motionEnabled,
 }: {
-  project: ReturnType<typeof projectsForCategory>[number]
+  project: PortfolioProjectMeta
+  thumbnail?: string
   index: number
   onOpenProject: (projectId: string) => void
   motionEnabled: boolean
 }) {
   const isClickable = isProjectOpenable(project)
-  const isVideo = project.thumbnailType === 'video'
+  const isShowcase = isVideoShowcase(project)
+  const isVideo = project.thumbnailType === 'video' && Boolean(thumbnail) && !isShowcase
   const cardMotion = motionEnabled
     ? {
         initial: { opacity: 0, y: 16, scale: 0.96 },
@@ -117,12 +241,18 @@ function ProjectCard({
 
   const content = (
     <>
-      <div className={styles.cardImageWrap}>
-        {isVideo ? (
-          <CardVideo src={project.thumbnail} />
-        ) : (
+      <div
+        className={`${styles.cardImageWrap}${
+          isShowcase ? ` ${styles.cardImageWrapShowcase}` : ''
+        }`}
+      >
+        {isShowcase && thumbnail ? (
+          <ShowcaseVideoCard src={thumbnail} />
+        ) : isVideo && thumbnail ? (
+          <CardVideo src={thumbnail} />
+        ) : thumbnail ? (
           <img
-            src={project.thumbnail}
+            src={thumbnail}
             alt=""
             className={styles.cardImage}
             style={
@@ -134,7 +264,7 @@ function ProjectCard({
             loading="lazy"
             decoding="async"
           />
-        )}
+        ) : null}
       </div>
       <h3 className={styles.cardTitle}>{project.title}</h3>
       <p className={styles.cardSubtitle}>{project.subtitle}</p>
@@ -147,16 +277,7 @@ function ProjectCard({
         type="button"
         className={styles.card}
         {...cardMotion}
-        onPointerEnter={() => preloadProjectOnHover(project)}
-        onClick={() => {
-          onOpenProject(project.id)
-          const preload = () => preloadProjectGalleryProgressive(project)
-          if (typeof window.requestIdleCallback === 'function') {
-            window.requestIdleCallback(preload, { timeout: 1200 })
-          } else {
-            window.setTimeout(preload, 0)
-          }
-        }}
+        onClick={() => onOpenProject(project.id)}
       >
         {content}
       </motion.button>
@@ -164,7 +285,12 @@ function ProjectCard({
   }
 
   return (
-    <motion.article className={`${styles.card} ${styles.cardStatic}`} {...cardMotion}>
+    <motion.article
+      className={`${styles.card} ${styles.cardStatic}${
+        isShowcase ? ` ${styles.cardShowcase}` : ''
+      }`}
+      {...cardMotion}
+    >
       {content}
     </motion.article>
   )
@@ -177,7 +303,8 @@ export function ExpertiseSection({
   tabDirection,
   motionEnabled = true,
 }: ExpertiseSectionProps) {
-  const projects = projectsForCategory(category)
+  const projects = getProjectsMetaForCategory(category)
+  const thumbnails = useCategoryThumbnails(category)
 
   return (
     <section className={styles.section} aria-label="Expertise portfolio">
@@ -231,6 +358,7 @@ export function ExpertiseSection({
                 <ProjectCard
                   key={project.id}
                   project={project}
+                  thumbnail={thumbnails[project.id]}
                   index={index}
                   onOpenProject={onOpenProject}
                   motionEnabled={motionEnabled}

@@ -1,6 +1,10 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { PortfolioProject } from '../../data/portfolioProjects'
-import { getCaseStudyForProject } from '../../data/projectCaseStudies'
+import {
+  loadCaseStudyForProject,
+  type ProjectCaseStudy,
+} from '../../data/projectCaseStudies'
 import styles from './ProjectCaseStudy.module.css'
 
 const sectionSpring = {
@@ -15,10 +19,36 @@ type ProjectCaseStudyProps = {
 }
 
 export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
-  const caseStudy = getCaseStudyForProject(project.id)
+  const [caseStudy, setCaseStudy] = useState<ProjectCaseStudy | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    loadCaseStudyForProject(project.id).then((loaded) => {
+      if (!cancelled) {
+        setCaseStudy(loaded ?? null)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [project.id])
 
   if (!caseStudy) {
-    return null
+    return (
+      <section className={styles.section} aria-label={`${project.title} case study`}>
+        <div className={styles.header}>
+          <button type="button" className={styles.backButton} onClick={onBack}>
+            ← Back
+          </button>
+          <div className={styles.titles}>
+            <h1 className={styles.title}>{project.title}</h1>
+            <p className={styles.subtitle}>{project.subtitle}</p>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
