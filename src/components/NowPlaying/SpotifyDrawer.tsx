@@ -88,11 +88,11 @@ export function SpotifyDrawer({
             </a>
           ) : null}
         </aside>
-      ) : (
+      ) : import.meta.env.DEV ? (
         <p className={styles.placeholder}>
           Add Spotify playlist URLs to your <code>.env</code> file.
         </p>
-      )}
+      ) : null}
     </>
   )
 }

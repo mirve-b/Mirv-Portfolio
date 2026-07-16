@@ -3,7 +3,7 @@ import { SMOOTH_PAUSE_MS } from '../../../lib/spotifyPlayback'
 import type { SpotifyEmbedController, SpotifyIframeApi } from '../spotifyIframeApi.types'
 import { preloadSpotifyIframeApi } from '../spotifyPreload'
 
-const EMBED_HEIGHT = '352'
+const EMBED_HEIGHT = '152'
 
 type PlaybackState = {
   isPaused?: boolean

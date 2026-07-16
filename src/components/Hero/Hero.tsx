@@ -10,6 +10,7 @@ export function Hero() {
     if (!video) return
 
     video.preload = 'metadata'
+    video.setAttribute('fetchpriority', 'high')
 
     const observer = new IntersectionObserver(
       ([entry]) => {

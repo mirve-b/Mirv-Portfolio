@@ -77,7 +77,7 @@
   overflow: hidden;
   border-radius: 12px;
   background: #121212;
-  min-height: 352px;
+  min-height: 152px;
 }
 
 .playerPlaceholder {
@@ -141,6 +141,6 @@
   }
 
   .playerWrap {
-    min-height: 300px;
+    min-height: 152px;
   }
 }
