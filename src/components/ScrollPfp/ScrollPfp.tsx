@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import pfpImg from '../../assets/PFP.png'
+import pfpImg from '../../assets/PFP.webp'
 import { useIsMobile } from '../../lib/useIsMobile'
 import styles from './ScrollPfp.module.css'
 

@@ -79,6 +79,13 @@
   gap: clamp(1.25rem, 2.5vw, 2rem);
 }
 
+.gridColumn {
+  width: 100%;
+  max-width: min(var(--container-max), 56rem);
+  grid-template-columns: 1fr;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+}
+
 @media (min-width: 640px) {
   .gridMax3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));

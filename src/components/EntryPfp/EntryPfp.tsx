@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import pfpImg from '../../assets/PFP.png'
+import pfpImg from '../../assets/PFP.webp'
 import styles from './EntryPfp.module.css'
 
 const slideSpring = { type: 'spring' as const, stiffness: 360, damping: 22 }

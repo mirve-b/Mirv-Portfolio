@@ -1,8 +1,8 @@
-import caseStudyImg from '../assets/DEV/Case_study.png'
-import cvImg from '../assets/DEV/CV.png'
-import jobMatchImg from '../assets/DEV/Job_match.png'
-import profileImg from '../assets/DEV/pfp_kael.png'
-import portfolioTemplateImg from '../assets/DEV/portfolio_template.png'
+import caseStudyImg from '../assets/DEV/Case_study.webp'
+import cvImg from '../assets/DEV/CV.webp'
+import jobMatchImg from '../assets/DEV/Job_match.webp'
+import profileImg from '../assets/DEV/pfp_kael.webp'
+import portfolioTemplateImg from '../assets/DEV/portfolio_template.webp'
 
 export type CaseStudySection = {
   id: string

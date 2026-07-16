@@ -173,7 +173,11 @@ export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
       {project.gallery.length > 0 ? (
         <div
           className={`${styles.grid}${
-            project.galleryMaxColumns === 3 ? ` ${styles.gridMax3}` : ''
+            project.galleryMaxColumns === 1
+              ? ` ${styles.gridColumn}`
+              : project.galleryMaxColumns === 3
+                ? ` ${styles.gridMax3}`
+                : ''
           }`}
         >
           {project.gallery.map((src, index) =>

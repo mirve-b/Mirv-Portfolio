@@ -1,7 +1,7 @@
 import { useCallback, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
-import flowerImg from '../../assets/Collage/flower2.png'
-import orchidImg from '../../assets/Collage/orchid1.png'
+import flowerImg from '../../assets/Collage/flower2.webp'
+import orchidImg from '../../assets/Collage/orchid1.webp'
 import { NowPlaying } from '../NowPlaying'
 import styles from './Navbar.module.css'
 

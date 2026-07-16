@@ -15,7 +15,12 @@ declare module '*.glsl?raw' {
   export default source
 }
 
-declare module '*.PNG' {
+declare module '*.webp' {
+  const src: string
+  export default src
+}
+
+declare module '*.webp' {
   const src: string
   export default src
 }
