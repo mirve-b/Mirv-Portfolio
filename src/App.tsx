@@ -322,7 +322,10 @@ function App() {
                 >
                   <Hero />
                   <TaglineDivider />
-                  <AboutSection onSelectCategory={navigateToExpertise} />
+                  <AboutSection
+                    onSelectCategory={navigateToExpertise}
+                    isHomeActive={isHome}
+                  />
                 </motion.div>
 
                 {visited.expertise ? (

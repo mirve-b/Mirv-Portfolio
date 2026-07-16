@@ -34,9 +34,10 @@ const bubblePop = { type: 'spring' as const, stiffness: 560, damping: 16 }
 
 type SkillsCollageProps = {
   onSelectCategory: (category: ExpertiseCategory) => void
+  isHomeActive: boolean
 }
 
-function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
+function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
   const collageRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
   const [folderPhase, setFolderPhase] = useState<FolderPhase>('idle')
@@ -58,6 +59,14 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
     [folderPhase, isMobile, openFolder],
   )
 
+  const handleNoteSelect = useCallback(
+    (category: ExpertiseCategory) => {
+      closeFolder()
+      onSelectCategory(category)
+    },
+    [closeFolder, onSelectCategory],
+  )
+
   const handleNoteTransitionEnd = useCallback(
     (event: React.TransitionEvent<HTMLButtonElement>) => {
       if (event.propertyName !== 'transform') return
@@ -67,6 +76,21 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
     },
     [folderPhase],
   )
+
+  useEffect(() => {
+    if (folderPhase !== 'closing') return
+
+    const resetTimer = window.setTimeout(() => {
+      setFolderPhase('idle')
+    }, 900)
+
+    return () => window.clearTimeout(resetTimer)
+  }, [folderPhase])
+
+  useEffect(() => {
+    if (isHomeActive) return
+    setFolderPhase((phase) => (phase === 'open' ? 'closing' : phase))
+  }, [isHomeActive])
 
   useEffect(() => {
     if (!isMobile || folderPhase !== 'open') return
@@ -229,7 +253,7 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
               type="button"
               className={`${styles.noteLink} ${className}`}
               aria-label={label}
-              onClick={() => onSelectCategory(id)}
+              onClick={() => handleNoteSelect(id)}
               onTransitionEnd={handleNoteTransitionEnd}
             >
               <img src={image} alt="" draggable={false} loading="lazy" decoding="async" />
@@ -299,8 +323,10 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
 
 export function AboutSection({
   onSelectCategory,
+  isHomeActive = true,
 }: {
   onSelectCategory: (category: ExpertiseCategory) => void
+  isHomeActive?: boolean
 }) {
   return (
     <section className={styles.section} aria-labelledby="about-heading">
@@ -353,7 +379,10 @@ export function AboutSection({
           initial="hidden"
           animate="visible"
         >
-          <SkillsCollage onSelectCategory={onSelectCategory} />
+          <SkillsCollage
+            onSelectCategory={onSelectCategory}
+            isHomeActive={isHomeActive}
+          />
         </motion.div>
       </div>
     </section>
