@@ -1,6 +1,6 @@
 import { useCallback, useEffect, type RefObject } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { PLAYLIST_LABEL, SPOTIFY, SPOTIFY_PLAYLIST_URI } from './constants'
+import { PLAYLIST_LABEL, SPOTIFY } from './constants'
 import styles from './SpotifyDrawer.module.css'
 
 type SpotifyDrawerProps = {
@@ -48,51 +48,45 @@ export function SpotifyDrawer({
         ) : null}
       </AnimatePresence>
 
-      {SPOTIFY_PLAYLIST_URI ? (
-        <aside
-          className={open ? `${styles.drawer} ${styles.drawerOpen}` : styles.drawer}
-          role="dialog"
-          aria-modal={open}
-          aria-label={PLAYLIST_LABEL}
-          aria-hidden={!open}
-        >
-          <div className={styles.header}>
-            <span className={styles.heading}>{PLAYLIST_LABEL}</span>
-            {open ? (
-              <button
-                type="button"
-                className={styles.closeButton}
-                aria-label="Close drawer"
-                onClick={onClose}
-              >
-                ×
-              </button>
-            ) : null}
-          </div>
-
-          <div ref={embedHostRef} className={styles.playerWrap}>
-            {embedActive ? null : (
-              <div className={styles.playerPlaceholder} aria-hidden="true" />
-            )}
-          </div>
-
-          {SPOTIFY.webUrl ? (
-            <a
-              href={SPOTIFY.webUrl}
-              className={styles.spotifyLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              tabIndex={open ? 0 : -1}
+      <aside
+        className={open ? `${styles.drawer} ${styles.drawerOpen}` : styles.drawer}
+        role="dialog"
+        aria-modal={open}
+        aria-label={PLAYLIST_LABEL}
+        aria-hidden={!open}
+      >
+        <div className={styles.header}>
+          <span className={styles.heading}>{PLAYLIST_LABEL}</span>
+          {open ? (
+            <button
+              type="button"
+              className={styles.closeButton}
+              aria-label="Close drawer"
+              onClick={onClose}
             >
-              Open in Spotify
-            </a>
+              ×
+            </button>
           ) : null}
-        </aside>
-      ) : import.meta.env.DEV ? (
-        <p className={styles.placeholder}>
-          Add Spotify playlist URLs to your <code>.env</code> file.
-        </p>
-      ) : null}
+        </div>
+
+        <div ref={embedHostRef} className={styles.playerWrap}>
+          {embedActive ? null : (
+            <div className={styles.playerPlaceholder} aria-hidden="true" />
+          )}
+        </div>
+
+        {SPOTIFY.webUrl ? (
+          <a
+            href={SPOTIFY.webUrl}
+            className={styles.spotifyLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            tabIndex={open ? 0 : -1}
+          >
+            Open in Spotify
+          </a>
+        ) : null}
+      </aside>
     </>
   )
 }

@@ -94,20 +94,6 @@
   border-radius: inherit;
 }
 
-.placeholder {
-  margin: 0;
-  padding: 2rem 1rem;
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  font-weight: 200;
-  line-height: 1.6;
-  text-align: center;
-  color: var(--color-grey-200);
-}
-
-.placeholder code {
-  color: var(--color-accent);
-}
 
 .spotifyLink {
   display: block;
