@@ -40,7 +40,9 @@ const ProjectCaseStudy = lazy(() =>
 )
 
 function App() {
-  const [showContent, setShowContent] = useState(hasSeenIntro)
+  const skipIntro = hasSeenIntro()
+  const [showContent, setShowContent] = useState(skipIntro)
+  const [showSplash, setShowSplash] = useState(!skipIntro)
   const [route, setRoute] = useState<AppRoute>(() => getStoredRoute())
   const [loadedProject, setLoadedProject] = useState<PortfolioProject | null>(null)
   const slideDirection = useRef(1)
@@ -79,9 +81,13 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [])
 
-  const handleIntroComplete = useCallback(() => {
+  const handleIntroReveal = useCallback(() => {
     markIntroSeen()
     setShowContent(true)
+  }, [])
+
+  const handleIntroExitComplete = useCallback(() => {
+    setShowSplash(false)
   }, [])
 
   const navigateToExpertise = useCallback(
@@ -156,135 +162,138 @@ function App() {
   return (
     <div className={styles.app}>
       <GlassCursor />
-      <AnimatePresence mode="wait">
-        {!showContent ? (
-          <IntroSplash key="splash" onComplete={handleIntroComplete} />
-        ) : (
-          <>
-            <EntryPfp active={showContent && route.type === 'home'} />
-            <main className={styles.main}>
-              <div className={styles.heroWrap}>
-                <Navbar
-                  isHome={route.type === 'home'}
-                  onNavigateHome={navigateHome}
-                />
+      {showContent ? (
+        <>
+          <EntryPfp active={showContent && route.type === 'home'} />
+          <main className={styles.main}>
+            <div className={styles.heroWrap}>
+              <Navbar
+                isHome={route.type === 'home'}
+                onNavigateHome={navigateHome}
+              />
 
-                <div className={styles.viewStage}>
-                  <AnimatePresence custom={slideDirection.current}>
-                    {route.type === 'home' ? (
-                      <motion.div
-                        key="home"
-                        className={styles.pagePanel}
+              <div className={styles.viewStage}>
+                <AnimatePresence custom={slideDirection.current}>
+                  {route.type === 'home' ? (
+                    <motion.div
+                      key="home"
+                      className={styles.pagePanel}
+                      custom={slideDirection.current}
+                      initial={{ x: slideDirection.current < 0 ? '-100%' : 0 }}
+                      animate={{ x: 0 }}
+                      exit={{ x: '-100%' }}
+                      transition={pageSlideTween}
+                    >
+                      <Hero />
+                      <TaglineDivider />
+                      <AboutSection onSelectCategory={navigateToExpertise} />
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+
+                <AnimatePresence custom={slideDirection.current}>
+                  {isExpertiseStack ? (
+                    <motion.div
+                      key="expertise-stack"
+                      className={styles.expertiseStack}
+                      custom={slideDirection.current}
+                      initial={
+                        restoredFromStorage.current
+                          ? false
+                          : expertiseEnterFromSide.current
+                            ? { x: '100%' }
+                            : false
+                      }
+                      animate={{ x: 0 }}
+                      exit={{ x: '-100%' }}
+                      transition={pageSlideTween}
+                      onAnimationComplete={() => {
+                        expertiseEnterFromSide.current = false
+                      }}
+                    >
+                      <AnimatePresence
+                        mode="wait"
                         custom={slideDirection.current}
-                        initial={{ x: slideDirection.current < 0 ? '-100%' : 0 }}
-                        animate={{ x: 0 }}
-                        exit={{ x: '-100%' }}
-                        transition={pageSlideTween}
+                        initial={false}
                       >
-                        <Hero />
-                        <TaglineDivider />
-                        <AboutSection onSelectCategory={navigateToExpertise} />
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
+                        {route.type === 'expertise' ? (
+                          <motion.div
+                            key="expertise"
+                            className={styles.pagePanel}
+                            custom={slideDirection.current}
+                            initial={false}
+                            animate={{ x: 0 }}
+                            exit={{ x: '-100%' }}
+                            transition={pageSlideTween}
+                          >
+                            <Suspense fallback={null}>
+                              <ExpertiseSection
+                                category={expertiseCategory}
+                                onCategoryChange={handleCategoryChange}
+                                onOpenProject={openProject}
+                                tabDirection={tabDirection}
+                                motionEnabled
+                              />
+                            </Suspense>
+                          </motion.div>
+                        ) : null}
 
-                  <AnimatePresence custom={slideDirection.current}>
-                    {isExpertiseStack ? (
-                      <motion.div
-                        key="expertise-stack"
-                        className={styles.expertiseStack}
-                        custom={slideDirection.current}
-                        initial={
-                          restoredFromStorage.current
-                            ? false
-                            : expertiseEnterFromSide.current
-                              ? { x: '100%' }
-                              : false
-                        }
-                        animate={{ x: 0 }}
-                        exit={{ x: '-100%' }}
-                        transition={pageSlideTween}
-                        onAnimationComplete={() => {
-                          expertiseEnterFromSide.current = false
-                        }}
-                      >
-                        <AnimatePresence
-                          mode="wait"
-                          custom={slideDirection.current}
-                          initial={false}
-                        >
-                          {route.type === 'expertise' ? (
-                            <motion.div
-                              key="expertise"
-                              className={styles.pagePanel}
-                              custom={slideDirection.current}
-                              initial={false}
-                              animate={{ x: 0 }}
-                              exit={{ x: '-100%' }}
-                              transition={pageSlideTween}
-                            >
-                              <Suspense fallback={null}>
-                                <ExpertiseSection
-                                  category={expertiseCategory}
-                                  onCategoryChange={handleCategoryChange}
-                                  onOpenProject={openProject}
-                                  tabDirection={tabDirection}
-                                  motionEnabled
-                                />
-                              </Suspense>
-                            </motion.div>
-                          ) : null}
-
-                          {route.type === 'project' && activeProjectMeta ? (
-                            <motion.div
-                              key={`project-${activeProjectMeta.id}`}
-                              className={styles.pagePanel}
-                              custom={slideDirection.current}
-                              initial={
-                                restoredFromStorage.current ? false : { x: '100%' }
-                              }
-                              animate={{ x: 0 }}
-                              exit={{ x: '100%' }}
-                              transition={pageSlideTween}
-                            >
-                              <Suspense fallback={null}>
-                                {loadedProject ? (
-                                  loadedProject.detailType === 'case-study' ? (
-                                    <ProjectCaseStudy
-                                      project={loadedProject}
-                                      onBack={() =>
-                                        backToExpertise(activeProjectMeta.category)
-                                      }
-                                    />
-                                  ) : (
-                                    <ProjectGallery
-                                      project={loadedProject}
-                                      onBack={() =>
-                                        backToExpertise(activeProjectMeta.category)
-                                      }
-                                    />
-                                  )
-                                ) : null}
-                              </Suspense>
-                            </motion.div>
-                          ) : null}
-                        </AnimatePresence>
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
-                </div>
+                        {route.type === 'project' && activeProjectMeta ? (
+                          <motion.div
+                            key={`project-${activeProjectMeta.id}`}
+                            className={styles.pagePanel}
+                            custom={slideDirection.current}
+                            initial={
+                              restoredFromStorage.current ? false : { x: '100%' }
+                            }
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={pageSlideTween}
+                          >
+                            <Suspense fallback={null}>
+                              {loadedProject ? (
+                                loadedProject.detailType === 'case-study' ? (
+                                  <ProjectCaseStudy
+                                    project={loadedProject}
+                                    onBack={() =>
+                                      backToExpertise(activeProjectMeta.category)
+                                    }
+                                  />
+                                ) : (
+                                  <ProjectGallery
+                                    project={loadedProject}
+                                    onBack={() =>
+                                      backToExpertise(activeProjectMeta.category)
+                                    }
+                                  />
+                                )
+                              ) : null}
+                            </Suspense>
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
               </div>
+            </div>
 
-              {showSiteChrome ? (
-                <div className={styles.siteChrome}>
-                  <NameMarquee />
-                  <Footer />
-                </div>
-              ) : null}
-            </main>
-          </>
-        )}
-      </AnimatePresence>
+            {showSiteChrome ? (
+              <div className={styles.siteChrome}>
+                <NameMarquee />
+                <Footer />
+              </div>
+            ) : null}
+          </main>
+        </>
+      ) : null}
+
+      {showSplash ? (
+        <IntroSplash
+          onReveal={handleIntroReveal}
+          onExitComplete={handleIntroExitComplete}
+        />
+      ) : null}
     </div>
   )
 }

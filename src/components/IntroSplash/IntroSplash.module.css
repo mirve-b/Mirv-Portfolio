@@ -5,6 +5,7 @@
   display: grid;
   place-items: center;
   background: var(--color-bg);
+  pointer-events: none;
 }
 
 .logo {
@@ -16,4 +17,6 @@
   color: var(--color-accent);
   text-transform: uppercase;
   margin: 0;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
 }
