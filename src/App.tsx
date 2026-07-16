@@ -56,8 +56,21 @@ function App() {
   const expertiseEnterFromSide = useRef(false)
   const projectLoadRequest = useRef(0)
   const historyReady = useRef(false)
+  const [instantHistoryNav, setInstantHistoryNav] = useState(false)
 
   routeRef.current = route
+
+  const routeTransition = instantHistoryNav ? { duration: 0 } : pageSlideTween
+
+  useEffect(() => {
+    if (!instantHistoryNav) return
+
+    const frame = window.requestAnimationFrame(() => {
+      setInstantHistoryNav(false)
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [instantHistoryNav, route])
 
   useEffect(() => {
     syncBrowserHistory(routeRef.current, 'replace')
@@ -76,12 +89,26 @@ function App() {
         pathToRoute(window.location.pathname) ??
         { type: 'home' }
 
+      if (
+        next.type === previous.type &&
+        (next.type === 'home' ||
+          (next.type === 'expertise' &&
+            previous.type === 'expertise' &&
+            next.category === previous.category) ||
+          (next.type === 'project' &&
+            previous.type === 'project' &&
+            next.projectId === previous.projectId))
+      ) {
+        return
+      }
+
+      setInstantHistoryNav(true)
+
       const previousDepth = routeDepth(previous)
       const nextDepth = routeDepth(next)
       slideDirection.current = nextDepth >= previousDepth ? 1 : -1
-      restoredFromStorage.current = false
-      expertiseEnterFromSide.current =
-        next.type === 'expertise' && previous.type === 'home'
+      restoredFromStorage.current = true
+      expertiseEnterFromSide.current = false
 
       if (
         previous.type === 'expertise' &&
@@ -228,10 +255,14 @@ function App() {
                       key="home"
                       className={styles.pagePanel}
                       custom={slideDirection.current}
-                      initial={{ x: slideDirection.current < 0 ? '-100%' : 0 }}
+                      initial={
+                        instantHistoryNav
+                          ? false
+                          : { x: slideDirection.current < 0 ? '-100%' : 0 }
+                      }
                       animate={{ x: 0 }}
                       exit={{ x: '-100%' }}
-                      transition={pageSlideTween}
+                      transition={routeTransition}
                     >
                       <Hero />
                       <TaglineDivider />
@@ -247,15 +278,17 @@ function App() {
                       className={styles.expertiseStack}
                       custom={slideDirection.current}
                       initial={
-                        restoredFromStorage.current
+                        instantHistoryNav
                           ? false
-                          : expertiseEnterFromSide.current
-                            ? { x: '100%' }
-                            : false
+                          : restoredFromStorage.current
+                            ? false
+                            : expertiseEnterFromSide.current
+                              ? { x: '100%' }
+                              : false
                       }
                       animate={{ x: 0 }}
                       exit={{ x: '-100%' }}
-                      transition={pageSlideTween}
+                      transition={routeTransition}
                       onAnimationComplete={() => {
                         expertiseEnterFromSide.current = false
                       }}
@@ -273,7 +306,7 @@ function App() {
                             initial={false}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
-                            transition={pageSlideTween}
+                            transition={routeTransition}
                           >
                             <Suspense fallback={null}>
                               <ExpertiseSection
@@ -293,11 +326,15 @@ function App() {
                             className={styles.pagePanel}
                             custom={slideDirection.current}
                             initial={
-                              restoredFromStorage.current ? false : { x: '100%' }
+                              instantHistoryNav
+                                ? false
+                                : restoredFromStorage.current
+                                  ? false
+                                  : { x: '100%' }
                             }
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
-                            transition={pageSlideTween}
+                            transition={routeTransition}
                           >
                             <Suspense fallback={null}>
                               {loadedProject ? (

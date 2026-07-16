@@ -5,7 +5,7 @@ import styles from './IntroSplash.module.css'
 const DISPLAY_FONT = '400 1em "Alumni Sans Pinstripe"'
 const FADE_IN_MS = 1000
 const LOGO_HOLD_MS = 3000
-const FADE_OUT_MS = 1000
+const FADE_OUT_MS = 2000
 const EASE = [0.16, 1, 0.3, 1] as const
 
 type SplashPhase = 'idle' | 'fadeIn' | 'hold' | 'fadeOut'
@@ -14,6 +14,31 @@ type IntroSplashProps = {
   /** Mount main site underneath — when MIRVÉ begins fading out */
   onReveal: () => void
   onExitComplete: () => void
+}
+
+const splashVariants = {
+  visible: {
+    opacity: 1,
+    transition: { duration: 0 },
+  },
+  fadeOut: {
+    opacity: 0,
+    transition: { duration: FADE_OUT_MS / 1000, ease: EASE },
+  },
+}
+
+const logoVariants = {
+  hidden: { opacity: 0, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: FADE_IN_MS / 1000, ease: EASE },
+  },
+  fadeOut: {
+    opacity: 0,
+    scale: 1,
+    transition: { duration: (FADE_OUT_MS * 0.55) / 1000, ease: EASE },
+  },
 }
 
 export function IntroSplash({ onReveal, onExitComplete }: IntroSplashProps) {
@@ -66,39 +91,25 @@ export function IntroSplash({ onReveal, onExitComplete }: IntroSplashProps) {
     }
   }, [fontReady, onReveal])
 
-  const logoOpacity = phase === 'idle' ? 0 : phase === 'fadeOut' ? 0 : 1
-  const splashOpacity = phase === 'fadeOut' ? 0 : 1
-
-  const logoTransition =
-    phase === 'fadeIn'
-      ? { duration: FADE_IN_MS / 1000, ease: EASE }
-      : phase === 'fadeOut'
-        ? { duration: FADE_OUT_MS / 1000, ease: EASE }
-        : { duration: 0 }
-
-  const splashTransition =
-    phase === 'fadeOut'
-      ? { duration: FADE_OUT_MS / 1000, ease: EASE }
-      : { duration: 0 }
+  const logoState =
+    phase === 'idle' ? 'hidden' : phase === 'fadeOut' ? 'fadeOut' : 'visible'
+  const splashState = phase === 'fadeOut' ? 'fadeOut' : 'visible'
 
   return (
     <motion.div
       className={styles.splash}
-      initial={{ opacity: 1 }}
-      animate={{ opacity: splashOpacity }}
-      transition={splashTransition}
+      variants={splashVariants}
+      initial="visible"
+      animate={splashState}
       onAnimationComplete={() => {
         if (phase === 'fadeOut') onExitComplete()
       }}
     >
       <motion.h1
         className={styles.logo}
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{
-          opacity: logoOpacity,
-          scale: phase === 'idle' ? 0.97 : 1,
-        }}
-        transition={logoTransition}
+        variants={logoVariants}
+        initial="hidden"
+        animate={logoState}
       >
         MIRVÉ
       </motion.h1>
