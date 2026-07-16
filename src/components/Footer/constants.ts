@@ -2,13 +2,17 @@
 export const CONTACT_EMAIL = 'blvckmirve@gmail.com'
 
 /**
- * Get a free access key at https://web3forms.com
- * Add to `.env`: VITE_WEB3FORMS_ACCESS_KEY=your_key
- * Submissions are forwarded to the email you register there.
+ * Web3Forms access key — client-side by design (see web3forms.com).
+ * Override with VITE_WEB3FORMS_ACCESS_KEY in .env / Vercel if you rotate the key.
  */
-export const WEB3FORMS_ACCESS_KEY = (
-  import.meta.env.VITE_WEB3FORMS_ACCESS_KEY ?? ''
-).trim()
+const DEFAULT_WEB3FORMS_ACCESS_KEY = 'c49acc0c-6934-4722-800e-28ba6be771cc'
+
+function readEnv(value: string | undefined): string {
+  return value?.trim() ?? ''
+}
+
+export const WEB3FORMS_ACCESS_KEY =
+  readEnv(import.meta.env.VITE_WEB3FORMS_ACCESS_KEY) || DEFAULT_WEB3FORMS_ACCESS_KEY
 
 export const SOCIAL_LINKS = [
   {

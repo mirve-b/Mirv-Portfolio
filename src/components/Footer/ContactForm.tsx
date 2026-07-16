@@ -22,9 +22,7 @@ export function ContactForm({ nameInputRef }: ContactFormProps) {
 
     if (!WEB3FORMS_ACCESS_KEY) {
       setStatus('error')
-      setErrorMessage(
-        'Form not wired yet — add VITE_WEB3FORMS_ACCESS_KEY to your .env file.',
-      )
+      setErrorMessage('Could not send message. Please try again later.')
       return
     }
 
