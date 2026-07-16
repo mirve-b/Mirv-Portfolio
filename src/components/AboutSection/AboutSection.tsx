@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import artImg from '../../assets/art.png'
-import decoImg from '../../assets/deco.png'
-import devImg from '../../assets/dev.png'
-import fileBackImg from '../../assets/BACK.png'
-import fileFrontImg from '../../assets/FRONT.png'
-import flowerImg from '../../assets/flower2.png'
-import orchidImg from '../../assets/orchid1.png'
-import paperclipImg from '../../assets/PaperClip.png'
-import uiUxImg from '../../assets/ui_ux.png'
+import artImg from '../../assets/Notes/art.png'
+import decoImg from '../../assets/Collage/deco.png'
+import devImg from '../../assets/Notes/dev.png'
+import fileBackImg from '../../assets/Collage/BACK.png'
+import fileFrontImg from '../../assets/Collage/FRONT.png'
+import paperImg from '../../assets/Collage/paper.png'
+import pinkPolkaImg from '../../assets/Collage/pink polka.png'
+import whitePolkaImg from '../../assets/Collage/white polka.png'
+import flowerImg from '../../assets/Collage/flower2.png'
+import orchidImg from '../../assets/Collage/orchid1.png'
+import paperclipImg from '../../assets/Collage/PaperClip.png'
+import uiUxImg from '../../assets/Notes/ui_ux.png'
 import { useIsMobile } from '../../lib/useIsMobile'
+import type { ExpertiseCategory } from '../../lib/pageNavigation'
 import {
   assembleItem,
   slideFromLeft,
@@ -19,16 +23,20 @@ import { SkillsPanel } from './SkillsPanel'
 import styles from './AboutSection.module.css'
 
 const SKILL_LINKS = [
-  { href: '#art', label: 'Art portfolio', image: artImg, className: styles.noteArt },
-  { href: '#ui-ux', label: 'UI and UX work', image: uiUxImg, className: styles.noteUiUx },
-  { href: '#development', label: 'Development work', image: devImg, className: styles.noteDev },
+  { id: 'art' as const, label: 'Art portfolio', image: artImg, className: styles.noteArt },
+  { id: 'ui-ux' as const, label: 'UI and UX work', image: uiUxImg, className: styles.noteUiUx },
+  { id: 'development' as const, label: 'Development work', image: devImg, className: styles.noteDev },
 ] as const
 
 type FolderPhase = 'idle' | 'open' | 'closing'
 
 const bubblePop = { type: 'spring' as const, stiffness: 560, damping: 16 }
 
-function SkillsCollage() {
+type SkillsCollageProps = {
+  onSelectCategory: (category: ExpertiseCategory) => void
+}
+
+function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
   const collageRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
   const [folderPhase, setFolderPhase] = useState<FolderPhase>('idle')
@@ -51,7 +59,7 @@ function SkillsCollage() {
   )
 
   const handleNoteTransitionEnd = useCallback(
-    (event: React.TransitionEvent<HTMLAnchorElement>) => {
+    (event: React.TransitionEvent<HTMLButtonElement>) => {
       if (event.propertyName !== 'transform') return
       if (folderPhase !== 'closing') return
       if (!event.currentTarget.classList.contains(styles.noteDev)) return
@@ -168,6 +176,16 @@ function SkillsCollage() {
         {...mobileTapProps}
       />
 
+      {isMobile ? (
+        <img
+          src={paperImg}
+          alt=""
+          className={styles.mobileBackPage}
+          aria-hidden="true"
+          draggable={false}
+        />
+      ) : null}
+
       <div className={styles.folder}>
         <img
           src={fileBackImg}
@@ -177,17 +195,35 @@ function SkillsCollage() {
           draggable={false}
         />
 
+        {isMobile ? <div className={styles.fixedPage} aria-hidden="true" /> : null}
+
+        <div className={styles.paperPages} aria-hidden="true">
+          <img
+            src={pinkPolkaImg}
+            alt=""
+            className={`${styles.paperPage} ${styles.pagePink}`}
+            draggable={false}
+          />
+          <img
+            src={whitePolkaImg}
+            alt=""
+            className={`${styles.paperPage} ${styles.pageWhite}`}
+            draggable={false}
+          />
+        </div>
+
         <div className={styles.skillNotes}>
-          {SKILL_LINKS.map(({ href, label, image, className }) => (
-            <a
-              key={href}
-              href={href}
+          {SKILL_LINKS.map(({ id, label, image, className }) => (
+            <button
+              key={id}
+              type="button"
               className={`${styles.noteLink} ${className}`}
               aria-label={label}
+              onClick={() => onSelectCategory(id)}
               onTransitionEnd={handleNoteTransitionEnd}
             >
               <img src={image} alt="" draggable={false} />
-            </a>
+            </button>
           ))}
         </div>
 
@@ -241,7 +277,11 @@ function SkillsCollage() {
   )
 }
 
-export function AboutSection() {
+export function AboutSection({
+  onSelectCategory,
+}: {
+  onSelectCategory: (category: ExpertiseCategory) => void
+}) {
   return (
     <section className={styles.section} aria-labelledby="about-heading">
       <img
@@ -289,7 +329,7 @@ export function AboutSection() {
           initial="hidden"
           animate="visible"
         >
-          <SkillsCollage />
+          <SkillsCollage onSelectCategory={onSelectCategory} />
         </motion.div>
       </div>
     </section>

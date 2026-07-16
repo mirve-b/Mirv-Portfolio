@@ -140,6 +140,12 @@
     );
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    pointer-events: none;
+  }
+
+  .brand,
+  .container {
+    pointer-events: auto;
   }
 
   .container {

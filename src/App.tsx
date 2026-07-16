@@ -1,30 +1,132 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import bgImg from './assets/BG.png'
+import { getProjectById, isProjectOpenable, preloadProjectGallery } from './data/portfolioProjects'
 import { GlassCursor } from './components/GlassCursor'
 import { EntryPfp } from './components/EntryPfp'
 import { AboutSection } from './components/AboutSection'
+import { ExpertiseSection } from './components/ExpertiseSection'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
 import { IntroSplash } from './components/IntroSplash'
 import { NameMarquee } from './components/NameMarquee'
 import { Navbar } from './components/Navbar'
+import { ProjectCaseStudy } from './components/ProjectCaseStudy'
+import { ProjectGallery } from './components/ProjectGallery'
 import { TaglineDivider } from './components/TaglineDivider'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
+import { pageSlideTween } from './lib/motion'
 import {
-  fadeDown,
-  fadeUp,
-  staggerContainer,
-} from './lib/motion'
+  type AppRoute,
+  type ExpertiseCategory,
+  expertiseTabDirection,
+  getStoredRoute,
+  storeRoute,
+} from './lib/pageNavigation'
 import styles from './App.module.css'
 
 function App() {
   const [showContent, setShowContent] = useState(hasSeenIntro)
+  const [route, setRoute] = useState<AppRoute>(() => getStoredRoute())
+  const slideDirection = useRef(1)
+  const [tabDirection, setTabDirection] = useState(1)
+  const restoredFromStorage = useRef(getStoredRoute().type !== 'home')
+  const expertiseEnterFromSide = useRef(false)
+  const projectOverlayRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    storeRoute(route)
+  }, [route])
+
+  const navigate = useCallback((next: AppRoute) => {
+    setRoute(next)
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [])
 
   const handleIntroComplete = useCallback(() => {
     markIntroSeen()
     setShowContent(true)
   }, [])
+
+  const navigateToExpertise = useCallback(
+    (category: ExpertiseCategory) => {
+      restoredFromStorage.current = false
+      slideDirection.current = 1
+      expertiseEnterFromSide.current = true
+      setTabDirection(1)
+      navigate({ type: 'expertise', category })
+    },
+    [navigate],
+  )
+
+  const navigateHome = useCallback(() => {
+    restoredFromStorage.current = false
+    slideDirection.current = -1
+    expertiseEnterFromSide.current = false
+    navigate({ type: 'home' })
+  }, [navigate])
+
+  const handleCategoryChange = useCallback(
+    (category: ExpertiseCategory) => {
+      if (route.type !== 'expertise') return
+      restoredFromStorage.current = false
+      setTabDirection(expertiseTabDirection(route.category, category))
+      navigate({ type: 'expertise', category })
+    },
+    [navigate, route],
+  )
+
+  const openProject = useCallback(
+    (projectId: string) => {
+      const project = getProjectById(projectId)
+      if (!project || !isProjectOpenable(project)) return
+      restoredFromStorage.current = false
+      slideDirection.current = 1
+      expertiseEnterFromSide.current = false
+      navigate({ type: 'project', projectId })
+    },
+    [navigate],
+  )
+
+  const backToExpertise = useCallback(
+    (category: ExpertiseCategory) => {
+      restoredFromStorage.current = false
+      slideDirection.current = -1
+      expertiseEnterFromSide.current = false
+      navigate({ type: 'expertise', category })
+    },
+    [navigate],
+  )
+
+  const activeProject =
+    route.type === 'project' ? getProjectById(route.projectId) : undefined
+
+  useEffect(() => {
+    if (route.type === 'project' && !activeProject) {
+      navigate({ type: 'home' })
+    }
+  }, [route, activeProject, navigate])
+
+  useEffect(() => {
+    if (activeProject?.detailType === 'gallery') {
+      preloadProjectGallery(activeProject, true)
+    }
+  }, [activeProject])
+
+  useEffect(() => {
+    if (route.type === 'project') {
+      projectOverlayRef.current?.scrollTo({ top: 0, behavior: 'auto' })
+    }
+  }, [route])
+
+  const isExpertiseStack = route.type === 'expertise' || route.type === 'project'
+  const expertiseCategory: ExpertiseCategory =
+    route.type === 'expertise'
+      ? route.category
+      : route.type === 'project' && activeProject
+        ? activeProject.category
+        : 'art'
+
+  const showFooter = route.type !== 'project'
 
   return (
     <div className={styles.app}>
@@ -34,38 +136,102 @@ function App() {
           <IntroSplash key="splash" onComplete={handleIntroComplete} />
         ) : (
           <>
-            <div className={styles.fixedBg} aria-hidden="true">
-              <img src={bgImg} alt="" className={styles.fixedBgImage} draggable={false} />
-            </div>
-            <EntryPfp active={showContent} />
-            <motion.main
-              key="content"
-              className={styles.main}
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer(0.14)}
-            >
-            <motion.div variants={fadeDown} className={styles.heroWrap}>
-              <Navbar />
-              <Hero />
-            </motion.div>
+            <EntryPfp active={showContent && route.type === 'home'} />
+            <main className={styles.main}>
+              <div className={styles.heroWrap}>
+                <Navbar
+                  isHome={route.type === 'home'}
+                  onNavigateHome={navigateHome}
+                />
 
-            <motion.div variants={fadeUp}>
-              <TaglineDivider />
-            </motion.div>
+                <div className={styles.viewStage}>
+                  <AnimatePresence custom={slideDirection.current}>
+                    {route.type === 'home' ? (
+                      <motion.div
+                        key="home"
+                        className={styles.pagePanel}
+                        custom={slideDirection.current}
+                        initial={{ x: slideDirection.current < 0 ? '-100%' : 0 }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '-100%' }}
+                        transition={pageSlideTween}
+                      >
+                        <Hero />
+                        <TaglineDivider />
+                        <AboutSection onSelectCategory={navigateToExpertise} />
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
 
-            <motion.div variants={fadeUp}>
-              <AboutSection />
-            </motion.div>
+                  <AnimatePresence custom={slideDirection.current}>
+                    {isExpertiseStack ? (
+                      <motion.div
+                        key="expertise-stack"
+                        className={styles.expertiseStack}
+                        custom={slideDirection.current}
+                        initial={
+                          restoredFromStorage.current
+                            ? false
+                            : expertiseEnterFromSide.current
+                              ? { x: '100%' }
+                              : false
+                        }
+                        animate={{ x: 0 }}
+                        exit={{ x: '-100%' }}
+                        transition={pageSlideTween}
+                        onAnimationComplete={() => {
+                          expertiseEnterFromSide.current = false
+                        }}
+                      >
+                        <div className={styles.pagePanel}>
+                          <ExpertiseSection
+                            category={expertiseCategory}
+                            onCategoryChange={handleCategoryChange}
+                            onOpenProject={openProject}
+                            tabDirection={tabDirection}
+                            motionEnabled={route.type === 'expertise'}
+                          />
+                        </div>
 
-            <motion.div variants={fadeUp}>
-              <NameMarquee />
-            </motion.div>
+                        <AnimatePresence custom={slideDirection.current}>
+                          {route.type === 'project' && activeProject ? (
+                            <motion.div
+                              ref={projectOverlayRef}
+                              key={`project-${activeProject.id}`}
+                              className={`${styles.pagePanel} ${styles.pagePanelOverlay}`}
+                              custom={slideDirection.current}
+                              initial={
+                                restoredFromStorage.current ? false : { x: '100%' }
+                              }
+                              animate={{ x: 0 }}
+                              exit={{ x: '100%' }}
+                              transition={pageSlideTween}
+                            >
+                              {activeProject.detailType === 'case-study' ? (
+                                <ProjectCaseStudy
+                                  project={activeProject}
+                                  onBack={() => backToExpertise(activeProject.category)}
+                                />
+                              ) : (
+                                <ProjectGallery
+                                  project={activeProject}
+                                  onBack={() => backToExpertise(activeProject.category)}
+                                />
+                              )}
+                            </motion.div>
+                          ) : null}
+                        </AnimatePresence>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
+              </div>
 
-            <motion.div variants={fadeUp}>
-              <Footer />
-            </motion.div>
-          </motion.main>
+              <div className={styles.siteChrome}>
+                <NameMarquee />
+                {showFooter ? <Footer /> : null}
+              </div>
+            </main>
           </>
         )}
       </AnimatePresence>

@@ -2,7 +2,7 @@
   width: 100%;
   padding-block: clamp(1.5rem, 3vw, 2rem) clamp(0.25rem, 0.5vw, 0.375rem);
   padding-inline: 0;
-  background: transparent;
+  background: var(--color-bg);
 }
 
 .divider {

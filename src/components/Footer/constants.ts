@@ -19,7 +19,7 @@ export const SOCIAL_LINKS = [
   {
     id: 'linkedin',
     label: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/mirve-b',
+    href: 'https://www.linkedin.com/in/mirveb',
   },
   {
     id: 'behance',

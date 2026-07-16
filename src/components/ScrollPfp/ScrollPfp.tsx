@@ -101,6 +101,7 @@ function FigureContent({ revealed, showBubble }: FigureContentProps) {
 export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const lastScrollY = useRef(0)
+  const zoneInView = useRef(false)
   const scrollUpStartedAt = useRef<number | null>(null)
   const scrollUpAccum = useRef(0)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -112,6 +113,7 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
   const hide = useCallback(() => {
     setShowBubble(false)
     setRevealed(false)
+    setPositionReady(false)
   }, [])
 
   const cancelHideSchedule = useCallback(() => {
@@ -151,6 +153,11 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
     lastScrollY.current = window.scrollY
 
     const onScroll = () => {
+      if (isMobile && zoneInView.current) {
+        lastScrollY.current = window.scrollY
+        return
+      }
+
       const currentY = window.scrollY
       const delta = lastScrollY.current - currentY
 
@@ -172,13 +179,22 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        zoneInView.current = entry.isIntersecting
+
         if (entry.isIntersecting) {
           cancelHideSchedule()
           setPositionReady(true)
           setRevealed(true)
+          return
+        }
+
+        if (isMobile) {
+          hide()
         }
       },
-      { threshold: 0.08, rootMargin: '0px 0px -8% 0px' },
+      isMobile
+        ? { threshold: 0.05, rootMargin: '0px 0px 12% 0px' }
+        : { threshold: 0.08, rootMargin: '0px 0px -8% 0px' },
     )
 
     observer.observe(zone)
@@ -189,7 +205,7 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
       observer.disconnect()
       window.removeEventListener('scroll', onScroll)
     }
-  }, [zoneRef, hide, cancelHideSchedule, scheduleHideAfterScrollUp])
+  }, [zoneRef, hide, cancelHideSchedule, scheduleHideAfterScrollUp, isMobile])
 
   useMobilePosition(
     rootRef,

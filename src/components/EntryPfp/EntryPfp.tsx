@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import pfpImg from '../../assets/PFP.png'
 import styles from './EntryPfp.module.css'
@@ -15,10 +15,21 @@ type EntryPfpProps = {
 
 export function EntryPfp({ active }: EntryPfpProps) {
   const hasAnimatedIn = useRef(false)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastScrollY = useRef(0)
   const [mounted] = useState(() => !shownThisPageLoad)
   const [onScreen, setOnScreen] = useState(true)
   const [revealed, setRevealed] = useState(false)
   const [showBubble, setShowBubble] = useState(false)
+
+  const hide = useCallback(() => {
+    if (hideTimer.current) {
+      clearTimeout(hideTimer.current)
+      hideTimer.current = null
+    }
+    setShowBubble(false)
+    setRevealed(false)
+  }, [])
 
   useEffect(() => {
     if (!active || !mounted) return
@@ -35,13 +46,33 @@ export function EntryPfp({ active }: EntryPfpProps) {
   useEffect(() => {
     if (!showBubble) return
 
-    const hideTimer = window.setTimeout(() => {
-      setShowBubble(false)
-      setRevealed(false)
+    hideTimer.current = window.setTimeout(() => {
+      hideTimer.current = null
+      hide()
     }, HIDE_DELAY_MS)
 
-    return () => window.clearTimeout(hideTimer)
-  }, [showBubble])
+    return () => {
+      if (hideTimer.current) {
+        clearTimeout(hideTimer.current)
+        hideTimer.current = null
+      }
+    }
+  }, [showBubble, hide])
+
+  useEffect(() => {
+    if (!active || !mounted || !onScreen) return
+
+    lastScrollY.current = window.scrollY
+
+    const onScroll = () => {
+      const currentY = window.scrollY
+      if (currentY > lastScrollY.current + 2) hide()
+      lastScrollY.current = currentY
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [active, mounted, onScreen, hide])
 
   if (!active || !mounted || !onScreen) return null
 

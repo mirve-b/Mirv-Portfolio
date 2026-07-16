@@ -1,5 +1,11 @@
 import type { Variants } from 'framer-motion'
 
+export const pageSlideTween = {
+  type: 'tween' as const,
+  duration: 0.34,
+  ease: [0.22, 1, 0.36, 1] as const,
+}
+
 export const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28 },
   visible: {

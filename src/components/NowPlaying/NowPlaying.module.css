@@ -29,6 +29,22 @@
     0 0 36px rgba(224, 44, 107, 0.08);
 }
 
+.root[data-fading] {
+  border-color: rgba(224, 44, 107, 0.28);
+}
+
+.root[data-fading] .labelRow,
+.root[data-fading] .playIcon {
+  opacity: 0.35;
+  transition: opacity 380ms var(--ease-smooth);
+}
+
+.root[data-fading] .waveBar {
+  animation-play-state: paused;
+  opacity: 0.35;
+  transition: opacity 380ms var(--ease-smooth);
+}
+
 .playIcon {
   display: flex;
   align-items: center;
@@ -47,6 +63,12 @@
   height: 0.5rem;
   margin-left: 1px;
   opacity: 0.9;
+}
+
+.playIcon[data-playing] svg {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-left: 0;
 }
 
 .label {

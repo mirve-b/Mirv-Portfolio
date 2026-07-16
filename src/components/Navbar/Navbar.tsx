@@ -1,7 +1,7 @@
 import { useCallback, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
-import flowerImg from '../../assets/flower2.png'
-import orchidImg from '../../assets/orchid1.png'
+import flowerImg from '../../assets/Collage/flower2.png'
+import orchidImg from '../../assets/Collage/orchid1.png'
 import { NowPlaying } from '../NowPlaying'
 import styles from './Navbar.module.css'
 
@@ -16,11 +16,23 @@ const textHover = {
   },
 }
 
-export function Navbar() {
-  const handleBrandClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [])
+type NavbarProps = {
+  isHome: boolean
+  onNavigateHome: () => void
+}
+
+export function Navbar({ isHome, onNavigateHome }: NavbarProps) {
+  const handleBrandClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault()
+      if (isHome) {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+      onNavigateHome()
+    },
+    [isHome, onNavigateHome],
+  )
 
   return (
     <header className={styles.navbar}>

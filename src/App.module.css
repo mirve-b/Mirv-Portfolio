@@ -7,29 +7,11 @@
   background-color: var(--color-bg);
 }
 
-.fixedBg {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  z-index: 0;
-  width: 1623px;
-  max-width: none;
-  transform: translateX(-50%);
-  pointer-events: none;
-  user-select: none;
-}
-
-.fixedBgImage {
-  display: block;
-  width: 1623px;
-  height: auto;
-  max-width: none;
-  opacity: 0.15;
-}
-
 .main {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 100svh;
   width: 100%;
   max-width: 100vw;
@@ -38,7 +20,45 @@
 
 .heroWrap {
   position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   overflow-x: clip;
+}
+
+.viewStage {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.expertiseStack {
+  position: relative;
+  width: 100%;
+}
+
+.pagePanel {
+  width: 100%;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.pagePanelOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow-x: clip;
+  overflow-y: auto;
+  background: var(--color-bg);
+  -webkit-overflow-scrolling: touch;
+}
+
+.siteChrome {
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 @media (max-width: 768px) {

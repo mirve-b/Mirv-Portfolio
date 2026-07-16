@@ -1,8 +1,33 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import { SMOOTH_PAUSE_MS } from '../../../lib/spotifyPlayback'
 import type { SpotifyEmbedController, SpotifyIframeApi } from '../spotifyIframeApi.types'
 import { preloadSpotifyIframeApi } from '../spotifyPreload'
 
 const EMBED_HEIGHT = '352'
+
+type PlaybackState = {
+  isPaused?: boolean
+}
+
+function readIsPlaying(payload: { data: unknown }): boolean | undefined {
+  const data = payload.data
+  if (!data || typeof data !== 'object') return undefined
+
+  const record = data as Record<string, unknown>
+  if (typeof record.isPaused === 'boolean') {
+    return !record.isPaused
+  }
+
+  const nested = record.payload
+  if (nested && typeof nested === 'object') {
+    const nestedRecord = nested as PlaybackState
+    if (typeof nestedRecord.isPaused === 'boolean') {
+      return !nestedRecord.isPaused
+    }
+  }
+
+  return undefined
+}
 
 export function useSpotifyController(
   hostRef: RefObject<HTMLDivElement | null>,
@@ -10,8 +35,10 @@ export function useSpotifyController(
   enabled: boolean,
 ) {
   const controllerRef = useRef<SpotifyEmbedController | null>(null)
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [ready, setReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isFading, setIsFading] = useState(false)
 
   const mountController = useCallback(
     (api: SpotifyIframeApi) => {
@@ -32,10 +59,14 @@ export function useSpotifyController(
             setReady(true)
           })
 
+          controller.addListener('playback_started', () => {
+            setIsPlaying(true)
+          })
+
           controller.addListener('playback_update', (payload) => {
-            const data = payload.data as { isPaused?: boolean }
-            if (typeof data.isPaused === 'boolean') {
-              setIsPlaying(!data.isPaused)
+            const playing = readIsPlaying(payload)
+            if (typeof playing === 'boolean') {
+              setIsPlaying(playing)
             }
           })
         },
@@ -83,5 +114,40 @@ export function useSpotifyController(
     }
   }, [hostRef, mountController, playlistUri, enabled])
 
-  return { ready, isPlaying }
+  const pause = useCallback(() => {
+    if (fadeTimerRef.current) {
+      clearTimeout(fadeTimerRef.current)
+      fadeTimerRef.current = null
+    }
+    setIsFading(false)
+    controllerRef.current?.pause()
+    setIsPlaying(false)
+  }, [])
+
+  const smoothPause = useCallback(() => {
+    if (fadeTimerRef.current) {
+      clearTimeout(fadeTimerRef.current)
+    }
+
+    if (!controllerRef.current) return
+
+    setIsFading(true)
+
+    fadeTimerRef.current = window.setTimeout(() => {
+      fadeTimerRef.current = null
+      controllerRef.current?.pause()
+      setIsPlaying(false)
+      setIsFading(false)
+    }, SMOOTH_PAUSE_MS)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current)
+      }
+    }
+  }, [])
+
+  return { ready, isPlaying, isFading, pause, smoothPause }
 }
