@@ -20,19 +20,25 @@ import archive2 from '../assets/ART/Archive/2.png'
 import archive3 from '../assets/ART/Archive/3.png'
 import archive4 from '../assets/ART/Archive/4.png'
 import archive5 from '../assets/ART/Archive/5.png'
-import storyShelfThumbnail from "../assets/ART/Children's Picture Books/thumbnail.png"
-import storyShelf1 from "../assets/ART/Children's Picture Books/1.png"
-import storyShelf2 from "../assets/ART/Children's Picture Books/2.png"
-import storyShelf3 from "../assets/ART/Children's Picture Books/3.png"
-import storyShelf4 from "../assets/ART/Children's Picture Books/4.png"
-import storyShelf5 from "../assets/ART/Children's Picture Books/5.png"
-import storyShelf6 from "../assets/ART/Children's Picture Books/6.png"
-import storyShelf7 from "../assets/ART/Children's Picture Books/7.png"
-import storyShelf8 from "../assets/ART/Children's Picture Books/8.png"
+import toyBoxThumbnail from '../assets/ART/TOY BOX/thumbnail.png'
+import toyBox1 from '../assets/ART/TOY BOX/1.png'
+import toyBox2 from '../assets/ART/TOY BOX/2.png'
+import toyBox3 from '../assets/ART/TOY BOX/3.png'
+import toyBox4 from '../assets/ART/TOY BOX/4.png'
+import toyBox5 from '../assets/ART/TOY BOX/5.png'
+import toyBox6 from '../assets/ART/TOY BOX/6.png'
+import toyBox7 from '../assets/ART/TOY BOX/7.png'
+import toyBox8 from '../assets/ART/TOY BOX/8.png'
+import storyShelfThumbnail from '../assets/ART/StoryShelf/Thumbnail.png'
+import storyShelf1 from '../assets/ART/StoryShelf/1.png'
+import storyShelf3 from '../assets/ART/StoryShelf/3.png'
+import storyShelf4 from '../assets/ART/StoryShelf/4.png'
+import storyShelf5 from '../assets/ART/StoryShelf/5.png'
+import storyShelf6 from '../assets/ART/StoryShelf/6.png'
+import storyShelf7 from '../assets/ART/StoryShelf/7.png'
 import framesVideo from '../assets/ART/Frames/eyes.MP4'
 import kaelVideo from '../assets/DEV/KAEL.mp4'
-import { preloadMediaAsset } from '../lib/mediaUtils'
-import devImg from '../assets/Notes/dev.png'
+import { preloadMediaAsset, preloadMediaBatch } from '../lib/mediaUtils'
 import fileImg from '../assets/Collage/File.png'
 import uiUxImg from '../assets/Notes/ui_ux.png'
 import type { ExpertiseCategory } from '../lib/pageNavigation'
@@ -49,6 +55,7 @@ export type PortfolioProject = {
   thumbnailType?: ThumbnailType
   thumbnailPosition?: string
   detailType?: ProjectDetailType
+  galleryMaxColumns?: number
   gallery: string[]
 }
 
@@ -94,20 +101,21 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: 'story-shelf',
     category: 'art',
+    title: 'TOY BOX',
+    subtitle: 'Mirvé Kids',
+    thumbnail: toyBoxThumbnail,
+    detailType: 'gallery',
+    gallery: [toyBox1, toyBox2, toyBox3, toyBox4, toyBox5, toyBox6, toyBox7, toyBox8],
+  },
+  {
+    id: 'toy-box',
+    category: 'art',
     title: 'Story Shelf',
-    subtitle: "Children's Illustration",
+    subtitle: "Children's book illustrations",
     thumbnail: storyShelfThumbnail,
     detailType: 'gallery',
-    gallery: [
-      storyShelf1,
-      storyShelf2,
-      storyShelf3,
-      storyShelf4,
-      storyShelf5,
-      storyShelf6,
-      storyShelf7,
-      storyShelf8,
-    ],
+    galleryMaxColumns: 3,
+    gallery: [storyShelf1, storyShelf3, storyShelf4, storyShelf5, storyShelf6, storyShelf7],
   },
   {
     id: 'frames',
@@ -153,22 +161,6 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     thumbnail: uiUxImg,
     gallery: [uiUxImg],
   },
-  {
-    id: 'frontend',
-    category: 'development',
-    title: 'Frontend',
-    subtitle: 'Architecture',
-    thumbnail: devImg,
-    gallery: [devImg],
-  },
-  {
-    id: 'portfolio',
-    category: 'development',
-    title: 'Portfolio',
-    subtitle: 'React + Vite',
-    thumbnail: fileImg,
-    gallery: [fileImg],
-  },
 ]
 
 export function projectsForCategory(category: ExpertiseCategory): PortfolioProject[] {
@@ -183,12 +175,37 @@ export function isProjectOpenable(project: PortfolioProject): boolean {
   return project.detailType === 'gallery' || project.detailType === 'case-study'
 }
 
+export function preloadProjectThumbnail(project: PortfolioProject): void {
+  preloadMediaAsset(project.thumbnail, false)
+}
+
+export function preloadProjectOnHover(project: PortfolioProject): void {
+  preloadProjectThumbnail(project)
+  const firstGalleryAsset = project.gallery[0]
+  if (firstGalleryAsset) {
+    preloadMediaAsset(firstGalleryAsset, false)
+  }
+}
+
+export function preloadProjectGalleryProgressive(project: PortfolioProject): void {
+  const isVideoThumb = project.thumbnailType === 'video'
+  preloadMediaAsset(project.thumbnail, !isVideoThumb)
+
+  const priority = project.gallery.slice(0, 2)
+  const rest = project.gallery.slice(2)
+
+  priority.forEach((src, index) => preloadMediaAsset(src, index === 0))
+  if (rest.length > 0) {
+    preloadMediaBatch(rest)
+  }
+}
+
+/** @deprecated Prefer preloadProjectOnHover / preloadProjectGalleryProgressive */
 export function preloadProjectGallery(project: PortfolioProject, eager = false): void {
-  if (project.thumbnailType === 'video') {
-    preloadMediaAsset(project.thumbnail, eager)
+  if (eager) {
+    preloadProjectGalleryProgressive(project)
+    return
   }
 
-  for (const src of project.gallery) {
-    preloadMediaAsset(src, eager)
-  }
+  preloadProjectOnHover(project)
 }

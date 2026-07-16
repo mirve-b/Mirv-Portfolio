@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
 import type { PortfolioProject } from '../../data/portfolioProjects'
 import { getCaseStudyForProject } from '../../data/projectCaseStudies'
-import { NameMarquee } from '../NameMarquee'
 import styles from './ProjectCaseStudy.module.css'
 
 const sectionSpring = {
@@ -23,8 +22,7 @@ export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
   }
 
   return (
-    <div className={styles.page}>
-      <section className={styles.section} aria-label={`${project.title} case study`}>
+    <section className={styles.section} aria-label={`${project.title} case study`}>
       <div className={styles.header}>
         <button type="button" className={styles.backButton} onClick={onBack}>
           ← Back
@@ -77,6 +75,8 @@ export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
                   alt={section.imageCaption ?? ''}
                   className={styles.figureImage}
                   draggable={false}
+                  loading="lazy"
+                  decoding="async"
                 />
                 {section.imageCaption ? (
                   <figcaption className={styles.figureCaption}>
@@ -121,8 +121,6 @@ export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
           </ul>
         </motion.article>
       </div>
-      </section>
-      <NameMarquee />
-    </div>
+    </section>
   )
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getProjectById, isProjectOpenable, preloadProjectGallery } from './data/portfolioProjects'
+import { getProjectById, isProjectOpenable } from './data/portfolioProjects'
 import { GlassCursor } from './components/GlassCursor'
 import { EntryPfp } from './components/EntryPfp'
 import { AboutSection } from './components/AboutSection'
@@ -31,7 +31,6 @@ function App() {
   const [tabDirection, setTabDirection] = useState(1)
   const restoredFromStorage = useRef(getStoredRoute().type !== 'home')
   const expertiseEnterFromSide = useRef(false)
-  const projectOverlayRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     storeRoute(route)
@@ -106,18 +105,6 @@ function App() {
     }
   }, [route, activeProject, navigate])
 
-  useEffect(() => {
-    if (activeProject?.detailType === 'gallery') {
-      preloadProjectGallery(activeProject, true)
-    }
-  }, [activeProject])
-
-  useEffect(() => {
-    if (route.type === 'project') {
-      projectOverlayRef.current?.scrollTo({ top: 0, behavior: 'auto' })
-    }
-  }, [route])
-
   const isExpertiseStack = route.type === 'expertise' || route.type === 'project'
   const expertiseCategory: ExpertiseCategory =
     route.type === 'expertise'
@@ -126,7 +113,7 @@ function App() {
         ? activeProject.category
         : 'art'
 
-  const showFooter = route.type !== 'project'
+  const showSiteChrome = route.type !== 'project'
 
   return (
     <div className={styles.app}>
@@ -183,22 +170,35 @@ function App() {
                           expertiseEnterFromSide.current = false
                         }}
                       >
-                        <div className={styles.pagePanel}>
-                          <ExpertiseSection
-                            category={expertiseCategory}
-                            onCategoryChange={handleCategoryChange}
-                            onOpenProject={openProject}
-                            tabDirection={tabDirection}
-                            motionEnabled={route.type === 'expertise'}
-                          />
-                        </div>
+                        <AnimatePresence
+                          mode="wait"
+                          custom={slideDirection.current}
+                          initial={false}
+                        >
+                          {route.type === 'expertise' ? (
+                            <motion.div
+                              key="expertise"
+                              className={styles.pagePanel}
+                              custom={slideDirection.current}
+                              initial={false}
+                              animate={{ x: 0 }}
+                              exit={{ x: '-100%' }}
+                              transition={pageSlideTween}
+                            >
+                              <ExpertiseSection
+                                category={expertiseCategory}
+                                onCategoryChange={handleCategoryChange}
+                                onOpenProject={openProject}
+                                tabDirection={tabDirection}
+                                motionEnabled
+                              />
+                            </motion.div>
+                          ) : null}
 
-                        <AnimatePresence custom={slideDirection.current}>
                           {route.type === 'project' && activeProject ? (
                             <motion.div
-                              ref={projectOverlayRef}
                               key={`project-${activeProject.id}`}
-                              className={`${styles.pagePanel} ${styles.pagePanelOverlay}`}
+                              className={styles.pagePanel}
                               custom={slideDirection.current}
                               initial={
                                 restoredFromStorage.current ? false : { x: '100%' }
@@ -227,10 +227,12 @@ function App() {
                 </div>
               </div>
 
-              <div className={styles.siteChrome}>
-                <NameMarquee />
-                {showFooter ? <Footer /> : null}
-              </div>
+              {showSiteChrome ? (
+                <div className={styles.siteChrome}>
+                  <NameMarquee />
+                  <Footer />
+                </div>
+              ) : null}
             </main>
           </>
         )}

@@ -47,7 +47,10 @@ export function GlassCursor() {
       }
     })
 
-    setParticles((current) => [...current, ...burst])
+    setParticles((current) => {
+      const next = [...current, ...burst]
+      return next.length > 24 ? next.slice(-24) : next
+    })
   }, [])
 
   useEffect(() => {
@@ -85,7 +88,9 @@ export function GlassCursor() {
 
     const onDown = (event: MouseEvent) => {
       moveCursor(event.clientX, event.clientY)
-      spawnGlitter(event.clientX, event.clientY)
+      window.requestAnimationFrame(() => {
+        spawnGlitter(event.clientX, event.clientY)
+      })
     }
 
     window.addEventListener('mousemove', onMove, { passive: true })

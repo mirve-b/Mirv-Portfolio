@@ -30,7 +30,7 @@
   position: relative;
   flex: 1;
   width: 100%;
-  overflow: hidden;
+  overflow-x: clip;
   isolation: isolate;
 }
 
@@ -43,17 +43,6 @@
   width: 100%;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
-  will-change: transform;
-}
-
-.pagePanelOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  overflow-x: clip;
-  overflow-y: auto;
-  background: var(--color-bg);
-  -webkit-overflow-scrolling: touch;
 }
 
 .siteChrome {

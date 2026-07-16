@@ -104,12 +104,22 @@ export function useSpotifyController(
       }
     }
 
-    const retry = window.setInterval(() => {
-      if (tryMount()) window.clearInterval(retry)
-    }, 50)
+    let attempt = 0
+    let retryTimer = 0
+
+    const scheduleRetry = () => {
+      const delay = Math.min(80 * 2 ** attempt, 640)
+      attempt += 1
+      retryTimer = window.setTimeout(() => {
+        if (tryMount()) return
+        if (attempt < 12) scheduleRetry()
+      }, delay)
+    }
+
+    scheduleRetry()
 
     return () => {
-      window.clearInterval(retry)
+      window.clearTimeout(retryTimer)
       window.onSpotifyIframeApiReady = previousReady
     }
   }, [hostRef, mountController, playlistUri, enabled])

@@ -58,12 +58,14 @@ export function Navbar({ isHome, onNavigateHome }: NavbarProps) {
           alt=""
           className={styles.cornerFlowerBack}
           draggable={false}
+          decoding="async"
         />
         <img
           src={flowerImg}
           alt=""
           className={styles.cornerFlowerFront}
           draggable={false}
+          decoding="async"
         />
       </div>
 
@@ -79,6 +81,7 @@ export function Navbar({ isHome, onNavigateHome }: NavbarProps) {
         className={styles.orchid}
         aria-hidden="true"
         draggable={false}
+        decoding="async"
       />
     </header>
   )

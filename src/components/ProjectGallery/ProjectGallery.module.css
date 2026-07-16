@@ -1,15 +1,5 @@
-.page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  min-height: 100svh;
-  padding-top: var(--navbar-height);
-  background: var(--color-bg);
-}
-
 .section {
   position: relative;
-  flex: 1;
   width: 100%;
   padding: clamp(1.5rem, 4vw, 2.5rem) var(--container-padding)
     clamp(1rem, 2.5vw, 1.5rem);
@@ -80,6 +70,25 @@
   max-width: var(--container-max);
   margin: 0 auto;
   align-items: start;
+}
+
+.gridMax3 {
+  width: 100%;
+  max-width: var(--container-max);
+  grid-template-columns: 1fr;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+@media (min-width: 640px) {
+  .gridMax3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .gridMax3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .item {
@@ -174,5 +183,11 @@
   font-weight: 200;
   letter-spacing: 0.06em;
   color: var(--color-grey-200);
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-top: calc(var(--navbar-height) + 1.5rem);
+  }
 }
 

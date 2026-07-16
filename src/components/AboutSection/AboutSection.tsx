@@ -173,6 +173,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
         className={tapClass(styles.orchidTopRight)}
         aria-hidden="true"
         draggable={false}
+        loading="lazy"
+        decoding="async"
         {...mobileTapProps}
       />
 
@@ -183,6 +185,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
           className={styles.mobileBackPage}
           aria-hidden="true"
           draggable={false}
+          loading="lazy"
+          decoding="async"
         />
       ) : null}
 
@@ -193,6 +197,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
           className={styles.fileBack}
           aria-hidden="true"
           draggable={false}
+          loading="lazy"
+          decoding="async"
         />
 
         {isMobile ? <div className={styles.fixedPage} aria-hidden="true" /> : null}
@@ -203,12 +209,16 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
             alt=""
             className={`${styles.paperPage} ${styles.pagePink}`}
             draggable={false}
+            loading="lazy"
+            decoding="async"
           />
           <img
             src={whitePolkaImg}
             alt=""
             className={`${styles.paperPage} ${styles.pageWhite}`}
             draggable={false}
+            loading="lazy"
+            decoding="async"
           />
         </div>
 
@@ -222,7 +232,7 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
               onClick={() => onSelectCategory(id)}
               onTransitionEnd={handleNoteTransitionEnd}
             >
-              <img src={image} alt="" draggable={false} />
+              <img src={image} alt="" draggable={false} loading="lazy" decoding="async" />
             </button>
           ))}
         </div>
@@ -233,6 +243,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
           className={tapClass(styles.fileFront)}
           tabIndex={0}
           draggable={false}
+          loading="lazy"
+          decoding="async"
           onMouseEnter={isMobile ? undefined : openFolder}
           onFocus={isMobile ? undefined : openFolder}
           {...mobileTapProps}
@@ -245,6 +257,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
         className={tapClass(styles.paperclip)}
         aria-hidden="true"
         draggable={false}
+        loading="lazy"
+        decoding="async"
         {...mobileTapProps}
       />
 
@@ -253,6 +267,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
         alt="Mirvé Blvck illustration and note"
         className={tapClass(styles.deco)}
         draggable={false}
+        loading="lazy"
+        decoding="async"
         {...mobileTapProps}
       />
 
@@ -262,6 +278,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
         className={tapClass(styles.flowerLeft)}
         aria-hidden="true"
         draggable={false}
+        loading="lazy"
+        decoding="async"
         {...mobileTapProps}
       />
 
@@ -271,6 +289,8 @@ function SkillsCollage({ onSelectCategory }: SkillsCollageProps) {
         className={tapClass(styles.flowerBottomRight)}
         aria-hidden="true"
         draggable={false}
+        loading="lazy"
+        decoding="async"
         {...mobileTapProps}
       />
     </motion.div>
@@ -290,6 +310,8 @@ export function AboutSection({
         className={styles.flowerFarLeft}
         aria-hidden="true"
         draggable={false}
+        loading="lazy"
+        decoding="async"
       />
 
       <img
@@ -298,6 +320,8 @@ export function AboutSection({
         className={styles.orchidFarLeft}
         aria-hidden="true"
         draggable={false}
+        loading="lazy"
+        decoding="async"
       />
 
       <div className={styles.container}>

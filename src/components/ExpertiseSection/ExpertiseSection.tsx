@@ -1,5 +1,12 @@
+import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { projectsForCategory, isProjectOpenable, preloadProjectGallery } from '../../data/portfolioProjects'
+import {
+  projectsForCategory,
+  isProjectOpenable,
+  preloadProjectGalleryProgressive,
+  preloadProjectOnHover,
+} from '../../data/portfolioProjects'
+import { startMutedPreview } from '../../lib/mediaUtils'
 import {
   EXPERTISE_TABS,
   type ExpertiseCategory,
@@ -30,6 +37,42 @@ type ExpertiseSectionProps = {
   onOpenProject: (projectId: string) => void
   tabDirection: number
   motionEnabled?: boolean
+}
+
+function CardVideo({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          void startMutedPreview(video)
+          return
+        }
+        video.pause()
+      },
+      { threshold: 0.15 },
+    )
+
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [src])
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      className={styles.cardVideo}
+      loop
+      muted
+      playsInline
+      preload="metadata"
+      draggable={false}
+    />
+  )
 }
 
 function ProjectCard({
@@ -76,16 +119,7 @@ function ProjectCard({
     <>
       <div className={styles.cardImageWrap}>
         {isVideo ? (
-          <video
-            src={project.thumbnail}
-            className={styles.cardVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            draggable={false}
-          />
+          <CardVideo src={project.thumbnail} />
         ) : (
           <img
             src={project.thumbnail}
@@ -113,10 +147,15 @@ function ProjectCard({
         type="button"
         className={styles.card}
         {...cardMotion}
-        onPointerEnter={() => preloadProjectGallery(project, true)}
+        onPointerEnter={() => preloadProjectOnHover(project)}
         onClick={() => {
-          preloadProjectGallery(project, true)
           onOpenProject(project.id)
+          const preload = () => preloadProjectGalleryProgressive(project)
+          if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(preload, { timeout: 1200 })
+          } else {
+            window.setTimeout(preload, 0)
+          }
         }}
       >
         {content}

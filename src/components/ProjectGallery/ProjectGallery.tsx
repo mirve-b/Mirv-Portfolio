@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PortfolioProject } from '../../data/portfolioProjects'
-import { preloadProjectGallery } from '../../data/portfolioProjects'
 import { isVideoAsset, startMutedPreview } from '../../lib/mediaUtils'
 import { smoothPauseSpotifyPlayback, SMOOTH_PAUSE_MS } from '../../lib/spotifyPlayback'
-import { NameMarquee } from '../NameMarquee'
 import styles from './ProjectGallery.module.css'
 
 type ProjectGalleryProps = {
@@ -24,9 +22,21 @@ function GalleryVideoItem({ src }: GalleryVideoItemProps) {
     const video = videoRef.current
     if (!video) return
 
-    void startMutedPreview(video)
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          void startMutedPreview(video)
+          return
+        }
+        video.pause()
+      },
+      { threshold: 0.15 },
+    )
+
+    observer.observe(video)
 
     return () => {
+      observer.disconnect()
       video.pause()
     }
   }, [src])
@@ -98,11 +108,10 @@ function GalleryVideoItem({ src }: GalleryVideoItemProps) {
           ref={videoRef}
           src={src}
           className={styles.video}
-          autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           draggable={false}
           onEnded={handleEnded}
         />
@@ -140,57 +149,54 @@ function pauseGalleryMedia(root: HTMLElement | null) {
 export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
   const sectionRef = useRef<HTMLElement>(null)
 
-  useEffect(() => {
-    preloadProjectGallery(project, true)
-  }, [project])
-
   const handleBack = useCallback(() => {
     pauseGalleryMedia(sectionRef.current)
     onBack()
   }, [onBack])
 
   return (
-    <div className={styles.page}>
-      <section
-        ref={sectionRef}
-        className={styles.section}
-        aria-label={`${project.title} gallery`}
-      >
-        <div className={styles.header}>
-          <button type="button" className={styles.backButton} onClick={handleBack}>
-            ← Back
-          </button>
-          <div className={styles.titles}>
-            <h1 className={styles.title}>{project.title}</h1>
-            <p className={styles.subtitle}>{project.subtitle}</p>
-          </div>
+    <section
+      ref={sectionRef}
+      className={styles.section}
+      aria-label={`${project.title} gallery`}
+    >
+      <div className={styles.header}>
+        <button type="button" className={styles.backButton} onClick={handleBack}>
+          ← Back
+        </button>
+        <div className={styles.titles}>
+          <h1 className={styles.title}>{project.title}</h1>
+          <p className={styles.subtitle}>{project.subtitle}</p>
         </div>
+      </div>
 
-        {project.gallery.length > 0 ? (
-          <div className={styles.grid}>
-            {project.gallery.map((src, index) =>
-              isVideoAsset(src) ? (
-                <GalleryVideoItem key={`${project.id}-${index}`} src={src} />
-              ) : (
-                <figure key={`${project.id}-${index}`} className={styles.item}>
-                  <img
-                    src={src}
-                    alt=""
-                    className={styles.image}
-                    draggable={false}
-                    loading="eager"
-                    decoding="async"
-                    fetchPriority={index === 0 ? 'high' : 'auto'}
-                  />
-                </figure>
-              ),
-            )}
-          </div>
-        ) : (
-          <p className={styles.empty}>Gallery coming soon.</p>
-        )}
-      </section>
-      <NameMarquee />
-    </div>
+      {project.gallery.length > 0 ? (
+        <div
+          className={`${styles.grid}${
+            project.galleryMaxColumns === 3 ? ` ${styles.gridMax3}` : ''
+          }`}
+        >
+          {project.gallery.map((src, index) =>
+            isVideoAsset(src) ? (
+              <GalleryVideoItem key={`${project.id}-${index}`} src={src} />
+            ) : (
+              <figure key={`${project.id}-${index}`} className={styles.item}>
+                <img
+                  src={src}
+                  alt=""
+                  className={styles.image}
+                  draggable={false}
+                  loading={index < 2 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={index === 0 ? 'high' : 'low'}
+                />
+              </figure>
+            ),
+          )}
+        </div>
+      ) : (
+        <p className={styles.empty}>Gallery coming soon.</p>
+      )}
+    </section>
   )
 }
