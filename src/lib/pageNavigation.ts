@@ -35,8 +35,86 @@ const LEGACY_PAGE_KEY = 'mirve-active-page'
 
 const EXPERTISE_PAGES: ExpertiseCategory[] = ['art', 'ui-ux', 'development']
 
+const HISTORY_STATE_KEY = 'mirveRoute'
+
+export type HistoryRouteState = {
+  [HISTORY_STATE_KEY]: AppRoute
+}
+
 function isExpertiseCategory(value: string): value is ExpertiseCategory {
   return EXPERTISE_PAGES.includes(value as ExpertiseCategory)
+}
+
+function isAppRoute(value: unknown): value is AppRoute {
+  if (!value || typeof value !== 'object') return false
+
+  const route = value as AppRoute
+  if (route.type === 'home') return true
+  if (route.type === 'expertise') return isExpertiseCategory(route.category)
+  if (route.type === 'project') return typeof route.projectId === 'string' && route.projectId.length > 0
+  return false
+}
+
+export function routeToPath(route: AppRoute): string {
+  if (route.type === 'home') return '/'
+  if (route.type === 'expertise') return `/expertise/${route.category}`
+  return `/project/${encodeURIComponent(route.projectId)}`
+}
+
+export function pathToRoute(pathname: string): AppRoute | null {
+  const path = pathname.replace(/\/+$/, '') || '/'
+
+  if (path === '/') return { type: 'home' }
+
+  const expertiseMatch = path.match(/^\/expertise\/(art|ui-ux|development)$/)
+  if (expertiseMatch) {
+    return { type: 'expertise', category: expertiseMatch[1] as ExpertiseCategory }
+  }
+
+  const projectMatch = path.match(/^\/project\/([^/]+)$/)
+  if (projectMatch) {
+    return {
+      type: 'project',
+      projectId: decodeURIComponent(projectMatch[1]),
+    }
+  }
+
+  return null
+}
+
+export function readRouteFromHistoryState(state: unknown): AppRoute | null {
+  if (!state || typeof state !== 'object') return null
+  const candidate = (state as HistoryRouteState)[HISTORY_STATE_KEY]
+  return isAppRoute(candidate) ? candidate : null
+}
+
+export function createHistoryState(route: AppRoute): HistoryRouteState {
+  return { [HISTORY_STATE_KEY]: route }
+}
+
+export function routeDepth(route: AppRoute): number {
+  if (route.type === 'home') return 0
+  if (route.type === 'expertise') return 1
+  return 2
+}
+
+export function getInitialRoute(): AppRoute {
+  if (typeof window === 'undefined') return { type: 'home' }
+  return pathToRoute(window.location.pathname) ?? getStoredRoute()
+}
+
+export function syncBrowserHistory(route: AppRoute, mode: 'push' | 'replace'): void {
+  if (typeof window === 'undefined') return
+
+  const path = routeToPath(route)
+  const state = createHistoryState(route)
+
+  if (mode === 'replace') {
+    window.history.replaceState(state, '', path)
+    return
+  }
+
+  window.history.pushState(state, '', path)
 }
 
 function parseRoute(raw: string | null): AppRoute {

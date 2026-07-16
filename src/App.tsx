@@ -24,8 +24,12 @@ import {
   type AppRoute,
   type ExpertiseCategory,
   expertiseTabDirection,
-  getStoredRoute,
+  getInitialRoute,
+  pathToRoute,
+  readRouteFromHistoryState,
+  routeDepth,
   storeRoute,
+  syncBrowserHistory,
 } from './lib/pageNavigation'
 import styles from './App.module.css'
 
@@ -43,17 +47,57 @@ function App() {
   const skipIntro = hasSeenIntro()
   const [showContent, setShowContent] = useState(skipIntro)
   const [showSplash, setShowSplash] = useState(!skipIntro)
-  const [route, setRoute] = useState<AppRoute>(() => getStoredRoute())
+  const [route, setRoute] = useState<AppRoute>(() => getInitialRoute())
   const [loadedProject, setLoadedProject] = useState<PortfolioProject | null>(null)
   const slideDirection = useRef(1)
   const [tabDirection, setTabDirection] = useState(1)
-  const restoredFromStorage = useRef(getStoredRoute().type !== 'home')
+  const routeRef = useRef(route)
+  const restoredFromStorage = useRef(getInitialRoute().type !== 'home')
   const expertiseEnterFromSide = useRef(false)
   const projectLoadRequest = useRef(0)
+  const historyReady = useRef(false)
+
+  routeRef.current = route
+
+  useEffect(() => {
+    syncBrowserHistory(routeRef.current, 'replace')
+    historyReady.current = true
+  }, [])
 
   useEffect(() => {
     storeRoute(route)
   }, [route])
+
+  useEffect(() => {
+    const onPopState = (event: PopStateEvent) => {
+      const previous = routeRef.current
+      const next =
+        readRouteFromHistoryState(event.state) ??
+        pathToRoute(window.location.pathname) ??
+        { type: 'home' }
+
+      const previousDepth = routeDepth(previous)
+      const nextDepth = routeDepth(next)
+      slideDirection.current = nextDepth >= previousDepth ? 1 : -1
+      restoredFromStorage.current = false
+      expertiseEnterFromSide.current =
+        next.type === 'expertise' && previous.type === 'home'
+
+      if (
+        previous.type === 'expertise' &&
+        next.type === 'expertise' &&
+        previous.category !== next.category
+      ) {
+        setTabDirection(expertiseTabDirection(previous.category, next.category))
+      }
+
+      setRoute(next)
+      window.scrollTo({ top: 0, behavior: 'auto' })
+    }
+
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   useEffect(() => {
     if (route.type !== 'project') {
@@ -77,6 +121,9 @@ function App() {
   }, [route])
 
   const navigate = useCallback((next: AppRoute) => {
+    if (historyReady.current) {
+      syncBrowserHistory(next, 'push')
+    }
     setRoute(next)
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [])
@@ -145,9 +192,11 @@ function App() {
 
   useEffect(() => {
     if (route.type === 'project' && !activeProjectMeta) {
-      navigate({ type: 'home' })
+      const next = { type: 'home' as const }
+      syncBrowserHistory(next, 'replace')
+      setRoute(next)
     }
-  }, [route, activeProjectMeta, navigate])
+  }, [route, activeProjectMeta])
 
   const isExpertiseStack = route.type === 'expertise' || route.type === 'project'
   const expertiseCategory: ExpertiseCategory =

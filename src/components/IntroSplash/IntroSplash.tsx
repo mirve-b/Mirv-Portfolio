@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import styles from './IntroSplash.module.css'
 
 const DISPLAY_FONT = '400 1em "Alumni Sans Pinstripe"'
-const FADE_IN_MS = 600
+const FADE_IN_MS = 1000
 const LOGO_HOLD_MS = 3000
 const FADE_OUT_MS = 1000
 const EASE = [0.16, 1, 0.3, 1] as const
