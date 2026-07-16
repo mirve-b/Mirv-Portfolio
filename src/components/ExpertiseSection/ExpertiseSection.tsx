@@ -20,10 +20,6 @@ const panelTween = {
   ease: [0.22, 1, 0.36, 1] as const,
 }
 
-const instantPanelTween = {
-  duration: 0,
-}
-
 const cardTween = {
   type: 'tween' as const,
   duration: 0.3,
@@ -276,6 +272,30 @@ function ProjectCard({
     </>
   )
 
+  if (!motionEnabled) {
+    if (isClickable) {
+      return (
+        <button
+          type="button"
+          className={styles.card}
+          onClick={() => onOpenProject(project.id)}
+        >
+          {content}
+        </button>
+      )
+    }
+
+    return (
+      <article
+        className={`${styles.card} ${styles.cardStatic}${
+          isShowcase ? ` ${styles.cardShowcase}` : ''
+        }`}
+      >
+        {content}
+      </article>
+    )
+  }
+
   if (isClickable) {
     return (
       <motion.button
@@ -327,12 +347,16 @@ export function ExpertiseSection({
               onClick={() => onCategoryChange(id)}
             >
               {isActive ? (
-                <motion.span
-                  layoutId="expertise-tab-indicator"
-                  className={styles.tabIndicator}
-                  transition={tabIndicatorSpring}
-                  aria-hidden="true"
-                />
+                tabPanelMotionEnabled ? (
+                  <motion.span
+                    layoutId="expertise-tab-indicator"
+                    className={styles.tabIndicator}
+                    transition={tabIndicatorSpring}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <span className={styles.tabIndicator} aria-hidden="true" />
+                )
               ) : null}
               <span className={styles.tabLabel}>{label}</span>
             </button>
@@ -341,24 +365,37 @@ export function ExpertiseSection({
       </nav>
 
       <div className={styles.cardsStage}>
-        <AnimatePresence custom={tabDirection} initial={false}>
-          <motion.div
-            key={category}
-            className={styles.panel}
-            custom={tabDirection}
-            initial={
-              tabPanelMotionEnabled
-                ? { opacity: 0, x: tabDirection > 0 ? 48 : -48 }
-                : false
-            }
-            animate={{ opacity: 1, x: 0 }}
-            exit={
-              tabPanelMotionEnabled
-                ? { opacity: 0, x: tabDirection > 0 ? -48 : 48 }
-                : { opacity: 1, x: 0 }
-            }
-            transition={tabPanelMotionEnabled ? panelTween : instantPanelTween}
-          >
+        {tabPanelMotionEnabled ? (
+          <AnimatePresence custom={tabDirection} initial={false}>
+            <motion.div
+              key={category}
+              className={styles.panel}
+              custom={tabDirection}
+              initial={{ opacity: 0, x: tabDirection > 0 ? 48 : -48 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: tabDirection > 0 ? -48 : 48 }}
+              transition={panelTween}
+            >
+              <div
+                className={`${styles.grid}${
+                  category === 'development' ? ` ${styles.gridDevelopment}` : ''
+                }`}
+              >
+                {projects.map((project, index) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    thumbnail={thumbnails[project.id]}
+                    index={index}
+                    onOpenProject={onOpenProject}
+                    motionEnabled={entranceMotionEnabled}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        ) : (
+          <div key={category} className={styles.panel}>
             <div
               className={`${styles.grid}${
                 category === 'development' ? ` ${styles.gridDevelopment}` : ''
@@ -375,8 +412,8 @@ export function ExpertiseSection({
                 />
               ))}
             </div>
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        )}
       </div>
     </section>
   )

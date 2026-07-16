@@ -141,13 +141,30 @@ function App() {
     })
   }, [route])
 
-  const navigate = useCallback((next: AppRoute) => {
-    if (historyReady.current) {
-      syncBrowserHistory(next, 'push')
-    }
-    setRoute(next)
-    window.scrollTo({ top: 0, behavior: 'auto' })
-  }, [])
+  const applyRoute = useCallback(
+    (next: AppRoute, mode: 'push' | 'replace') => {
+      if (historyReady.current) {
+        syncBrowserHistory(next, mode)
+      }
+      setRoute(next)
+      window.scrollTo({ top: 0, behavior: 'auto' })
+    },
+    [],
+  )
+
+  const navigate = useCallback(
+    (next: AppRoute) => {
+      applyRoute(next, 'push')
+    },
+    [applyRoute],
+  )
+
+  const replaceRoute = useCallback(
+    (next: AppRoute) => {
+      applyRoute(next, 'replace')
+    },
+    [applyRoute],
+  )
 
   const handleIntroReveal = useCallback(() => {
     markIntroSeen()
@@ -175,8 +192,15 @@ function App() {
     expertiseEnterFromSide.current = false
     setTabPanelMotionEnabled(false)
     setRouteMotion('none')
-    navigate({ type: 'home' })
-  }, [navigate])
+
+    const depth = routeDepth(routeRef.current)
+    if (depth > 0) {
+      window.history.go(-depth)
+      return
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   const handleCategoryChange = useCallback(
     (category: ExpertiseCategory) => {
@@ -184,9 +208,9 @@ function App() {
       setTabDirection(expertiseTabDirection(route.category, category))
       setTabPanelMotionEnabled(true)
       setRouteMotion('none')
-      navigate({ type: 'expertise', category })
+      replaceRoute({ type: 'expertise', category })
     },
-    [navigate, route],
+    [replaceRoute, route],
   )
 
   const openProject = useCallback(
@@ -202,16 +226,13 @@ function App() {
     [navigate],
   )
 
-  const backToExpertise = useCallback(
-    (category: ExpertiseCategory) => {
-      slideDirection.current = -1
-      expertiseEnterFromSide.current = false
-      setTabPanelMotionEnabled(false)
-      setRouteMotion('none')
-      navigate({ type: 'expertise', category })
-    },
-    [navigate],
-  )
+  const backToExpertise = useCallback((_category: ExpertiseCategory) => {
+    slideDirection.current = -1
+    expertiseEnterFromSide.current = false
+    setTabPanelMotionEnabled(false)
+    setRouteMotion('none')
+    window.history.back()
+  }, [])
 
   const activeProjectMeta =
     route.type === 'project' ? getProjectMetaById(route.projectId) : undefined
@@ -236,6 +257,16 @@ function App() {
   const showSiteChrome = route.type !== 'project'
   const isHome = route.type === 'home'
 
+  useEffect(() => {
+    if (!tabPanelMotionEnabled) return
+
+    const timer = window.setTimeout(() => {
+      setTabPanelMotionEnabled(false)
+    }, 320)
+
+    return () => window.clearTimeout(timer)
+  }, [tabPanelMotionEnabled, expertiseCategory])
+
   return (
     <div className={styles.app}>
       <GlassCursor />
@@ -253,9 +284,7 @@ function App() {
                       key="home"
                       className={styles.pagePanel}
                       custom={slideDirection.current}
-                      initial={
-                        routeMotion === 'none' ? false : { x: 0 }
-                      }
+                      initial={false}
                       animate={{ x: 0 }}
                       exit={
                         routeMotion === 'home-to-expertise'
@@ -288,6 +317,7 @@ function App() {
                       onAnimationComplete={() => {
                         if (routeMotion === 'home-to-expertise') {
                           expertiseEnterFromSide.current = false
+                          setRouteMotion('none')
                         }
                       }}
                     >
@@ -324,6 +354,11 @@ function App() {
                               routeMotion === 'none' ? { x: 0 } : { x: '100%' }
                             }
                             transition={animatedTransition}
+                            onAnimationComplete={() => {
+                              if (routeMotion === 'expertise-to-project') {
+                                setRouteMotion('none')
+                              }
+                            }}
                           >
                             <Suspense fallback={null}>
                               {loadedProject ? (
