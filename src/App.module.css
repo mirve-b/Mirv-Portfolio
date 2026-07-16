@@ -40,6 +40,21 @@
   backface-visibility: hidden;
 }
 
+/* Mobile: one full page at a time — no transforms, no stacked grid */
+.viewStage[data-mobile='true'] {
+  display: block;
+}
+
+.viewStage[data-mobile='true'] .viewLayer {
+  display: none;
+  contain: layout style paint;
+}
+
+.viewStage[data-mobile='true'] .viewLayer[data-active='true'] {
+  display: block;
+}
+
+/* Desktop: slide stack */
 .viewStage[data-stacked='true'] {
   display: grid;
   grid-template: 1fr / 1fr;

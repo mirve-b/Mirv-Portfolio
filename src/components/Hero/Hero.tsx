@@ -2,12 +2,21 @@ import { useEffect, useRef } from 'react'
 import heroVideo from '../../assets/hero.mov'
 import styles from './Hero.module.css'
 
-export function Hero() {
+type HeroProps = {
+  active?: boolean
+}
+
+export function Hero({ active = true }: HeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
+
+    if (!active) {
+      video.pause()
+      return
+    }
 
     video.preload = 'metadata'
     video.setAttribute('fetchpriority', 'high')
@@ -25,7 +34,7 @@ export function Hero() {
 
     observer.observe(video)
     return () => observer.disconnect()
-  }, [])
+  }, [active])
 
   return (
     <section className={styles.hero} aria-label="Portfolio hero">

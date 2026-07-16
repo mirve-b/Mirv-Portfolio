@@ -32,6 +32,7 @@ import {
   storeRoute,
   syncBrowserHistory,
 } from './lib/pageNavigation'
+import { useIsMobile } from './lib/useIsMobile'
 import styles from './App.module.css'
 
 const ProjectGallery = lazy(() =>
@@ -56,6 +57,7 @@ function initialVisitedState() {
 }
 
 function App() {
+  const isMobile = useIsMobile()
   const skipIntro = hasSeenIntro()
   const [showContent, setShowContent] = useState(skipIntro)
   const [showSplash, setShowSplash] = useState(!skipIntro)
@@ -73,7 +75,8 @@ function App() {
 
   routeRef.current = route
 
-  const pageTransition = routeMotion === 'none' ? instantTransition : pageSlideTween
+  const pageMotionEnabled = !isMobile && routeMotion !== 'none'
+  const pageTransition = pageMotionEnabled ? pageSlideTween : instantTransition
 
   useEffect(() => {
     syncBrowserHistory(routeRef.current, 'replace')
@@ -83,6 +86,12 @@ function App() {
   useEffect(() => {
     storeRoute(route)
   }, [route])
+
+  useEffect(() => {
+    if (!isMobile || !visited.expertise) return
+    void import('./components/ProjectGallery')
+    void import('./components/ProjectCaseStudy')
+  }, [isMobile, visited.expertise])
 
   useEffect(() => {
     const onPopState = (event: PopStateEvent) => {
@@ -195,11 +204,11 @@ function App() {
       slideDirection.current = 1
       setTabDirection(1)
       setTabPanelMotionEnabled(false)
-      setRouteMotion('home-to-expertise')
+      setRouteMotion(isMobile ? 'none' : 'home-to-expertise')
       setVisited((current) => ({ ...current, expertise: true }))
       navigate({ type: 'expertise', category })
     },
-    [navigate],
+    [isMobile, navigate],
   )
 
   const navigateHome = useCallback(() => {
@@ -220,11 +229,11 @@ function App() {
     (category: ExpertiseCategory) => {
       if (route.type !== 'expertise') return
       setTabDirection(expertiseTabDirection(route.category, category))
-      setTabPanelMotionEnabled(true)
+      setTabPanelMotionEnabled(!isMobile)
       setRouteMotion('none')
       replaceRoute({ type: 'expertise', category })
     },
-    [replaceRoute, route],
+    [isMobile, replaceRoute, route],
   )
 
   const openProject = useCallback(
@@ -233,11 +242,11 @@ function App() {
       if (!project || !isProjectOpenable(project)) return
       slideDirection.current = 1
       setTabPanelMotionEnabled(false)
-      setRouteMotion('expertise-to-project')
+      setRouteMotion(isMobile ? 'none' : 'expertise-to-project')
       setVisited((current) => ({ ...current, project: true }))
       navigate({ type: 'project', projectId })
     },
-    [navigate],
+    [isMobile, navigate],
   )
 
   const backToExpertise = useCallback((_category: ExpertiseCategory) => {
@@ -276,24 +285,39 @@ function App() {
   const projectOffset = isProject ? '0%' : '100%'
 
   useEffect(() => {
-    if (!tabPanelMotionEnabled) return
+    if (isMobile || !tabPanelMotionEnabled) return
 
     const timer = window.setTimeout(() => {
       setTabPanelMotionEnabled(false)
     }, 320)
 
     return () => window.clearTimeout(timer)
-  }, [tabPanelMotionEnabled, expertiseCategory])
+  }, [isMobile, tabPanelMotionEnabled, expertiseCategory])
 
   useEffect(() => {
-    if (routeMotion === 'none') return
+    if (isMobile || routeMotion === 'none') return
 
     const timer = window.setTimeout(() => {
       setRouteMotion('none')
     }, 360)
 
     return () => window.clearTimeout(timer)
-  }, [routeMotion])
+  }, [isMobile, routeMotion])
+
+  const projectView =
+    loadedProject && activeProjectMeta ? (
+      loadedProject.detailType === 'case-study' ? (
+        <ProjectCaseStudy
+          project={loadedProject}
+          onBack={() => backToExpertise(activeProjectMeta.category)}
+        />
+      ) : (
+        <ProjectGallery
+          project={loadedProject}
+          onBack={() => backToExpertise(activeProjectMeta.category)}
+        />
+      )
+    ) : null
 
   return (
     <div className={styles.app}>
@@ -307,86 +331,120 @@ function App() {
 
               <div
                 className={styles.viewStage}
-                data-stacked={visited.expertise ? 'true' : undefined}
+                data-mobile={isMobile ? 'true' : undefined}
+                data-stacked={!isMobile && visited.expertise ? 'true' : undefined}
               >
-                <motion.div
-                  className={styles.viewLayer}
-                  aria-hidden={!isHome}
-                  data-offscreen={
-                    !isHome && routeMotion === 'none' ? 'true' : undefined
-                  }
-                  {...(!isHome ? { inert: true as const } : {})}
-                  initial={false}
-                  animate={{ x: homeOffset }}
-                  transition={pageTransition}
-                >
-                  <Hero />
-                  <TaglineDivider />
-                  <AboutSection
-                    onSelectCategory={navigateToExpertise}
-                    isHomeActive={isHome}
-                  />
-                </motion.div>
-
-                {visited.expertise ? (
-                  <motion.div
-                    className={`${styles.viewLayer} ${styles.viewLayerExpertise}`}
-                    aria-hidden={!isExpertiseStack}
-                    data-offscreen={
-                      isHome && routeMotion === 'none' ? 'true' : undefined
-                    }
-                    {...(!isExpertiseStack ? { inert: true as const } : {})}
-                    initial={false}
-                    animate={{ x: expertiseOffset }}
-                    transition={pageTransition}
-                  >
+                {isMobile ? (
+                  <>
                     <div
-                      className={styles.expertiseUnderlay}
-                      data-hidden={isProject ? 'true' : undefined}
-                      aria-hidden={isProject}
+                      className={styles.viewLayer}
+                      data-active={isHome ? 'true' : undefined}
+                      aria-hidden={!isHome}
+                      {...(!isHome ? { inert: true as const } : {})}
                     >
-                      <ExpertiseSection
-                        category={expertiseCategory}
-                        onCategoryChange={handleCategoryChange}
-                        onOpenProject={openProject}
-                        tabDirection={tabDirection}
-                        entranceMotionEnabled={routeMotion === 'home-to-expertise'}
-                        tabPanelMotionEnabled={tabPanelMotionEnabled}
+                      <Hero active={isHome} />
+                      <TaglineDivider />
+                      <AboutSection
+                        onSelectCategory={navigateToExpertise}
+                        isHomeActive={isHome}
                       />
                     </div>
 
+                    {visited.expertise ? (
+                      <div
+                        className={styles.viewLayer}
+                        data-active={isExpertise ? 'true' : undefined}
+                        aria-hidden={!isExpertise}
+                        {...(!isExpertise ? { inert: true as const } : {})}
+                      >
+                        <ExpertiseSection
+                          category={expertiseCategory}
+                          onCategoryChange={handleCategoryChange}
+                          onOpenProject={openProject}
+                          tabDirection={tabDirection}
+                          entranceMotionEnabled={false}
+                          tabPanelMotionEnabled={false}
+                        />
+                      </div>
+                    ) : null}
+
                     {visited.project ? (
-                      <motion.div
-                        className={styles.projectLayer}
+                      <div
+                        className={styles.viewLayer}
+                        data-active={isProject ? 'true' : undefined}
                         aria-hidden={!isProject}
                         {...(!isProject ? { inert: true as const } : {})}
+                      >
+                        <Suspense fallback={null}>{projectView}</Suspense>
+                      </div>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <motion.div
+                      className={styles.viewLayer}
+                      aria-hidden={!isHome}
+                      data-offscreen={
+                        !isHome && routeMotion === 'none' ? 'true' : undefined
+                      }
+                      {...(!isHome ? { inert: true as const } : {})}
+                      initial={false}
+                      animate={{ x: homeOffset }}
+                      transition={pageTransition}
+                    >
+                      <Hero active={isHome} />
+                      <TaglineDivider />
+                      <AboutSection
+                        onSelectCategory={navigateToExpertise}
+                        isHomeActive={isHome}
+                      />
+                    </motion.div>
+
+                    {visited.expertise ? (
+                      <motion.div
+                        className={`${styles.viewLayer} ${styles.viewLayerExpertise}`}
+                        aria-hidden={!isExpertiseStack}
+                        data-offscreen={
+                          isHome && routeMotion === 'none' ? 'true' : undefined
+                        }
+                        {...(!isExpertiseStack ? { inert: true as const } : {})}
                         initial={false}
-                        animate={{ x: projectOffset }}
+                        animate={{ x: expertiseOffset }}
                         transition={pageTransition}
                       >
-                        <Suspense fallback={null}>
-                          {loadedProject && activeProjectMeta ? (
-                            loadedProject.detailType === 'case-study' ? (
-                              <ProjectCaseStudy
-                                project={loadedProject}
-                                onBack={() =>
-                                  backToExpertise(activeProjectMeta.category)
-                                }
-                              />
-                            ) : (
-                              <ProjectGallery
-                                project={loadedProject}
-                                onBack={() =>
-                                  backToExpertise(activeProjectMeta.category)
-                                }
-                              />
-                            )
-                          ) : null}
-                        </Suspense>
+                        <div
+                          className={styles.expertiseUnderlay}
+                          data-hidden={isProject ? 'true' : undefined}
+                          aria-hidden={isProject}
+                        >
+                          <ExpertiseSection
+                            category={expertiseCategory}
+                            onCategoryChange={handleCategoryChange}
+                            onOpenProject={openProject}
+                            tabDirection={tabDirection}
+                            entranceMotionEnabled={
+                              routeMotion === 'home-to-expertise'
+                            }
+                            tabPanelMotionEnabled={tabPanelMotionEnabled}
+                          />
+                        </div>
+
+                        {visited.project ? (
+                          <motion.div
+                            className={styles.projectLayer}
+                            aria-hidden={!isProject}
+                            {...(!isProject ? { inert: true as const } : {})}
+                            initial={false}
+                            animate={{ x: projectOffset }}
+                            transition={pageTransition}
+                          >
+                            <Suspense fallback={null}>{projectView}</Suspense>
+                          </motion.div>
+                        ) : null}
                       </motion.div>
                     ) : null}
-                  </motion.div>
-                ) : null}
+                  </>
+                )}
               </div>
             </div>
 
