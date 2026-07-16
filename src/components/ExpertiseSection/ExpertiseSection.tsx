@@ -20,6 +20,10 @@ const panelTween = {
   ease: [0.22, 1, 0.36, 1] as const,
 }
 
+const instantPanelTween = {
+  duration: 0,
+}
+
 const cardTween = {
   type: 'tween' as const,
   duration: 0.3,
@@ -37,7 +41,8 @@ type ExpertiseSectionProps = {
   onCategoryChange: (category: ExpertiseCategory) => void
   onOpenProject: (projectId: string) => void
   tabDirection: number
-  motionEnabled?: boolean
+  entranceMotionEnabled?: boolean
+  tabPanelMotionEnabled?: boolean
 }
 
 function useCategoryThumbnails(category: ExpertiseCategory) {
@@ -301,7 +306,8 @@ export function ExpertiseSection({
   onCategoryChange,
   onOpenProject,
   tabDirection,
-  motionEnabled = true,
+  entranceMotionEnabled = false,
+  tabPanelMotionEnabled = false,
 }: ExpertiseSectionProps) {
   const projects = getProjectsMetaForCategory(category)
   const thumbnails = useCategoryThumbnails(category)
@@ -341,13 +347,17 @@ export function ExpertiseSection({
             className={styles.panel}
             custom={tabDirection}
             initial={
-              motionEnabled
+              tabPanelMotionEnabled
                 ? { opacity: 0, x: tabDirection > 0 ? 48 : -48 }
                 : false
             }
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: tabDirection > 0 ? -48 : 48 }}
-            transition={panelTween}
+            exit={
+              tabPanelMotionEnabled
+                ? { opacity: 0, x: tabDirection > 0 ? -48 : 48 }
+                : { opacity: 1, x: 0 }
+            }
+            transition={tabPanelMotionEnabled ? panelTween : instantPanelTween}
           >
             <div
               className={`${styles.grid}${
@@ -361,7 +371,7 @@ export function ExpertiseSection({
                   thumbnail={thumbnails[project.id]}
                   index={index}
                   onOpenProject={onOpenProject}
-                  motionEnabled={motionEnabled}
+                  motionEnabled={entranceMotionEnabled}
                 />
               ))}
             </div>

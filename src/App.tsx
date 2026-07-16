@@ -43,34 +43,28 @@ const ProjectCaseStudy = lazy(() =>
   import('./components/ProjectCaseStudy').then((m) => ({ default: m.ProjectCaseStudy })),
 )
 
+type RouteMotionKind = 'home-to-expertise' | 'expertise-to-project' | 'none'
+
+const instantTransition = { duration: 0 }
+
 function App() {
   const skipIntro = hasSeenIntro()
   const [showContent, setShowContent] = useState(skipIntro)
   const [showSplash, setShowSplash] = useState(!skipIntro)
   const [route, setRoute] = useState<AppRoute>(() => getInitialRoute())
   const [loadedProject, setLoadedProject] = useState<PortfolioProject | null>(null)
+  const [routeMotion, setRouteMotion] = useState<RouteMotionKind>('none')
+  const [tabPanelMotionEnabled, setTabPanelMotionEnabled] = useState(false)
   const slideDirection = useRef(1)
   const [tabDirection, setTabDirection] = useState(1)
   const routeRef = useRef(route)
-  const restoredFromStorage = useRef(getInitialRoute().type !== 'home')
   const expertiseEnterFromSide = useRef(false)
   const projectLoadRequest = useRef(0)
   const historyReady = useRef(false)
-  const [instantHistoryNav, setInstantHistoryNav] = useState(false)
 
   routeRef.current = route
 
-  const routeTransition = instantHistoryNav ? { duration: 0 } : pageSlideTween
-
-  useEffect(() => {
-    if (!instantHistoryNav) return
-
-    const frame = window.requestAnimationFrame(() => {
-      setInstantHistoryNav(false)
-    })
-
-    return () => window.cancelAnimationFrame(frame)
-  }, [instantHistoryNav, route])
+  const animatedTransition = routeMotion === 'none' ? instantTransition : pageSlideTween
 
   useEffect(() => {
     syncBrowserHistory(routeRef.current, 'replace')
@@ -102,13 +96,13 @@ function App() {
         return
       }
 
-      setInstantHistoryNav(true)
+      setRouteMotion('none')
+      setTabPanelMotionEnabled(false)
+      expertiseEnterFromSide.current = false
 
       const previousDepth = routeDepth(previous)
       const nextDepth = routeDepth(next)
       slideDirection.current = nextDepth >= previousDepth ? 1 : -1
-      restoredFromStorage.current = true
-      expertiseEnterFromSide.current = false
 
       if (
         previous.type === 'expertise' &&
@@ -166,27 +160,30 @@ function App() {
 
   const navigateToExpertise = useCallback(
     (category: ExpertiseCategory) => {
-      restoredFromStorage.current = false
       slideDirection.current = 1
       expertiseEnterFromSide.current = true
       setTabDirection(1)
+      setTabPanelMotionEnabled(false)
+      setRouteMotion('home-to-expertise')
       navigate({ type: 'expertise', category })
     },
     [navigate],
   )
 
   const navigateHome = useCallback(() => {
-    restoredFromStorage.current = false
     slideDirection.current = -1
     expertiseEnterFromSide.current = false
+    setTabPanelMotionEnabled(false)
+    setRouteMotion('none')
     navigate({ type: 'home' })
   }, [navigate])
 
   const handleCategoryChange = useCallback(
     (category: ExpertiseCategory) => {
       if (route.type !== 'expertise') return
-      restoredFromStorage.current = false
       setTabDirection(expertiseTabDirection(route.category, category))
+      setTabPanelMotionEnabled(true)
+      setRouteMotion('none')
       navigate({ type: 'expertise', category })
     },
     [navigate, route],
@@ -196,9 +193,10 @@ function App() {
     (projectId: string) => {
       const project = getProjectMetaById(projectId)
       if (!project || !isProjectOpenable(project)) return
-      restoredFromStorage.current = false
       slideDirection.current = 1
       expertiseEnterFromSide.current = false
+      setTabPanelMotionEnabled(false)
+      setRouteMotion('expertise-to-project')
       navigate({ type: 'project', projectId })
     },
     [navigate],
@@ -206,9 +204,10 @@ function App() {
 
   const backToExpertise = useCallback(
     (category: ExpertiseCategory) => {
-      restoredFromStorage.current = false
       slideDirection.current = -1
       expertiseEnterFromSide.current = false
+      setTabPanelMotionEnabled(false)
+      setRouteMotion('none')
       navigate({ type: 'expertise', category })
     },
     [navigate],
@@ -221,6 +220,7 @@ function App() {
     if (route.type === 'project' && !activeProjectMeta) {
       const next = { type: 'home' as const }
       syncBrowserHistory(next, 'replace')
+      setRouteMotion('none')
       setRoute(next)
     }
   }, [route, activeProjectMeta])
@@ -234,35 +234,35 @@ function App() {
         : 'art'
 
   const showSiteChrome = route.type !== 'project'
+  const isHome = route.type === 'home'
 
   return (
     <div className={styles.app}>
       <GlassCursor />
       {showContent ? (
         <>
-          <EntryPfp active={showContent && route.type === 'home'} />
+          <EntryPfp active={showContent && isHome} />
           <main className={styles.main}>
             <div className={styles.heroWrap}>
-              <Navbar
-                isHome={route.type === 'home'}
-                onNavigateHome={navigateHome}
-              />
+              <Navbar isHome={isHome} onNavigateHome={navigateHome} />
 
               <div className={styles.viewStage}>
                 <AnimatePresence custom={slideDirection.current}>
-                  {route.type === 'home' ? (
+                  {isHome ? (
                     <motion.div
                       key="home"
                       className={styles.pagePanel}
                       custom={slideDirection.current}
                       initial={
-                        instantHistoryNav
-                          ? false
-                          : { x: slideDirection.current < 0 ? '-100%' : 0 }
+                        routeMotion === 'none' ? false : { x: 0 }
                       }
                       animate={{ x: 0 }}
-                      exit={{ x: '-100%' }}
-                      transition={routeTransition}
+                      exit={
+                        routeMotion === 'home-to-expertise'
+                          ? { x: '-100%' }
+                          : { x: 0 }
+                      }
+                      transition={animatedTransition}
                     >
                       <Hero />
                       <TaglineDivider />
@@ -278,63 +278,52 @@ function App() {
                       className={styles.expertiseStack}
                       custom={slideDirection.current}
                       initial={
-                        instantHistoryNav
-                          ? false
-                          : restoredFromStorage.current
-                            ? false
-                            : expertiseEnterFromSide.current
-                              ? { x: '100%' }
-                              : false
+                        routeMotion === 'home-to-expertise' ? { x: '100%' } : false
                       }
                       animate={{ x: 0 }}
-                      exit={{ x: '-100%' }}
-                      transition={routeTransition}
+                      exit={
+                        routeMotion === 'none' ? { x: 0 } : { x: '-100%' }
+                      }
+                      transition={animatedTransition}
                       onAnimationComplete={() => {
-                        expertiseEnterFromSide.current = false
+                        if (routeMotion === 'home-to-expertise') {
+                          expertiseEnterFromSide.current = false
+                        }
                       }}
                     >
-                      <AnimatePresence
-                        mode="wait"
-                        custom={slideDirection.current}
-                        initial={false}
+                      <div
+                        className={styles.expertiseUnderlay}
+                        data-hidden={route.type === 'project' ? 'true' : undefined}
+                        aria-hidden={route.type === 'project'}
                       >
-                        {route.type === 'expertise' ? (
-                          <motion.div
-                            key="expertise"
-                            className={styles.pagePanel}
-                            custom={slideDirection.current}
-                            initial={false}
-                            animate={{ x: 0 }}
-                            exit={{ x: '-100%' }}
-                            transition={routeTransition}
-                          >
-                            <Suspense fallback={null}>
-                              <ExpertiseSection
-                                category={expertiseCategory}
-                                onCategoryChange={handleCategoryChange}
-                                onOpenProject={openProject}
-                                tabDirection={tabDirection}
-                                motionEnabled
-                              />
-                            </Suspense>
-                          </motion.div>
-                        ) : null}
+                        <Suspense fallback={null}>
+                          <ExpertiseSection
+                            category={expertiseCategory}
+                            onCategoryChange={handleCategoryChange}
+                            onOpenProject={openProject}
+                            tabDirection={tabDirection}
+                            entranceMotionEnabled={routeMotion === 'home-to-expertise'}
+                            tabPanelMotionEnabled={tabPanelMotionEnabled}
+                          />
+                        </Suspense>
+                      </div>
 
+                      <AnimatePresence initial={false}>
                         {route.type === 'project' && activeProjectMeta ? (
                           <motion.div
                             key={`project-${activeProjectMeta.id}`}
-                            className={styles.pagePanel}
+                            className={`${styles.pagePanel} ${styles.projectOverlay}`}
                             custom={slideDirection.current}
                             initial={
-                              instantHistoryNav
-                                ? false
-                                : restoredFromStorage.current
-                                  ? false
-                                  : { x: '100%' }
+                              routeMotion === 'expertise-to-project'
+                                ? { x: '100%' }
+                                : false
                             }
                             animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={routeTransition}
+                            exit={
+                              routeMotion === 'none' ? { x: 0 } : { x: '100%' }
+                            }
+                            transition={animatedTransition}
                           >
                             <Suspense fallback={null}>
                               {loadedProject ? (
@@ -367,7 +356,7 @@ function App() {
             {showSiteChrome ? (
               <div className={styles.siteChrome}>
                 <NameMarquee />
-                <Footer />
+                <Footer scrollPfpEnabled={isHome} />
               </div>
             ) : null}
           </main>

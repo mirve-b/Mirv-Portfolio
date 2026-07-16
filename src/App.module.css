@@ -39,6 +39,23 @@
   width: 100%;
 }
 
+.expertiseUnderlay {
+  width: 100%;
+}
+
+.expertiseUnderlay[data-hidden='true'] {
+  visibility: hidden;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.projectOverlay {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
 .pagePanel {
   width: 100%;
   transform: translate3d(0, 0, 0);
