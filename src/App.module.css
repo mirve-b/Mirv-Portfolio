@@ -30,77 +30,45 @@
   position: relative;
   flex: 1;
   width: 100%;
-  overflow-x: clip;
+  overflow: hidden;
   isolation: isolate;
 }
 
-.viewLayer {
+.pageLayer {
   width: 100%;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-/* Mobile: one full page at a time — no transforms, no stacked grid */
-.viewStage[data-mobile='true'] {
-  display: block;
-}
-
-.viewStage[data-mobile='true'] .viewLayer {
-  display: none;
-  contain: layout style paint;
-}
-
-.viewStage[data-mobile='true'] .viewLayer[data-active='true'] {
-  display: block;
-}
-
-/* Desktop: slide stack */
 .viewStage[data-stacked='true'] {
   display: grid;
   grid-template: 1fr / 1fr;
 }
 
-.viewStage[data-stacked='true'] .viewLayer {
+.viewStage[data-stacked='true'] .pageLayer {
   grid-area: 1 / 1;
   min-width: 0;
 }
 
-.viewStage[data-stacked='true'] .viewLayer:first-child {
+.viewStage[data-stacked='true'] .pageLayer[data-page='home'] {
   z-index: 1;
 }
 
-.viewStage[data-stacked='true'] .viewLayerExpertise {
+.pageExpertise {
   z-index: 2;
 }
 
-.viewLayer[data-offscreen='true'] {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+.pageProject {
+  z-index: 3;
+  background: var(--color-bg);
+}
+
+.pageLayer[data-offscreen='true'] {
+  visibility: hidden;
+  pointer-events: none;
   height: 0;
   overflow: clip;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.expertiseUnderlay {
-  width: 100%;
-}
-
-.expertiseUnderlay[data-hidden='true'] {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.projectLayer {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  width: 100%;
-  background: var(--color-bg);
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
 }
 
 .siteChrome {
@@ -115,5 +83,19 @@
 @media (max-width: 768px) {
   .heroWrap {
     padding-top: 0;
+  }
+
+  .viewStage {
+    touch-action: pan-y;
+  }
+
+  .pageLayer {
+    will-change: transform;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pageLayer {
+    transition: none !important;
   }
 }
