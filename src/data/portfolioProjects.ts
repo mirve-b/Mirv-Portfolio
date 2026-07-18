@@ -116,6 +116,14 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     galleryMaxColumns: 1,
   },
   {
+    id: 'doubleu',
+    category: 'ui-ux',
+    title: 'DOUBLEU',
+    subtitle: 'Clothing Brand Website',
+    detailType: 'gallery',
+    galleryMaxColumns: 1,
+  },
+  {
     id: 'product-flow',
     category: 'ui-ux',
     title: 'Product Flow',

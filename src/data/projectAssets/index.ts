@@ -15,6 +15,7 @@ const loaderByProjectId: Record<string, () => Promise<{ default: ProjectAssetLoa
   'kael-ats-cv': () => import('./kaelAtsCv'),
   'kael-job-match': () => import('./kaelJobMatch'),
   blvck: () => import('./blvck'),
+  doubleu: () => import('./doubleu'),
   'product-flow': () => import('./productFlow'),
   'mobile-ui': () => import('./mobileUi'),
 }
