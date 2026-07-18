@@ -222,6 +222,14 @@
   min-height: 100%;
 }
 
+.showcasePoster {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.35);
+}
+
 .showcaseLoaderSlot {
   position: absolute;
   inset: 0;
@@ -231,11 +239,15 @@
 .showcaseVideo {
   width: 100%;
   height: auto;
-  display: block;
+  display: none;
   border-radius: inherit;
   background: rgba(0, 0, 0, 0.35);
   cursor: pointer;
   transition: opacity 0.25s ease;
+}
+
+.showcaseVideo[data-active='true'] {
+  display: block;
 }
 
 .showcasePlayButton {

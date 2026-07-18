@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "assets:webp": "node scripts/convert-to-webp.mjs",
     "assets:webp:imports": "node scripts/convert-to-webp.mjs --update-imports",
-    "assets:webp:all": "node scripts/convert-to-webp.mjs --replace --update-imports"
+    "assets:webp:all": "node scripts/convert-to-webp.mjs --replace --update-imports",
+    "assets:dev-posters": "node scripts/generate-dev-posters.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",
@@ -22,6 +23,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "ffmpeg-static": "^5.3.0",
     "oxlint": "^1.71.0",
     "sharp": "^0.34.5",
     "typescript": "~6.0.2",

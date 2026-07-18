@@ -46,6 +46,12 @@ export async function loadProjectAssets(projectId: string): Promise<LoadedProjec
   return loader.loadAll()
 }
 
+export async function loadProjectShowcaseVideo(projectId: string): Promise<string | undefined> {
+  const loader = await getLoader(projectId)
+  const gallery = await loader.loadGallery()
+  return gallery[0]
+}
+
 export async function loadCategoryThumbnails(
   category: ExpertiseCategory,
 ): Promise<Record<string, string>> {

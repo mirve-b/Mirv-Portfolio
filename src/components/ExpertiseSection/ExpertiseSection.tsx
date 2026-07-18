@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { loadCategoryThumbnails, loadProjectThumbnail } from '../../data/projectAssets'
+import { loadCategoryThumbnails, loadProjectShowcaseVideo } from '../../data/projectAssets'
 import {
   getProjectsMetaForCategory,
   isProjectOpenable,
   isVideoShowcase,
   type PortfolioProjectMeta,
 } from '../../data/portfolioProjects'
-import { finishVideoMetadataLoad, primeVideoFrame, runVideoMetadataLoad, startMutedPreview } from '../../lib/mediaUtils'
+import { startMutedPreview } from '../../lib/mediaUtils'
 import {
   EXPERTISE_TABS,
   type ExpertiseCategory,
@@ -66,34 +66,6 @@ function useCategoryThumbnails(category: ExpertiseCategory) {
       setThumbnails(cached)
       setLoading(false)
       return
-    }
-
-    if (category === 'development') {
-      let cancelled = false
-      setLoading(false)
-
-      const projects = getProjectsMetaForCategory('development')
-
-      void (async () => {
-        const next: Record<string, string> = {}
-
-        for (const project of projects) {
-          if (cancelled) return
-
-          try {
-            next[project.id] = await loadProjectThumbnail(project.id)
-            const snapshot = { ...next }
-            thumbnailCache.set('development', snapshot)
-            if (!cancelled) setThumbnails(snapshot)
-          } catch {
-            /* skip failed preview */
-          }
-        }
-      })()
-
-      return () => {
-        cancelled = true
-      }
     }
 
     const currentRequest = ++requestId.current
@@ -162,98 +134,57 @@ function CardVideo({ src }: { src: string }) {
   )
 }
 
-function ShowcaseVideoCard({ src }: { src: string }) {
+function ShowcaseVideoCard({
+  poster,
+  videoSrc,
+}: {
+  poster: string
+  videoSrc?: string
+}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [showPlayButton, setShowPlayButton] = useState(false)
   const [isPaused, setIsPaused] = useState(true)
   const [frameReady, setFrameReady] = useState(false)
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false)
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-
-    let cancelled = false
-
     setFrameReady(false)
     setShowPlayButton(false)
     setIsPaused(true)
+    setIsPlayingVideo(false)
+  }, [poster, videoSrc])
 
-    const markFrameReady = () => {
-      if (cancelled) return
-      primeVideoFrame(video)
-      setFrameReady(true)
-      setShowPlayButton(true)
-    }
+  const handlePlayButton = useCallback(
+    async (event: MouseEvent) => {
+      event.stopPropagation()
+      const video = videoRef.current
+      if (!video || !videoSrc) return
 
-    const onLoadedData = () => {
-      finishVideoMetadataLoad()
-      markFrameReady()
-    }
+      setShowPlayButton(false)
+      setIsPlayingVideo(true)
 
-    const onError = () => {
-      finishVideoMetadataLoad()
-    }
-
-    const startMetadataLoad = () => {
-      if (cancelled) return
-
-      video.preload = 'metadata'
-      video.addEventListener('loadeddata', onLoadedData, { once: true })
-      video.addEventListener('error', onError, { once: true })
-
-      if (video.readyState >= 2) {
-        finishVideoMetadataLoad()
-        markFrameReady()
-        return
+      if (!video.src) {
+        video.src = videoSrc
+        video.preload = 'auto'
+        video.load()
       }
 
-      video.load()
-    }
+      video.loop = true
+      video.muted = false
+      setIsPaused(false)
 
-    const cancelQueuedLoad = runVideoMetadataLoad(startMetadataLoad)
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) {
-          video.pause()
-          setIsPaused(true)
-          if (video.readyState >= 2) setShowPlayButton(true)
-        }
-      },
-      { threshold: 0.1, rootMargin: '160px 0px' },
-    )
-
-    observer.observe(video)
-
-    return () => {
-      cancelled = true
-      cancelQueuedLoad()
-      observer.disconnect()
-      video.removeEventListener('loadeddata', onLoadedData)
-      video.removeEventListener('error', onError)
-    }
-  }, [src])
-
-  const handlePlayButton = useCallback(async (event: MouseEvent) => {
-    event.stopPropagation()
-    const video = videoRef.current
-    if (!video) return
-
-    setShowPlayButton(false)
-    video.loop = true
-    video.muted = false
-    setIsPaused(false)
-
-    try {
-      await video.play()
-    } catch {
-      video.muted = true
-      await video.play()
-    }
-  }, [])
+      try {
+        await video.play()
+      } catch {
+        video.muted = true
+        await video.play()
+      }
+    },
+    [videoSrc],
+  )
 
   const handleVideoClick = useCallback(async () => {
-    if (showPlayButton) return
+    if (showPlayButton || !isPlayingVideo) return
 
     const video = videoRef.current
     if (!video) return
@@ -271,7 +202,7 @@ function ShowcaseVideoCard({ src }: { src: string }) {
     video.pause()
     setIsPaused(true)
     setShowPlayButton(true)
-  }, [showPlayButton])
+  }, [isPlayingVideo, showPlayButton])
 
   return (
     <div className={styles.showcaseVideoWrap}>
@@ -284,24 +215,37 @@ function ShowcaseVideoCard({ src }: { src: string }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <MediaLoader label="Loading video" />
+            <MediaLoader label="Loading preview" />
           </motion.div>
         ) : null}
       </AnimatePresence>
+      {!isPlayingVideo ? (
+        <img
+          src={poster}
+          alt=""
+          className={styles.showcasePoster}
+          draggable={false}
+          decoding="async"
+          onLoad={() => {
+            setFrameReady(true)
+            setShowPlayButton(Boolean(videoSrc))
+          }}
+        />
+      ) : null}
       <video
         ref={videoRef}
-        src={src}
         className={styles.showcaseVideo}
         data-ready={frameReady ? 'true' : undefined}
+        data-active={isPlayingVideo ? 'true' : undefined}
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="none"
         draggable={false}
         onClick={handleVideoClick}
       />
       <AnimatePresence>
-        {frameReady && showPlayButton ? (
+        {frameReady && showPlayButton && videoSrc ? (
           <motion.button
             key="play"
             type="button"
@@ -321,7 +265,7 @@ function ShowcaseVideoCard({ src }: { src: string }) {
           </motion.button>
         ) : null}
       </AnimatePresence>
-      {!showPlayButton && isPaused && frameReady ? (
+      {!showPlayButton && isPaused && frameReady && isPlayingVideo ? (
         <div className={styles.showcasePausedHint} aria-hidden="true" />
       ) : null}
     </div>
@@ -355,12 +299,27 @@ function ProjectCard({
   motionEnabled: boolean
 }) {
   const [shouldEntrance] = useState(motionEnabled)
+  const [showcaseVideoSrc, setShowcaseVideoSrc] = useState<string>()
   const isClickable = isProjectOpenable(project)
   const isShowcase = isVideoShowcase(project)
   const isVideo = project.thumbnailType === 'video' && Boolean(thumbnail) && !isShowcase
   const expectsMedia =
     project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
   const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
+
+  useEffect(() => {
+    if (!isShowcase) return
+
+    let cancelled = false
+
+    void loadProjectShowcaseVideo(project.id).then((src) => {
+      if (!cancelled && src) setShowcaseVideoSrc(src)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [isShowcase, project.id])
   const entranceDelay = Math.min(index * 0.06, 0.36)
   const cardMotion = {
     initial: shouldEntrance ? { opacity: 0, y: 28, scale: 0.94 } : false,
@@ -391,7 +350,7 @@ function ProjectCard({
         }`}
       >
         {isShowcase && thumbnail ? (
-          <ShowcaseVideoCard src={thumbnail} />
+          <ShowcaseVideoCard poster={thumbnail} videoSrc={showcaseVideoSrc} />
         ) : isVideo && thumbnail ? (
           <CardVideo src={thumbnail} />
         ) : thumbnail ? (
