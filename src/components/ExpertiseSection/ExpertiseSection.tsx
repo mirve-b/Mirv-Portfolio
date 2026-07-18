@@ -38,6 +38,7 @@ type ExpertiseSectionProps = {
   onOpenProject: (projectId: string) => void
   tabDirection: number
   entranceMotionEnabled?: boolean
+  hideCards?: boolean
   tabPanelMotionEnabled?: boolean
 }
 
@@ -285,35 +286,25 @@ function ProjectCard({
   const expectsMedia =
     project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
   const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
-  const cardMotion = motionEnabled
-    ? {
-        initial: { opacity: 0, y: 28, scale: 0.94 },
-        animate: { opacity: 1, y: 0, scale: 1 },
-        transition: {
+  const cardMotion = {
+    initial: motionEnabled ? { opacity: 0, y: 28, scale: 0.94 } : false,
+    animate: { opacity: 1, y: 0, scale: 1 },
+    transition: motionEnabled
+      ? {
           ...cardSpring,
           delay: Math.min(index * 0.06, 0.36),
-        },
-        whileHover: isClickable
-          ? {
-              y: -10,
-              scale: 1.04,
-              zIndex: 2,
-              transition: { type: 'spring' as const, stiffness: 520, damping: 22 },
-            }
-          : undefined,
-        whileTap: isClickable ? { scale: 0.98 } : undefined,
-      }
-    : {
-        whileHover: isClickable
-          ? {
-              y: -10,
-              scale: 1.04,
-              zIndex: 2,
-              transition: { type: 'spring' as const, stiffness: 520, damping: 22 },
-            }
-          : undefined,
-        whileTap: isClickable ? { scale: 0.98 } : undefined,
-      }
+        }
+      : { duration: 0 },
+    whileHover: isClickable
+      ? {
+          y: -10,
+          scale: 1.04,
+          zIndex: 2,
+          transition: { type: 'spring' as const, stiffness: 520, damping: 22 },
+        }
+      : undefined,
+    whileTap: isClickable ? { scale: 0.98 } : undefined,
+  }
 
   const content = (
     <>
@@ -349,30 +340,6 @@ function ProjectCard({
     </>
   )
 
-  if (!motionEnabled) {
-    if (isClickable) {
-      return (
-        <button
-          type="button"
-          className={styles.card}
-          onClick={() => onOpenProject(project.id)}
-        >
-          {content}
-        </button>
-      )
-    }
-
-    return (
-      <article
-        className={`${styles.card} ${styles.cardStatic}${
-          isShowcase ? ` ${styles.cardShowcase}` : ''
-        }`}
-      >
-        {content}
-      </article>
-    )
-  }
-
   if (isClickable) {
     return (
       <motion.button
@@ -404,6 +371,7 @@ export function ExpertiseSection({
   onOpenProject,
   tabDirection,
   entranceMotionEnabled = false,
+  hideCards = false,
   tabPanelMotionEnabled = false,
 }: ExpertiseSectionProps) {
   const projects = getProjectsMetaForCategory(category)
@@ -417,6 +385,26 @@ export function ExpertiseSection({
       thumbnailCache.set('development', next)
     })
   }, [category])
+
+  const renderCards = (motionEnabled: boolean) => (
+    <div
+      className={`${styles.grid}${
+        category === 'development' ? ` ${styles.gridDevelopment}` : ''
+      }`}
+    >
+      {projects.map((project, index) => (
+        <ProjectCard
+          key={project.id}
+          project={project}
+          thumbnail={thumbnails[project.id]}
+          thumbnailsLoading={thumbnailsLoading}
+          index={index}
+          onOpenProject={onOpenProject}
+          motionEnabled={motionEnabled}
+        />
+      ))}
+    </div>
+  )
 
   return (
     <section className={styles.section} aria-label="Expertise portfolio">
@@ -450,7 +438,10 @@ export function ExpertiseSection({
         })}
       </nav>
 
-      <div className={styles.cardsStage}>
+      <div
+        className={styles.cardsStage}
+        data-hidden={hideCards ? 'true' : undefined}
+      >
         {tabPanelMotionEnabled ? (
           <AnimatePresence custom={tabDirection} initial={false}>
             <motion.div
@@ -462,44 +453,12 @@ export function ExpertiseSection({
               exit={{ opacity: 0, x: tabDirection > 0 ? -48 : 48 }}
               transition={panelSpring}
             >
-              <div
-                className={`${styles.grid}${
-                  category === 'development' ? ` ${styles.gridDevelopment}` : ''
-                }`}
-              >
-                {projects.map((project, index) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    thumbnail={thumbnails[project.id]}
-                    thumbnailsLoading={thumbnailsLoading}
-                    index={index}
-                    onOpenProject={onOpenProject}
-                    motionEnabled={entranceMotionEnabled}
-                  />
-                ))}
-              </div>
+              {renderCards(false)}
             </motion.div>
           </AnimatePresence>
         ) : (
           <div key={category} className={styles.panel}>
-            <div
-              className={`${styles.grid}${
-                category === 'development' ? ` ${styles.gridDevelopment}` : ''
-              }`}
-            >
-              {projects.map((project, index) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  thumbnail={thumbnails[project.id]}
-                  thumbnailsLoading={thumbnailsLoading}
-                  index={index}
-                  onOpenProject={onOpenProject}
-                  motionEnabled={entranceMotionEnabled}
-                />
-              ))}
-            </div>
+            {renderCards(entranceMotionEnabled)}
           </div>
         )}
       </div>

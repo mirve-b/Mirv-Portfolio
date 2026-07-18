@@ -61,6 +61,10 @@
   overflow: visible;
 }
 
+.cardsStage[data-hidden='true'] {
+  visibility: hidden;
+}
+
 .panel {
   width: 100%;
   overflow: visible;
