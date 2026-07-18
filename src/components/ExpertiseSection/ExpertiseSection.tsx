@@ -146,8 +146,9 @@ function ShowcaseVideoCard({
   const [videoSrc, setVideoSrc] = useState<string>()
   const [videoLoading, setVideoLoading] = useState(false)
   const [videoActive, setVideoActive] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
 
-  const showPlayButton = Boolean(poster && !videoLoading && !videoActive)
+  const showPlayButton = !videoLoading && !isPlaying
 
   useEffect(() => {
     let cancelled = false
@@ -164,8 +165,25 @@ function ShowcaseVideoCard({
   useEffect(() => {
     setVideoLoading(false)
     setVideoActive(false)
+    setIsPlaying(false)
     loadedVideoSrcRef.current = null
   }, [poster, projectId])
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || !videoActive) return
+
+    const onPlay = () => setIsPlaying(true)
+    const onPause = () => setIsPlaying(false)
+
+    video.addEventListener('play', onPlay)
+    video.addEventListener('pause', onPause)
+
+    return () => {
+      video.removeEventListener('play', onPlay)
+      video.removeEventListener('pause', onPause)
+    }
+  }, [videoActive])
 
   const handlePlayButton = useCallback(
     async (event: MouseEvent) => {
@@ -174,6 +192,18 @@ function ShowcaseVideoCard({
       if (!video) return
 
       setVideoLoading(true)
+
+      if (videoActive && video.paused && loadedVideoSrcRef.current) {
+        try {
+          await video.play()
+          setIsPlaying(true)
+        } catch {
+          /* playback blocked */
+        } finally {
+          setVideoLoading(false)
+        }
+        return
+      }
 
       let src = videoSrc
       if (!src) {
@@ -197,6 +227,7 @@ function ShowcaseVideoCard({
         }
 
         setVideoActive(true)
+        setIsPlaying(true)
         setVideoLoading(false)
       }
 
@@ -249,11 +280,11 @@ function ShowcaseVideoCard({
         setVideoLoading(false)
       }
     },
-    [projectId, videoSrc],
+    [projectId, videoActive, videoSrc],
   )
 
   const handleVideoClick = useCallback(async () => {
-    if (!videoActive || videoLoading) return
+    if (!videoActive || videoLoading || showPlayButton) return
 
     const video = videoRef.current
     if (!video) return
@@ -261,6 +292,7 @@ function ShowcaseVideoCard({
     if (video.paused) {
       try {
         await video.play()
+        setIsPlaying(true)
       } catch {
         /* playback blocked */
       }
@@ -268,7 +300,8 @@ function ShowcaseVideoCard({
     }
 
     video.pause()
-  }, [videoActive, videoLoading])
+    setIsPlaying(false)
+  }, [showPlayButton, videoActive, videoLoading])
 
   return (
     <div className={styles.showcaseVideoWrap}>
@@ -312,7 +345,7 @@ function ShowcaseVideoCard({
           </span>
         </button>
       ) : null}
-      {videoActive && !videoLoading ? (
+      {videoActive && isPlaying && !videoLoading ? (
         <div className={styles.showcasePausedHint} aria-hidden="true" />
       ) : null}
     </div>
