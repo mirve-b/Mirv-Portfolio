@@ -136,61 +136,129 @@ function CardVideo({ src }: { src: string }) {
 
 function ShowcaseVideoCard({
   poster,
-  videoSrc,
+  projectId,
 }: {
   poster: string
-  videoSrc?: string
+  projectId: string
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [showPlayButton, setShowPlayButton] = useState(false)
-  const [isPaused, setIsPaused] = useState(true)
-  const [frameReady, setFrameReady] = useState(false)
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false)
+  const loadedVideoSrcRef = useRef<string | null>(null)
+  const [videoSrc, setVideoSrc] = useState<string>()
+  const [videoLoading, setVideoLoading] = useState(false)
+  const [videoActive, setVideoActive] = useState(false)
+
+  const showPlayButton = Boolean(poster && !videoLoading && !videoActive)
 
   useEffect(() => {
-    setFrameReady(false)
-    setShowPlayButton(false)
-    setIsPaused(true)
-    setIsPlayingVideo(false)
-  }, [poster, videoSrc])
+    let cancelled = false
+
+    void loadProjectShowcaseVideo(projectId).then((src) => {
+      if (!cancelled && src) setVideoSrc(src)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId, poster])
+
+  useEffect(() => {
+    setVideoLoading(false)
+    setVideoActive(false)
+    loadedVideoSrcRef.current = null
+  }, [poster, projectId])
 
   const handlePlayButton = useCallback(
     async (event: MouseEvent) => {
       event.stopPropagation()
       const video = videoRef.current
-      if (!video || !videoSrc) return
+      if (!video) return
 
-      setShowPlayButton(false)
-      setIsPlayingVideo(true)
+      setVideoLoading(true)
 
-      if (!video.src) {
-        video.src = videoSrc
-        video.preload = 'auto'
-        video.load()
+      let src = videoSrc
+      if (!src) {
+        src = await loadProjectShowcaseVideo(projectId)
+        if (!src) {
+          setVideoLoading(false)
+          return
+        }
+        setVideoSrc(src)
       }
 
-      video.loop = true
-      video.muted = false
-      setIsPaused(false)
+      const startPlayback = async () => {
+        video.loop = true
+        video.muted = false
+
+        try {
+          await video.play()
+        } catch {
+          video.muted = true
+          await video.play()
+        }
+
+        setVideoActive(true)
+        setVideoLoading(false)
+      }
 
       try {
-        await video.play()
+        if (loadedVideoSrcRef.current !== src) {
+          loadedVideoSrcRef.current = src
+          video.src = src
+          video.preload = 'auto'
+
+          await new Promise<void>((resolve, reject) => {
+            const onReady = () => {
+              cleanup()
+              resolve()
+            }
+            const onError = () => {
+              cleanup()
+              reject(new Error('Video failed to load'))
+            }
+            const cleanup = () => {
+              video.removeEventListener('canplay', onReady)
+              video.removeEventListener('error', onError)
+            }
+
+            video.addEventListener('canplay', onReady, { once: true })
+            video.addEventListener('error', onError, { once: true })
+            video.load()
+          })
+        } else if (video.readyState < 3) {
+          await new Promise<void>((resolve, reject) => {
+            const onReady = () => {
+              cleanup()
+              resolve()
+            }
+            const onError = () => {
+              cleanup()
+              reject(new Error('Video failed to load'))
+            }
+            const cleanup = () => {
+              video.removeEventListener('canplay', onReady)
+              video.removeEventListener('error', onError)
+            }
+
+            video.addEventListener('canplay', onReady, { once: true })
+            video.addEventListener('error', onError, { once: true })
+          })
+        }
+
+        await startPlayback()
       } catch {
-        video.muted = true
-        await video.play()
+        setVideoLoading(false)
       }
     },
-    [videoSrc],
+    [projectId, videoSrc],
   )
 
   const handleVideoClick = useCallback(async () => {
-    if (showPlayButton || !isPlayingVideo) return
+    if (!videoActive || videoLoading) return
 
     const video = videoRef.current
     if (!video) return
 
     if (video.paused) {
-      setIsPaused(false)
       try {
         await video.play()
       } catch {
@@ -200,43 +268,29 @@ function ShowcaseVideoCard({
     }
 
     video.pause()
-    setIsPaused(true)
-    setShowPlayButton(true)
-  }, [isPlayingVideo, showPlayButton])
+  }, [videoActive, videoLoading])
 
   return (
     <div className={styles.showcaseVideoWrap}>
-      <AnimatePresence>
-        {!frameReady ? (
-          <motion.div
-            key="loader"
-            className={styles.showcaseLoaderSlot}
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <MediaLoader label="Loading preview" />
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-      {!isPlayingVideo ? (
+      {videoLoading ? (
+        <div className={styles.showcaseLoaderSlot}>
+          <MediaLoader label="Loading video" />
+        </div>
+      ) : null}
+      {!videoActive ? (
         <img
           src={poster}
           alt=""
           className={styles.showcasePoster}
           draggable={false}
           decoding="async"
-          onLoad={() => {
-            setFrameReady(true)
-            setShowPlayButton(Boolean(videoSrc))
-          }}
         />
       ) : null}
       <video
         ref={videoRef}
         className={styles.showcaseVideo}
-        data-ready={frameReady ? 'true' : undefined}
-        data-active={isPlayingVideo ? 'true' : undefined}
+        data-ready={poster ? 'true' : undefined}
+        data-active={videoActive ? 'true' : undefined}
         loop
         muted
         playsInline
@@ -244,28 +298,21 @@ function ShowcaseVideoCard({
         draggable={false}
         onClick={handleVideoClick}
       />
-      <AnimatePresence>
-        {frameReady && showPlayButton && videoSrc ? (
-          <motion.button
-            key="play"
-            type="button"
-            className={styles.showcasePlayButton}
-            aria-label="Play video"
-            initial={{ opacity: 0, scale: 0.88 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.88 }}
-            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-            onClick={handlePlayButton}
-          >
-            <span className={styles.showcasePlayIcon} aria-hidden="true">
-              <svg viewBox="0 0 12 14" fill="none">
-                <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
-              </svg>
-            </span>
-          </motion.button>
-        ) : null}
-      </AnimatePresence>
-      {!showPlayButton && isPaused && frameReady && isPlayingVideo ? (
+      {showPlayButton ? (
+        <button
+          type="button"
+          className={styles.showcasePlayButton}
+          aria-label="Play video"
+          onClick={handlePlayButton}
+        >
+          <span className={styles.showcasePlayIcon} aria-hidden="true">
+            <svg viewBox="0 0 12 14" fill="none">
+              <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
+            </svg>
+          </span>
+        </button>
+      ) : null}
+      {videoActive && !videoLoading ? (
         <div className={styles.showcasePausedHint} aria-hidden="true" />
       ) : null}
     </div>
@@ -299,7 +346,6 @@ function ProjectCard({
   motionEnabled: boolean
 }) {
   const [shouldEntrance] = useState(motionEnabled)
-  const [showcaseVideoSrc, setShowcaseVideoSrc] = useState<string>()
   const isClickable = isProjectOpenable(project)
   const isShowcase = isVideoShowcase(project)
   const isVideo = project.thumbnailType === 'video' && Boolean(thumbnail) && !isShowcase
@@ -307,19 +353,6 @@ function ProjectCard({
     project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
   const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
 
-  useEffect(() => {
-    if (!isShowcase) return
-
-    let cancelled = false
-
-    void loadProjectShowcaseVideo(project.id).then((src) => {
-      if (!cancelled && src) setShowcaseVideoSrc(src)
-    })
-
-    return () => {
-      cancelled = true
-    }
-  }, [isShowcase, project.id])
   const entranceDelay = Math.min(index * 0.06, 0.36)
   const cardMotion = {
     initial: shouldEntrance ? { opacity: 0, y: 28, scale: 0.94 } : false,
@@ -350,7 +383,7 @@ function ProjectCard({
         }`}
       >
         {isShowcase && thumbnail ? (
-          <ShowcaseVideoCard poster={thumbnail} videoSrc={showcaseVideoSrc} />
+          <ShowcaseVideoCard poster={thumbnail} projectId={project.id} />
         ) : isVideo && thumbnail ? (
           <CardVideo src={thumbnail} />
         ) : thumbnail ? (
