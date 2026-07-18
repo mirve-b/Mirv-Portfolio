@@ -1,3 +1,5 @@
+import { getProjectMetaById, isProjectOpenable } from '../data/portfolioProjects'
+
 /** Expertise categories shown on the Expertise page tab bar. */
 export type ExpertiseCategory = 'art' | 'ui-ux' | 'development'
 
@@ -31,6 +33,7 @@ const ROUTE_KEY = 'mirve-active-route'
 const LEGACY_PAGE_KEY = 'mirve-active-page'
 
 const HISTORY_STATE_KEY = 'mirveRoute'
+const RESERVED_ROOT_PATHS = new Set(['expertise'])
 
 export type HistoryRouteState = {
   [HISTORY_STATE_KEY]: AppRoute
@@ -50,10 +53,18 @@ function isAppRoute(value: unknown): value is AppRoute {
   return false
 }
 
+function projectRouteFromSlug(slug: string): AppRoute | null {
+  const meta = getProjectMetaById(slug)
+  if (!meta || !isProjectOpenable(meta)) return null
+  return { type: 'project', projectId: slug }
+}
+
 export function routeToPath(route: AppRoute): string {
   if (route.type === 'home') return '/'
-  if (route.type === 'expertise') return `/expertise/${route.category}`
-  return `/project/${encodeURIComponent(route.projectId)}`
+  if (route.type === 'expertise') {
+    return route.category === 'art' ? '/expertise' : `/expertise/${route.category}`
+  }
+  return `/${encodeURIComponent(route.projectId)}`
 }
 
 export function pathToRoute(pathname: string): AppRoute | null {
@@ -61,17 +72,25 @@ export function pathToRoute(pathname: string): AppRoute | null {
 
   if (path === '/') return { type: 'home' }
 
+  if (path === '/expertise') {
+    return { type: 'expertise', category: 'art' }
+  }
+
   const expertiseMatch = path.match(/^\/expertise\/(art|ui-ux|development)$/)
   if (expertiseMatch) {
     return { type: 'expertise', category: expertiseMatch[1] as ExpertiseCategory }
   }
 
-  const projectMatch = path.match(/^\/project\/([^/]+)$/)
-  if (projectMatch) {
-    return {
-      type: 'project',
-      projectId: decodeURIComponent(projectMatch[1]),
-    }
+  const legacyProjectMatch = path.match(/^\/project\/([^/]+)$/)
+  if (legacyProjectMatch) {
+    return projectRouteFromSlug(decodeURIComponent(legacyProjectMatch[1]))
+  }
+
+  const rootMatch = path.match(/^\/([^/]+)$/)
+  if (rootMatch) {
+    const slug = decodeURIComponent(rootMatch[1])
+    if (RESERVED_ROOT_PATHS.has(slug)) return null
+    return projectRouteFromSlug(slug)
   }
 
   return null
