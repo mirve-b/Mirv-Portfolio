@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import pfpImg from '../../assets/PFP.webp'
+import { hasSeenEntryPfp, markEntryPfpSeen } from '../../lib/introStorage'
 import styles from './EntryPfp.module.css'
 
 const slideSpring = { type: 'spring' as const, stiffness: 360, damping: 22 }
 const bubbleSpring = { type: 'spring' as const, stiffness: 480, damping: 14 }
 const HIDE_DELAY_MS = 3000
-
-let shownThisPageLoad = false
 
 type EntryPfpProps = {
   active: boolean
@@ -15,9 +14,10 @@ type EntryPfpProps = {
 
 export function EntryPfp({ active }: EntryPfpProps) {
   const hasAnimatedIn = useRef(false)
+  const sessionDone = useRef(hasSeenEntryPfp())
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastScrollY = useRef(0)
-  const [mounted] = useState(() => !shownThisPageLoad)
+  const [animating, setAnimating] = useState(false)
   const [onScreen, setOnScreen] = useState(true)
   const [revealed, setRevealed] = useState(false)
   const [showBubble, setShowBubble] = useState(false)
@@ -32,16 +32,26 @@ export function EntryPfp({ active }: EntryPfpProps) {
   }, [])
 
   useEffect(() => {
-    if (!active || !mounted) return
+    if (!active) {
+      if (sessionDone.current) {
+        setAnimating(false)
+        setOnScreen(false)
+      }
+      return
+    }
 
-    shownThisPageLoad = true
+    if (sessionDone.current) return
+
+    sessionDone.current = true
+    markEntryPfpSeen()
+    setAnimating(true)
 
     const revealTimer = window.setTimeout(() => {
       setRevealed(true)
     }, 500)
 
     return () => window.clearTimeout(revealTimer)
-  }, [active, mounted])
+  }, [active])
 
   useEffect(() => {
     if (!showBubble) return
@@ -60,7 +70,7 @@ export function EntryPfp({ active }: EntryPfpProps) {
   }, [showBubble, hide])
 
   useEffect(() => {
-    if (!active || !mounted || !onScreen) return
+    if (!active || !animating || !onScreen) return
 
     lastScrollY.current = window.scrollY
 
@@ -72,9 +82,9 @@ export function EntryPfp({ active }: EntryPfpProps) {
 
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [active, mounted, onScreen, hide])
+  }, [active, animating, onScreen, hide])
 
-  if (!active || !mounted || !onScreen) return null
+  if (!active || (sessionDone.current && !animating) || !onScreen) return null
 
   return (
     <div className={styles.root} aria-hidden={!revealed}>
