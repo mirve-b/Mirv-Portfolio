@@ -15,6 +15,12 @@ function injectScript() {
   document.head.appendChild(script)
 }
 
+export function prefersFastSpotifyWarmup(): boolean {
+  if (typeof window === 'undefined') return false
+
+  return window.matchMedia('(max-width: 768px), (hover: none) and (pointer: coarse)').matches
+}
+
 /** Load Spotify iFrame API as early as possible */
 export function preloadSpotifyIframeApi(): Promise<void> {
   if (typeof window === 'undefined') return Promise.resolve()
@@ -23,17 +29,19 @@ export function preloadSpotifyIframeApi(): Promise<void> {
 
   if (!apiReadyPromise) {
     apiReadyPromise = new Promise((resolve) => {
+      const finish = () => resolve()
+
       const previousReady = window.onSpotifyIframeApiReady
 
       window.onSpotifyIframeApiReady = (api) => {
         previousReady?.(api)
-        resolve()
+        finish()
       }
 
       injectScript()
 
       if (window.Spotify?.IframeApi) {
-        resolve()
+        finish()
       }
     })
   }
@@ -43,6 +51,11 @@ export function preloadSpotifyIframeApi(): Promise<void> {
 
 export function scheduleSpotifyWarmup(work: () => void, delayMs = 1200): () => void {
   if (typeof window === 'undefined') return () => {}
+
+  if (prefersFastSpotifyWarmup()) {
+    const timer = window.setTimeout(work, 120)
+    return () => window.clearTimeout(timer)
+  }
 
   if (typeof window.requestIdleCallback === 'function') {
     const id = window.requestIdleCallback(work, { timeout: delayMs })

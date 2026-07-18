@@ -90,6 +90,7 @@ function App() {
   useEffect(() => {
     if (!showContent) return
     void preloadSpotifyIframeApi()
+    void loadCategoryThumbnails('development')
   }, [showContent])
 
   useEffect(() => {

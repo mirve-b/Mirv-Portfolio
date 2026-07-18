@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { registerSpotifyControls } from '../../lib/spotifyPlayback'
 import { PLAYLIST_LABEL, SPOTIFY_PLAYLIST_URI } from './constants'
 import { useSpotifyController } from './hooks/useSpotifyController'
-import { preloadSpotifyIframeApi, scheduleSpotifyWarmup } from './spotifyPreload'
+import { preloadSpotifyIframeApi, prefersFastSpotifyWarmup, scheduleSpotifyWarmup } from './spotifyPreload'
 import styles from './NowPlaying.module.css'
 import { SpotifyDrawer } from './SpotifyDrawer'
 import { Waveform } from './Waveform'
@@ -42,7 +42,20 @@ export function NowPlaying() {
 
   useEffect(() => {
     void preloadSpotifyIframeApi()
+
+    if (prefersFastSpotifyWarmup()) {
+      setEmbedActive(true)
+      return
+    }
+
     return scheduleSpotifyWarmup(() => setEmbedActive(true), 2000)
+  }, [])
+
+  useEffect(() => {
+    const activateEmbed = () => setEmbedActive(true)
+
+    window.addEventListener('touchstart', activateEmbed, { once: true, passive: true })
+    return () => window.removeEventListener('touchstart', activateEmbed)
   }, [])
 
   const openPlayer = useCallback(() => {

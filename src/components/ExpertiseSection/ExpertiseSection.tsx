@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { loadCategoryThumbnails } from '../../data/projectAssets'
+import { loadCategoryThumbnails, loadProjectThumbnail } from '../../data/projectAssets'
 import {
   getProjectsMetaForCategory,
   isProjectOpenable,
   isVideoShowcase,
   type PortfolioProjectMeta,
 } from '../../data/portfolioProjects'
-import { primeVideoFrame, startMutedPreview } from '../../lib/mediaUtils'
+import { finishVideoMetadataLoad, primeVideoFrame, runVideoMetadataLoad, startMutedPreview } from '../../lib/mediaUtils'
 import {
   EXPERTISE_TABS,
   type ExpertiseCategory,
@@ -66,6 +66,34 @@ function useCategoryThumbnails(category: ExpertiseCategory) {
       setThumbnails(cached)
       setLoading(false)
       return
+    }
+
+    if (category === 'development') {
+      let cancelled = false
+      setLoading(false)
+
+      const projects = getProjectsMetaForCategory('development')
+
+      void (async () => {
+        const next: Record<string, string> = {}
+
+        for (const project of projects) {
+          if (cancelled) return
+
+          try {
+            next[project.id] = await loadProjectThumbnail(project.id)
+            const snapshot = { ...next }
+            thumbnailCache.set('development', snapshot)
+            if (!cancelled) setThumbnails(snapshot)
+          } catch {
+            /* skip failed preview */
+          }
+        }
+      })()
+
+      return () => {
+        cancelled = true
+      }
     }
 
     const currentRequest = ++requestId.current
@@ -144,57 +172,65 @@ function ShowcaseVideoCard({ src }: { src: string }) {
     const video = videoRef.current
     if (!video) return
 
+    let cancelled = false
+
     setFrameReady(false)
     setShowPlayButton(false)
     setIsPaused(true)
 
-    const onFrameReady = () => {
+    const markFrameReady = () => {
+      if (cancelled) return
       primeVideoFrame(video)
+      setFrameReady(true)
+      setShowPlayButton(true)
+    }
+
+    const onLoadedData = () => {
+      finishVideoMetadataLoad()
+      markFrameReady()
+    }
+
+    const onError = () => {
+      finishVideoMetadataLoad()
+    }
+
+    const startMetadataLoad = () => {
+      if (cancelled) return
+
+      video.preload = 'metadata'
+      video.addEventListener('loadeddata', onLoadedData, { once: true })
+      video.addEventListener('error', onError, { once: true })
 
       if (video.readyState >= 2) {
-        setFrameReady(true)
-        setShowPlayButton(true)
+        finishVideoMetadataLoad()
+        markFrameReady()
         return
       }
 
-      void startMutedPreview(video).then(() => {
-        video.pause()
-        video.currentTime = 0.001
-        setFrameReady(true)
-        setShowPlayButton(true)
-        setIsPaused(true)
-      })
+      video.load()
     }
 
-    video.addEventListener('loadeddata', onFrameReady, { once: true })
-    video.addEventListener('loadedmetadata', () => primeVideoFrame(video), {
-      once: true,
-    })
-    if (video.readyState >= 1) onFrameReady()
+    const cancelQueuedLoad = runVideoMetadataLoad(startMetadataLoad)
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          if (video.readyState < 2) {
-            video.preload = 'auto'
-            video.load()
-          } else {
-            onFrameReady()
-          }
-          return
+        if (!entry.isIntersecting) {
+          video.pause()
+          setIsPaused(true)
+          if (video.readyState >= 2) setShowPlayButton(true)
         }
-
-        video.pause()
-        setIsPaused(true)
-        if (video.readyState >= 2) setShowPlayButton(true)
       },
-      { threshold: 0.15 },
+      { threshold: 0.1, rootMargin: '160px 0px' },
     )
 
     observer.observe(video)
+
     return () => {
+      cancelled = true
+      cancelQueuedLoad()
       observer.disconnect()
-      video.removeEventListener('loadeddata', onFrameReady)
+      video.removeEventListener('loadeddata', onLoadedData)
+      video.removeEventListener('error', onError)
     }
   }, [src])
 
@@ -467,9 +503,7 @@ export function ExpertiseSection({
     )
   }
 
-  const cardsVisible =
-    !hideCards &&
-    !(category === 'development' && thumbnailsLoading && !thumbnailCache.has('development'))
+  const cardsVisible = !hideCards
 
   return (
     <section className={styles.section} aria-label="Expertise portfolio">

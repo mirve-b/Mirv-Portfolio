@@ -152,9 +152,14 @@
 
 @media (max-width: 768px) {
   .drawer {
+    z-index: 1;
     width: min(20rem, calc(100vw - (var(--container-padding) * 2)));
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+
+  .drawerOpen {
+    z-index: 10001;
   }
 
   .playerWrap {
