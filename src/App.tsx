@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   loadCategoryThumbnails,
@@ -315,6 +315,16 @@ function App() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [route])
+
+  useLayoutEffect(() => {
+    if (route.type !== 'home') return
+
+    const frame = window.requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'))
+    })
+
+    return () => window.cancelAnimationFrame(frame)
   }, [route])
 
   useEffect(() => {

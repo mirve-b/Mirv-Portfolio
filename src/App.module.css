@@ -21,32 +21,38 @@
 .heroWrap {
   position: relative;
   display: flex;
-  flex: 1;
+  flex: 1 1 auto;
   flex-direction: column;
+  min-height: 0;
   overflow-x: clip;
 }
 
 .viewStage {
   position: relative;
-  flex: 1;
+  flex: 0 1 auto;
   width: 100%;
+  min-height: 0;
   overflow: hidden;
   isolation: isolate;
   display: grid;
-  grid-template: 1fr / 1fr;
+  grid-template: minmax(0, auto) / 1fr;
+  align-items: start;
 }
 
 .pageLayer {
   grid-area: 1 / 1;
+  position: relative;
   width: 100%;
   min-width: 0;
-  min-height: 100%;
+  align-self: start;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
 .pageProject {
   background: var(--color-bg);
+  align-self: stretch;
+  min-height: calc(100svh - var(--navbar-height));
 }
 
 .pageLoading {
@@ -90,6 +96,7 @@
 
   .viewStage {
     touch-action: pan-y;
+    contain: layout;
   }
 }
 
