@@ -194,6 +194,7 @@ function ShowcaseVideoCard({
       setVideoLoading(true)
 
       if (videoActive && video.paused && loadedVideoSrcRef.current) {
+        video.muted = true
         try {
           await video.play()
           setIsPlaying(true)
@@ -217,13 +218,13 @@ function ShowcaseVideoCard({
 
       const startPlayback = async () => {
         video.loop = true
-        video.muted = false
+        // Keep muted so Spotify keeps playing — only art gallery unmute pauses it.
+        video.muted = true
 
         try {
           await video.play()
         } catch {
-          video.muted = true
-          await video.play()
+          /* autoplay blocked */
         }
 
         setVideoActive(true)
@@ -290,6 +291,7 @@ function ShowcaseVideoCard({
     if (!video) return
 
     if (video.paused) {
+      video.muted = true
       try {
         await video.play()
         setIsPlaying(true)
