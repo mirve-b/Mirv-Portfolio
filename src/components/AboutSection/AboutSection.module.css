@@ -659,6 +659,22 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  .collage[data-mobile][data-open] .mobileTapTarget {
+    pointer-events: none;
+  }
+
+  .collage[data-mobile][data-open] .noteLink {
+    z-index: 6;
+    touch-action: manipulation;
+  }
+
+  .collage[data-mobile][data-open] .noteLink::before {
+    content: '';
+    position: absolute;
+    inset: -0.65rem;
+    z-index: -1;
+  }
+
   .collage[data-mobile] .orchidTopRight,
   .collage[data-mobile] .flowerLeft,
   .collage[data-mobile] .flowerBottomRight {

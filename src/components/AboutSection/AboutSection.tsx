@@ -61,8 +61,8 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
 
   const handleNoteSelect = useCallback(
     (category: ExpertiseCategory) => {
-      closeFolder()
       onSelectCategory(category)
+      closeFolder()
     },
     [closeFolder, onSelectCategory],
   )
@@ -113,22 +113,25 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
     }
   }, [closeFolder, folderPhase, isMobile])
 
-  const mobileTapProps = isMobile
-    ? {
-        role: 'button' as const,
-        tabIndex: 0,
-        onClick: handleAssetTap,
-        onKeyDown: (event: React.KeyboardEvent) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            handleAssetTap(event)
-          }
-        },
-      }
-    : {}
+  const mobileTapProps =
+    isMobile && folderPhase === 'idle'
+      ? {
+          role: 'button' as const,
+          tabIndex: 0,
+          onClick: handleAssetTap,
+          onKeyDown: (event: React.KeyboardEvent) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              handleAssetTap(event)
+            }
+          },
+        }
+      : {}
 
   const tapClass = (baseClass: string) =>
-    isMobile ? `${baseClass} ${styles.mobileTapTarget}` : baseClass
+    isMobile && folderPhase === 'idle'
+      ? `${baseClass} ${styles.mobileTapTarget}`
+      : baseClass
 
   return (
     <motion.div

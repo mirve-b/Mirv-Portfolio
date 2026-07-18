@@ -129,7 +129,7 @@ function CardVideo({ src }: { src: string }) {
 
 function ShowcaseVideoCard({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [showPlayButton, setShowPlayButton] = useState(true)
+  const [showPlayButton, setShowPlayButton] = useState(false)
   const [isPaused, setIsPaused] = useState(true)
   const [frameReady, setFrameReady] = useState(false)
 
@@ -138,7 +138,7 @@ function ShowcaseVideoCard({ src }: { src: string }) {
     if (!video) return
 
     setFrameReady(false)
-    setShowPlayButton(true)
+    setShowPlayButton(false)
     setIsPaused(true)
 
     const onFrameReady = () => {
@@ -146,6 +146,7 @@ function ShowcaseVideoCard({ src }: { src: string }) {
 
       if (video.readyState >= 2) {
         setFrameReady(true)
+        setShowPlayButton(true)
         return
       }
 
@@ -178,7 +179,7 @@ function ShowcaseVideoCard({ src }: { src: string }) {
 
         video.pause()
         setIsPaused(true)
-        setShowPlayButton(true)
+        if (video.readyState >= 2) setShowPlayButton(true)
       },
       { threshold: 0.15 },
     )
@@ -231,7 +232,19 @@ function ShowcaseVideoCard({ src }: { src: string }) {
 
   return (
     <div className={styles.showcaseVideoWrap}>
-      {!frameReady ? <MediaLoader label="Loading video" /> : null}
+      <AnimatePresence>
+        {!frameReady ? (
+          <motion.div
+            key="loader"
+            className={styles.showcaseLoaderSlot}
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <MediaLoader label="Loading video" />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
       <video
         ref={videoRef}
         src={src}
@@ -244,21 +257,28 @@ function ShowcaseVideoCard({ src }: { src: string }) {
         draggable={false}
         onClick={handleVideoClick}
       />
-      {showPlayButton ? (
-        <button
-          type="button"
-          className={styles.showcasePlayButton}
-          aria-label="Play video"
-          onClick={handlePlayButton}
-        >
-          <span className={styles.showcasePlayIcon} aria-hidden="true">
-            <svg viewBox="0 0 12 14" fill="none">
-              <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
-            </svg>
-          </span>
-        </button>
-      ) : null}
-      {!showPlayButton && isPaused ? (
+      <AnimatePresence>
+        {frameReady && showPlayButton ? (
+          <motion.button
+            key="play"
+            type="button"
+            className={styles.showcasePlayButton}
+            aria-label="Play video"
+            initial={{ opacity: 0, scale: 0.88 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.88 }}
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            onClick={handlePlayButton}
+          >
+            <span className={styles.showcasePlayIcon} aria-hidden="true">
+              <svg viewBox="0 0 12 14" fill="none">
+                <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
+              </svg>
+            </span>
+          </motion.button>
+        ) : null}
+      </AnimatePresence>
+      {!showPlayButton && isPaused && frameReady ? (
         <div className={styles.showcasePausedHint} aria-hidden="true" />
       ) : null}
     </div>
@@ -280,6 +300,7 @@ function ProjectCard({
   onOpenProject: (projectId: string) => void
   motionEnabled: boolean
 }) {
+  const [shouldEntrance] = useState(motionEnabled)
   const isClickable = isProjectOpenable(project)
   const isShowcase = isVideoShowcase(project)
   const isVideo = project.thumbnailType === 'video' && Boolean(thumbnail) && !isShowcase
@@ -287,9 +308,9 @@ function ProjectCard({
     project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
   const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
   const cardMotion = {
-    initial: motionEnabled ? { opacity: 0, y: 28, scale: 0.94 } : false,
+    initial: shouldEntrance ? { opacity: 0, y: 28, scale: 0.94 } : false,
     animate: { opacity: 1, y: 0, scale: 1 },
-    transition: motionEnabled
+    transition: shouldEntrance
       ? {
           ...cardSpring,
           delay: Math.min(index * 0.06, 0.36),
@@ -406,6 +427,10 @@ export function ExpertiseSection({
     </div>
   )
 
+  const cardsVisible =
+    !hideCards &&
+    !(category === 'development' && thumbnailsLoading && !thumbnailCache.has('development'))
+
   return (
     <section className={styles.section} aria-label="Expertise portfolio">
       <nav className={styles.tabBar} aria-label="Expertise categories">
@@ -440,27 +465,29 @@ export function ExpertiseSection({
 
       <div
         className={styles.cardsStage}
-        data-hidden={hideCards ? 'true' : undefined}
+        data-hidden={hideCards || !cardsVisible ? 'true' : undefined}
       >
-        {tabPanelMotionEnabled ? (
-          <AnimatePresence custom={tabDirection} initial={false}>
-            <motion.div
-              key={category}
-              className={styles.panel}
-              custom={tabDirection}
-              initial={{ opacity: 0, x: tabDirection > 0 ? 48 : -48 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: tabDirection > 0 ? -48 : 48 }}
-              transition={panelSpring}
-            >
-              {renderCards(false)}
-            </motion.div>
-          </AnimatePresence>
-        ) : (
-          <div key={category} className={styles.panel}>
-            {renderCards(entranceMotionEnabled)}
-          </div>
-        )}
+        {cardsVisible ? (
+          tabPanelMotionEnabled ? (
+            <AnimatePresence custom={tabDirection} initial={false}>
+              <motion.div
+                key={category}
+                className={styles.panel}
+                custom={tabDirection}
+                initial={{ opacity: 0, x: tabDirection > 0 ? 48 : -48 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: tabDirection > 0 ? -48 : 48 }}
+                transition={panelSpring}
+              >
+                {renderCards(false)}
+              </motion.div>
+            </AnimatePresence>
+          ) : (
+            <div key={category} className={styles.panel}>
+              {renderCards(entranceMotionEnabled)}
+            </div>
+          )
+        ) : null}
       </div>
     </section>
   )

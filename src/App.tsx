@@ -233,6 +233,7 @@ function App() {
       setTabDirection(expertiseTabDirection(route.category, category))
       setTabPanelMotionEnabled(true)
       setTransitionInstant(true)
+      setExpertiseEntranceActive(false)
       replaceRoute({ type: 'expertise', category })
     },
     [replaceRoute, route],
@@ -316,7 +317,6 @@ function App() {
     expertiseEntrancePendingRef.current = false
     setExpertiseEntrancePending(false)
     setExpertiseEntranceActive(true)
-    window.setTimeout(() => setExpertiseEntranceActive(false), 900)
   }, [])
 
   const projectView =
