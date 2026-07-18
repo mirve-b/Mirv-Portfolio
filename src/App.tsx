@@ -21,6 +21,7 @@ import { Navbar } from './components/Navbar'
 import { TaglineDivider } from './components/TaglineDivider'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
 import { pageSlideTween } from './lib/motion'
+import { useIsMobile } from './lib/useIsMobile'
 import {
   type AppRoute,
   type ExpertiseCategory,
@@ -56,6 +57,7 @@ function initialVisitedState() {
 }
 
 function App() {
+  const isMobile = useIsMobile()
   const skipIntro = hasSeenIntro()
   const [showContent, setShowContent] = useState(skipIntro)
   const [showSplash, setShowSplash] = useState(!skipIntro)
@@ -169,7 +171,6 @@ function App() {
         syncBrowserHistory(next, mode)
       }
       setRoute(next)
-      window.scrollTo({ top: 0, behavior: 'auto' })
     },
     [],
   )
@@ -302,15 +303,24 @@ function App() {
     return () => window.clearTimeout(timer)
   }, [tabPanelMotionEnabled, expertiseCategory])
 
+  const pageAnimating = routeMotion !== 'none'
+  const slideCompleteRef = useRef(false)
+
+  const handlePageSlideComplete = useCallback(() => {
+    if (slideCompleteRef.current) return
+    slideCompleteRef.current = true
+    setRouteMotion('none')
+  }, [])
+
   useEffect(() => {
     if (routeMotion === 'none') return
-
-    const timer = window.setTimeout(() => {
-      setRouteMotion('none')
-    }, 380)
-
-    return () => window.clearTimeout(timer)
+    slideCompleteRef.current = false
   }, [routeMotion])
+
+  useEffect(() => {
+    if (routeMotion !== 'none') return
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [route, routeMotion])
 
   const projectView =
     projectReady && activeProjectMeta ? (
@@ -349,11 +359,16 @@ function App() {
                   className={styles.pageLayer}
                   data-page="home"
                   aria-hidden={!isHome}
+                  data-active={isHome ? 'true' : undefined}
                   data-offscreen={!isHome && routeMotion === 'none' ? 'true' : undefined}
+                  data-animating={pageAnimating ? 'true' : undefined}
                   {...layerInert(isHome)}
                   initial={false}
                   animate={{ x: homeOffset }}
                   transition={pageTransition}
+                  onAnimationComplete={
+                    pageAnimating ? handlePageSlideComplete : undefined
+                  }
                 >
                   <Hero active={isHome} />
                   <TaglineDivider />
@@ -368,20 +383,27 @@ function App() {
                     className={`${styles.pageLayer} ${styles.pageExpertise}`}
                     data-page="expertise"
                     aria-hidden={!isExpertise}
+                    data-active={isExpertise ? 'true' : undefined}
                     data-offscreen={
-                      isHome && routeMotion === 'none' ? 'true' : undefined
+                      !isExpertise && routeMotion === 'none' ? 'true' : undefined
                     }
+                    data-animating={pageAnimating ? 'true' : undefined}
                     {...layerInert(isExpertise)}
                     initial={false}
                     animate={{ x: expertiseOffset }}
                     transition={pageTransition}
+                    onAnimationComplete={
+                      pageAnimating ? handlePageSlideComplete : undefined
+                    }
                   >
                     <ExpertiseSection
                       category={expertiseCategory}
                       onCategoryChange={handleCategoryChange}
                       onOpenProject={openProject}
                       tabDirection={tabDirection}
-                      entranceMotionEnabled={routeMotion === 'home-to-expertise'}
+                      entranceMotionEnabled={
+                        routeMotion === 'home-to-expertise' && !isMobile
+                      }
                       tabPanelMotionEnabled={tabPanelMotionEnabled}
                     />
                   </motion.div>
@@ -392,13 +414,18 @@ function App() {
                     className={`${styles.pageLayer} ${styles.pageProject}`}
                     data-page="project"
                     aria-hidden={!isProject}
+                    data-active={isProject ? 'true' : undefined}
                     data-offscreen={
                       !isProject && routeMotion === 'none' ? 'true' : undefined
                     }
+                    data-animating={pageAnimating ? 'true' : undefined}
                     {...layerInert(isProject)}
                     initial={false}
                     animate={{ x: projectOffset }}
                     transition={pageTransition}
+                    onAnimationComplete={
+                      pageAnimating ? handlePageSlideComplete : undefined
+                    }
                   >
                     <Suspense fallback={null}>{projectView}</Suspense>
                   </motion.div>

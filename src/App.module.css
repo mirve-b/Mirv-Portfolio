@@ -42,13 +42,21 @@
 }
 
 .viewStage[data-stacked='true'] {
-  display: grid;
-  grid-template: 1fr / 1fr;
+  position: relative;
 }
 
 .viewStage[data-stacked='true'] .pageLayer {
-  grid-area: 1 / 1;
-  min-width: 0;
+  width: 100%;
+}
+
+.viewStage[data-stacked='true'] .pageLayer[data-active='true'] {
+  position: relative;
+}
+
+.viewStage[data-stacked='true'] .pageLayer:not([data-active='true']) {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .viewStage[data-stacked='true'] .pageLayer[data-page='home'] {
@@ -67,7 +75,6 @@
 .pageLayer[data-offscreen='true'] {
   visibility: hidden;
   pointer-events: none;
-  height: 0;
   overflow: clip;
 }
 
@@ -77,7 +84,10 @@
 }
 
 .siteChrome[data-hidden='true'] {
-  display: none;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -89,7 +99,7 @@
     touch-action: pan-y;
   }
 
-  .pageLayer {
+  .pageLayer[data-animating='true'] {
     will-change: transform;
   }
 }

@@ -7,7 +7,7 @@ import {
   isVideoShowcase,
   type PortfolioProjectMeta,
 } from '../../data/portfolioProjects'
-import { startMutedPreview } from '../../lib/mediaUtils'
+import { primeVideoFrame, startMutedPreview } from '../../lib/mediaUtils'
 import {
   EXPERTISE_TABS,
   type ExpertiseCategory,
@@ -58,11 +58,15 @@ function useCategoryThumbnails(category: ExpertiseCategory) {
 
     const currentRequest = ++requestId.current
 
-    loadCategoryThumbnails(category).then((next) => {
-      if (requestId.current !== currentRequest) return
-      thumbnailCache.set(category, next)
-      setThumbnails(next)
-    })
+    loadCategoryThumbnails(category)
+      .then((next) => {
+        if (requestId.current !== currentRequest) return
+        thumbnailCache.set(category, next)
+        setThumbnails(next)
+      })
+      .catch(() => {
+        if (requestId.current !== currentRequest) return
+      })
   }, [category])
 
   return thumbnails
@@ -108,29 +112,63 @@ function ShowcaseVideoCard({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [showPlayButton, setShowPlayButton] = useState(true)
   const [isPaused, setIsPaused] = useState(true)
+  const [frameReady, setFrameReady] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
-    video.pause()
-    video.currentTime = 0
+    setFrameReady(false)
     setShowPlayButton(true)
     setIsPaused(true)
 
+    const onFrameReady = () => {
+      primeVideoFrame(video)
+
+      if (video.readyState >= 2) {
+        setFrameReady(true)
+        return
+      }
+
+      void startMutedPreview(video).then(() => {
+        video.pause()
+        video.currentTime = 0.001
+        setFrameReady(true)
+        setShowPlayButton(true)
+        setIsPaused(true)
+      })
+    }
+
+    video.addEventListener('loadeddata', onFrameReady, { once: true })
+    video.addEventListener('loadedmetadata', () => primeVideoFrame(video), {
+      once: true,
+    })
+    if (video.readyState >= 1) onFrameReady()
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) {
-          video.pause()
-          setIsPaused(true)
-          setShowPlayButton(true)
+        if (entry.isIntersecting) {
+          if (video.readyState < 2) {
+            video.preload = 'auto'
+            video.load()
+          } else {
+            onFrameReady()
+          }
+          return
         }
+
+        video.pause()
+        setIsPaused(true)
+        setShowPlayButton(true)
       },
       { threshold: 0.15 },
     )
 
     observer.observe(video)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      video.removeEventListener('loadeddata', onFrameReady)
+    }
   }, [src])
 
   const handlePlayButton = useCallback(async (event: MouseEvent) => {
@@ -178,6 +216,7 @@ function ShowcaseVideoCard({ src }: { src: string }) {
         ref={videoRef}
         src={src}
         className={styles.showcaseVideo}
+        data-ready={frameReady ? 'true' : undefined}
         loop
         muted
         playsInline
