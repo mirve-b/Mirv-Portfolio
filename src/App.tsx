@@ -75,6 +75,7 @@ function App() {
   const routeRef = useRef(route)
   const projectLoadRequest = useRef(0)
   const projectCache = useRef<Map<string, PortfolioProject>>(new Map())
+  const galleryEntranceRef = useRef(false)
   const historyReady = useRef(false)
 
   routeRef.current = route
@@ -160,6 +161,7 @@ function App() {
       return
     }
 
+    galleryEntranceRef.current = true
     setLoadedProject(null)
 
     const requestId = ++projectLoadRequest.current
@@ -258,6 +260,7 @@ function App() {
       expertiseEntrancePendingRef.current = false
 
       const cached = projectCache.current.get(projectId)
+      galleryEntranceRef.current = cached == null
       setLoadedProject(cached ?? null)
 
       navigate({ type: 'project', projectId })
@@ -414,7 +417,25 @@ function App() {
                           </div>
                         }
                       >
-                        {projectView ?? (
+                        {projectView ? (
+                          galleryEntranceRef.current ? (
+                            <motion.div
+                              key={`gallery-enter-${route.projectId}`}
+                              custom={1}
+                              variants={pageVariants}
+                              initial="initial"
+                              animate="animate"
+                              transition={pageSlideTween}
+                              onAnimationComplete={() => {
+                                galleryEntranceRef.current = false
+                              }}
+                            >
+                              {projectView}
+                            </motion.div>
+                          ) : (
+                            projectView
+                          )
+                        ) : (
                           <div className={styles.pageLoading}>
                             <span className={styles.pageLoadingSpinner} />
                           </div>

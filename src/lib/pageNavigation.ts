@@ -1,4 +1,8 @@
-import { getProjectMetaById, isProjectOpenable } from '../data/portfolioProjects'
+import {
+  getProjectMetaById,
+  isProjectOpenable,
+  PORTFOLIO_PROJECTS,
+} from '../data/portfolioProjects'
 
 /** Expertise categories shown on the Expertise page tab bar. */
 export type ExpertiseCategory = 'art' | 'ui-ux' | 'development'
@@ -20,6 +24,12 @@ export const EXPERTISE_TAB_ORDER: ExpertiseCategory[] = [
   'ui-ux',
 ]
 
+const PROJECT_PATH_CATEGORY_PREFIXES: ExpertiseCategory[] = [
+  'ui-ux',
+  'development',
+  'art',
+]
+
 export function expertiseTabDirection(
   from: ExpertiseCategory,
   to: ExpertiseCategory,
@@ -33,7 +43,6 @@ const ROUTE_KEY = 'mirve-active-route'
 const LEGACY_PAGE_KEY = 'mirve-active-page'
 
 const HISTORY_STATE_KEY = 'mirveRoute'
-const RESERVED_ROOT_PATHS = new Set(['expertise'])
 
 export type HistoryRouteState = {
   [HISTORY_STATE_KEY]: AppRoute
@@ -53,7 +62,35 @@ function isAppRoute(value: unknown): value is AppRoute {
   return false
 }
 
-function projectRouteFromSlug(slug: string): AppRoute | null {
+function compactProjectSlug(projectId: string): string {
+  return projectId.replace(/-/g, '')
+}
+
+function projectPathSegment(category: ExpertiseCategory, projectId: string): string {
+  return `${category}-${compactProjectSlug(projectId)}`
+}
+
+function projectRouteFromExpertiseSegment(segment: string): AppRoute | null {
+  for (const category of PROJECT_PATH_CATEGORY_PREFIXES) {
+    const prefix = `${category}-`
+    if (!segment.startsWith(prefix)) continue
+
+    const compactSlug = segment.slice(prefix.length)
+    if (!compactSlug) continue
+
+    for (const project of PORTFOLIO_PROJECTS) {
+      if (project.category !== category) continue
+      if (!isProjectOpenable(project)) continue
+      if (compactProjectSlug(project.id) === compactSlug) {
+        return { type: 'project', projectId: project.id }
+      }
+    }
+  }
+
+  return null
+}
+
+function projectRouteFromLegacySlug(slug: string): AppRoute | null {
   const meta = getProjectMetaById(slug)
   if (!meta || !isProjectOpenable(meta)) return null
   return { type: 'project', projectId: slug }
@@ -61,10 +98,12 @@ function projectRouteFromSlug(slug: string): AppRoute | null {
 
 export function routeToPath(route: AppRoute): string {
   if (route.type === 'home') return '/'
-  if (route.type === 'expertise') {
-    return route.category === 'art' ? '/expertise' : `/expertise/${route.category}`
-  }
-  return `/${encodeURIComponent(route.projectId)}`
+  if (route.type === 'expertise') return '/expertise'
+
+  const meta = getProjectMetaById(route.projectId)
+  if (!meta || !isProjectOpenable(meta)) return '/expertise'
+
+  return `/expertise/${projectPathSegment(meta.category, route.projectId)}`
 }
 
 export function pathToRoute(pathname: string): AppRoute | null {
@@ -76,21 +115,28 @@ export function pathToRoute(pathname: string): AppRoute | null {
     return { type: 'expertise', category: 'art' }
   }
 
-  const expertiseMatch = path.match(/^\/expertise\/(art|ui-ux|development)$/)
-  if (expertiseMatch) {
-    return { type: 'expertise', category: expertiseMatch[1] as ExpertiseCategory }
+  const expertiseSubMatch = path.match(/^\/expertise\/([^/]+)$/)
+  if (expertiseSubMatch) {
+    const segment = decodeURIComponent(expertiseSubMatch[1])
+
+    const projectRoute = projectRouteFromExpertiseSegment(segment)
+    if (projectRoute) return projectRoute
+
+    if (isExpertiseCategory(segment)) {
+      return { type: 'expertise', category: segment }
+    }
+
+    return null
   }
 
   const legacyProjectMatch = path.match(/^\/project\/([^/]+)$/)
   if (legacyProjectMatch) {
-    return projectRouteFromSlug(decodeURIComponent(legacyProjectMatch[1]))
+    return projectRouteFromLegacySlug(decodeURIComponent(legacyProjectMatch[1]))
   }
 
   const rootMatch = path.match(/^\/([^/]+)$/)
-  if (rootMatch) {
-    const slug = decodeURIComponent(rootMatch[1])
-    if (RESERVED_ROOT_PATHS.has(slug)) return null
-    return projectRouteFromSlug(slug)
+  if (rootMatch && rootMatch[1] !== 'expertise') {
+    return projectRouteFromLegacySlug(decodeURIComponent(rootMatch[1]))
   }
 
   return null
@@ -114,7 +160,22 @@ export function routeDepth(route: AppRoute): number {
 
 export function getInitialRoute(): AppRoute {
   if (typeof window === 'undefined') return { type: 'home' }
-  return pathToRoute(window.location.pathname) ?? getStoredRoute()
+
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+  const fromPath = pathToRoute(window.location.pathname)
+
+  if (fromPath) {
+    if (fromPath.type === 'expertise' && path === '/expertise') {
+      const stored = getStoredRoute()
+      if (stored.type === 'expertise') {
+        return { type: 'expertise', category: stored.category }
+      }
+    }
+
+    return fromPath
+  }
+
+  return getStoredRoute()
 }
 
 export function syncBrowserHistory(route: AppRoute, mode: 'push' | 'replace'): void {

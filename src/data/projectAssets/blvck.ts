@@ -12,8 +12,6 @@ const loadGallery = () =>
     import('../../assets/UI-UX/BLVCK/5.webp').then((m) => m.default),
     import('../../assets/UI-UX/BLVCK/6.webp').then((m) => m.default),
     import('../../assets/UI-UX/BLVCK/7.webp').then((m) => m.default),
-    import('../../assets/UI-UX/BLVCK/8.webp').then((m) => m.default),
-    import('../../assets/UI-UX/BLVCK/9.webp').then((m) => m.default),
   ])
 
 export default createProjectAssetLoader(loadThumbnail, loadGallery)
