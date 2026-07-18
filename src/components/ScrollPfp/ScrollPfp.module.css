@@ -3,10 +3,10 @@
   bottom: 0;
   left: calc(
     max((100vw - min(100vw, var(--container-max))) / 2, 0px) +
-      min(100vw, var(--container-max)) * 0.32
+      min(100vw, var(--container-max)) * 0.345
   );
   z-index: 50;
-  transform: translateX(-68%);
+  transform: translateX(-58%);
   pointer-events: none;
 }
 

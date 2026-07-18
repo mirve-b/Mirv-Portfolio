@@ -20,6 +20,13 @@ const cardSpring = {
   damping: 22,
 }
 
+const cardHoverSpring = {
+  type: 'spring' as const,
+  stiffness: 380,
+  damping: 28,
+  mass: 0.9,
+}
+
 const panelSpring = {
   type: 'spring' as const,
   stiffness: 380,
@@ -307,24 +314,26 @@ function ProjectCard({
   const expectsMedia =
     project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
   const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
+  const entranceDelay = Math.min(index * 0.06, 0.36)
   const cardMotion = {
     initial: shouldEntrance ? { opacity: 0, y: 28, scale: 0.94 } : false,
     animate: { opacity: 1, y: 0, scale: 1 },
-    transition: shouldEntrance
-      ? {
-          ...cardSpring,
-          delay: Math.min(index * 0.06, 0.36),
-        }
-      : { duration: 0 },
+    transition: {
+      opacity: shouldEntrance
+        ? { ...cardSpring, delay: entranceDelay }
+        : { duration: 0 },
+      y: cardHoverSpring,
+      scale: cardHoverSpring,
+    },
     whileHover: isClickable
       ? {
           y: -10,
           scale: 1.04,
           zIndex: 2,
-          transition: { type: 'spring' as const, stiffness: 520, damping: 22 },
+          transition: cardHoverSpring,
         }
       : undefined,
-    whileTap: isClickable ? { scale: 0.98 } : undefined,
+    whileTap: isClickable ? { scale: 0.98, transition: cardHoverSpring } : undefined,
   }
 
   const content = (
