@@ -139,6 +139,7 @@ function App() {
         previous.category !== next.category
       ) {
         setTabDirection(expertiseTabDirection(previous.category, next.category))
+        setTabPanelMotionEnabled(true)
       }
 
       setRoute(next)
@@ -223,18 +224,17 @@ function App() {
   )
 
   const navigateHome = useCallback(() => {
-    setTransitionInstant(true)
-    setTabPanelMotionEnabled(false)
-    setExpertiseEntranceActive(false)
-
-    const depth = routeDepth(routeRef.current)
-    if (depth > 0) {
-      window.history.go(-depth)
+    if (routeRef.current.type === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [])
+    setTransitionDirection(-1)
+    setTransitionInstant(true)
+    setTabPanelMotionEnabled(false)
+    setExpertiseEntranceActive(false)
+    navigate({ type: 'home' })
+  }, [navigate])
 
   const handleCategoryChange = useCallback(
     (category: ExpertiseCategory) => {
@@ -350,7 +350,7 @@ function App() {
     route.type === 'home'
       ? 'home'
       : route.type === 'expertise'
-        ? `expertise-${route.category}`
+        ? 'expertise'
         : `project-${route.projectId}`
 
   return (

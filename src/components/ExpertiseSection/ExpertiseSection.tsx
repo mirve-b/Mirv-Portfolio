@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { loadCategoryThumbnails, loadProjectShowcaseVideo } from '../../data/projectAssets'
 import {
   getProjectsMetaForCategory,
@@ -534,35 +534,33 @@ export function ExpertiseSection({
 
   return (
     <section className={styles.section} aria-label="Expertise portfolio">
-      <nav className={styles.tabBar} aria-label="Expertise categories">
-        {EXPERTISE_TABS.map(({ id, label }) => {
-          const isActive = category === id
+      <LayoutGroup id="expertise-tab-bar">
+        <nav className={styles.tabBar} aria-label="Expertise categories">
+          {EXPERTISE_TABS.map(({ id, label }) => {
+            const isActive = category === id
 
-          return (
-            <button
-              key={id}
-              type="button"
-              className={`${styles.tab}${isActive ? ` ${styles.tabActive}` : ''}`}
-              aria-current={isActive ? 'page' : undefined}
-              onClick={() => onCategoryChange(id)}
-            >
-              {isActive ? (
-                tabPanelMotionEnabled ? (
+            return (
+              <button
+                key={id}
+                type="button"
+                className={`${styles.tab}${isActive ? ` ${styles.tabActive}` : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={() => onCategoryChange(id)}
+              >
+                {isActive ? (
                   <motion.span
                     layoutId="expertise-tab-indicator"
                     className={styles.tabIndicator}
                     transition={tabIndicatorSpring}
                     aria-hidden="true"
                   />
-                ) : (
-                  <span className={styles.tabIndicator} aria-hidden="true" />
-                )
-              ) : null}
-              <span className={styles.tabLabel}>{label}</span>
-            </button>
-          )
-        })}
-      </nav>
+                ) : null}
+                <span className={styles.tabLabel}>{label}</span>
+              </button>
+            )
+          })}
+        </nav>
+      </LayoutGroup>
 
       <div
         className={styles.cardsStage}
