@@ -43,10 +43,3 @@ export const SPOTIFY: SpotifyConfig = resolveSpotifyConfig()
 
 /** Spotify URI for iFrame API */
 export const SPOTIFY_PLAYLIST_URI = `spotify:playlist:${SPOTIFY_PLAYLIST_ID}`
-
-/** Open playlist in Spotify app / web for full-track playback (mobile). */
-export function openSpotifyPlaylist(): boolean {
-  if (!SPOTIFY.webUrl) return false
-  window.open(SPOTIFY.webUrl, '_blank', 'noopener,noreferrer')
-  return true
-}

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { registerSpotifyControls } from '../../lib/spotifyPlayback'
 import { PLAYLIST_LABEL, SPOTIFY_PLAYLIST_URI } from './constants'
 import { useSpotifyController } from './hooks/useSpotifyController'
-import { preloadSpotifyIframeApi } from './spotifyPreload'
+import { preloadSpotifyIframeApi, scheduleSpotifyWarmup } from './spotifyPreload'
 import styles from './NowPlaying.module.css'
 import { SpotifyDrawer } from './SpotifyDrawer'
 import { Waveform } from './Waveform'
@@ -13,7 +13,7 @@ export function NowPlaying() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [embedActive, setEmbedActive] = useState(false)
 
-  const { isPlaying, isFading, pause, smoothPause } = useSpotifyController(
+  const { ready, isPlaying, isFading, pause, smoothPause } = useSpotifyController(
     embedHostRef,
     SPOTIFY_PLAYLIST_URI,
     embedActive,
@@ -40,9 +40,14 @@ export function NowPlaying() {
     })
   }, [pausePlayback, smoothPausePlayback, closeDrawer])
 
+  useEffect(() => {
+    void preloadSpotifyIframeApi()
+    return scheduleSpotifyWarmup(() => setEmbedActive(true), 2000)
+  }, [])
+
   const openPlayer = useCallback(() => {
     setEmbedActive(true)
-    preloadSpotifyIframeApi()
+    void preloadSpotifyIframeApi()
     setDrawerOpen(true)
   }, [])
 
@@ -97,6 +102,7 @@ export function NowPlaying() {
         onClose={closeDrawer}
         embedHostRef={embedHostRef}
         embedActive={embedActive}
+        embedReady={ready}
       />
     </div>
   )

@@ -135,18 +135,8 @@ export function getProjectsMetaForCategory(
   return PORTFOLIO_PROJECTS.filter((project) => project.category === category)
 }
 
-/** @deprecated Use getProjectsMetaForCategory */
-export function projectsForCategory(category: ExpertiseCategory): PortfolioProjectMeta[] {
-  return getProjectsMetaForCategory(category)
-}
-
 export function getProjectMetaById(projectId: string): PortfolioProjectMeta | undefined {
   return PORTFOLIO_PROJECTS.find((project) => project.id === projectId)
-}
-
-/** @deprecated Use getProjectMetaById — assets must be loaded separately */
-export function getProjectById(projectId: string): PortfolioProjectMeta | undefined {
-  return getProjectMetaById(projectId)
 }
 
 export function isProjectOpenable(project: PortfolioProjectMeta): boolean {

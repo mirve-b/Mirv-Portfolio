@@ -22,6 +22,7 @@ import { Navbar } from './components/Navbar'
 import { TaglineDivider } from './components/TaglineDivider'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
 import { pageSlideTween } from './lib/motion'
+import { preloadSpotifyIframeApi } from './components/NowPlaying/spotifyPreload'
 import {
   type AppRoute,
   type ExpertiseCategory,
@@ -85,6 +86,11 @@ function App() {
     syncBrowserHistory(routeRef.current, 'replace')
     historyReady.current = true
   }, [])
+
+  useEffect(() => {
+    if (!showContent) return
+    void preloadSpotifyIframeApi()
+  }, [showContent])
 
   useEffect(() => {
     storeRoute(route)

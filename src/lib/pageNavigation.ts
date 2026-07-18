@@ -6,9 +6,6 @@ export type AppRoute =
   | { type: 'expertise'; category: ExpertiseCategory }
   | { type: 'project'; projectId: string }
 
-/** @deprecated Use AppRoute */
-export type ActivePage = ExpertiseCategory | 'home'
-
 export const EXPERTISE_TABS: { id: ExpertiseCategory; label: string }[] = [
   { id: 'art', label: 'Art' },
   { id: 'development', label: 'Development' },
@@ -33,8 +30,6 @@ export function expertiseTabDirection(
 const ROUTE_KEY = 'mirve-active-route'
 const LEGACY_PAGE_KEY = 'mirve-active-page'
 
-const EXPERTISE_PAGES: ExpertiseCategory[] = ['art', 'ui-ux', 'development']
-
 const HISTORY_STATE_KEY = 'mirveRoute'
 
 export type HistoryRouteState = {
@@ -42,7 +37,7 @@ export type HistoryRouteState = {
 }
 
 function isExpertiseCategory(value: string): value is ExpertiseCategory {
-  return EXPERTISE_PAGES.includes(value as ExpertiseCategory)
+  return (EXPERTISE_TAB_ORDER as readonly string[]).includes(value)
 }
 
 function isAppRoute(value: unknown): value is AppRoute {
@@ -163,20 +158,4 @@ export function storeRoute(route: AppRoute): void {
   }
 
   sessionStorage.removeItem(LEGACY_PAGE_KEY)
-}
-
-/** @deprecated Use getStoredRoute */
-export function getStoredActivePage(): ActivePage {
-  const route = getStoredRoute()
-  if (route.type === 'expertise') return route.category
-  return 'home'
-}
-
-/** @deprecated Use storeRoute */
-export function storeActivePage(page: ActivePage): void {
-  if (page === 'home') {
-    storeRoute({ type: 'home' })
-    return
-  }
-  storeRoute({ type: 'expertise', category: page })
 }

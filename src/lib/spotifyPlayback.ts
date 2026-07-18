@@ -15,11 +15,6 @@ export function registerSpotifyControls(next: SpotifyPlaybackControls): () => vo
   }
 }
 
-export function stopSpotifyPlayback(): void {
-  controls?.pause()
-  controls?.closeDrawer()
-}
-
 export function smoothPauseSpotifyPlayback(): void {
   controls?.smoothPause()
 }
