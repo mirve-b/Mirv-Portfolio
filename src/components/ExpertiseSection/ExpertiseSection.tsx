@@ -14,16 +14,16 @@ import {
 } from '../../lib/pageNavigation'
 import styles from './ExpertiseSection.module.css'
 
-const panelTween = {
-  type: 'tween' as const,
-  duration: 0.28,
-  ease: [0.22, 1, 0.36, 1] as const,
+const cardSpring = {
+  type: 'spring' as const,
+  stiffness: 420,
+  damping: 22,
 }
 
-const cardTween = {
-  type: 'tween' as const,
-  duration: 0.3,
-  ease: [0.22, 1, 0.36, 1] as const,
+const panelSpring = {
+  type: 'spring' as const,
+  stiffness: 380,
+  damping: 28,
 }
 
 const tabIndicatorSpring = {
@@ -47,16 +47,21 @@ function useCategoryThumbnails(category: ExpertiseCategory) {
   const [thumbnails, setThumbnails] = useState<Record<string, string>>(
     () => thumbnailCache.get(category) ?? {},
   )
+  const [loading, setLoading] = useState(
+    () => !thumbnailCache.has(category),
+  )
   const requestId = useRef(0)
 
   useEffect(() => {
     const cached = thumbnailCache.get(category)
     if (cached) {
       setThumbnails(cached)
+      setLoading(false)
       return
     }
 
     const currentRequest = ++requestId.current
+    setLoading(true)
 
     loadCategoryThumbnails(category)
       .then((next) => {
@@ -67,9 +72,22 @@ function useCategoryThumbnails(category: ExpertiseCategory) {
       .catch(() => {
         if (requestId.current !== currentRequest) return
       })
+      .finally(() => {
+        if (requestId.current !== currentRequest) return
+        setLoading(false)
+      })
   }, [category])
 
-  return thumbnails
+  return { thumbnails, loading }
+}
+
+function MediaLoader({ label = 'Loading preview' }: { label?: string }) {
+  return (
+    <div className={styles.mediaLoader} aria-hidden="true">
+      <span className={styles.mediaLoaderSpinner} />
+      <span className={styles.mediaLoaderText}>{label}</span>
+    </div>
+  )
 }
 
 function CardVideo({ src }: { src: string }) {
@@ -212,6 +230,7 @@ function ShowcaseVideoCard({ src }: { src: string }) {
 
   return (
     <div className={styles.showcaseVideoWrap}>
+      {!frameReady ? <MediaLoader label="Loading video" /> : null}
       <video
         ref={videoRef}
         src={src}
@@ -248,12 +267,14 @@ function ShowcaseVideoCard({ src }: { src: string }) {
 function ProjectCard({
   project,
   thumbnail,
+  thumbnailsLoading,
   index,
   onOpenProject,
   motionEnabled,
 }: {
   project: PortfolioProjectMeta
   thumbnail?: string
+  thumbnailsLoading: boolean
   index: number
   onOpenProject: (projectId: string) => void
   motionEnabled: boolean
@@ -261,11 +282,17 @@ function ProjectCard({
   const isClickable = isProjectOpenable(project)
   const isShowcase = isVideoShowcase(project)
   const isVideo = project.thumbnailType === 'video' && Boolean(thumbnail) && !isShowcase
+  const expectsMedia =
+    project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
+  const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
   const cardMotion = motionEnabled
     ? {
-        initial: { opacity: 0, y: 16, scale: 0.96 },
+        initial: { opacity: 0, y: 28, scale: 0.94 },
         animate: { opacity: 1, y: 0, scale: 1 },
-        transition: { ...cardTween, delay: Math.min(index * 0.04, 0.16) },
+        transition: {
+          ...cardSpring,
+          delay: Math.min(index * 0.06, 0.36),
+        },
         whileHover: isClickable
           ? {
               y: -10,
@@ -313,6 +340,8 @@ function ProjectCard({
             loading="lazy"
             decoding="async"
           />
+        ) : mediaPending ? (
+          <MediaLoader />
         ) : null}
       </div>
       <h3 className={styles.cardTitle}>{project.title}</h3>
@@ -378,7 +407,16 @@ export function ExpertiseSection({
   tabPanelMotionEnabled = false,
 }: ExpertiseSectionProps) {
   const projects = getProjectsMetaForCategory(category)
-  const thumbnails = useCategoryThumbnails(category)
+  const { thumbnails, loading: thumbnailsLoading } = useCategoryThumbnails(category)
+
+  useEffect(() => {
+    if (category === 'development') return
+    if (thumbnailCache.has('development')) return
+
+    loadCategoryThumbnails('development').then((next) => {
+      thumbnailCache.set('development', next)
+    })
+  }, [category])
 
   return (
     <section className={styles.section} aria-label="Expertise portfolio">
@@ -422,7 +460,7 @@ export function ExpertiseSection({
               initial={{ opacity: 0, x: tabDirection > 0 ? 48 : -48 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: tabDirection > 0 ? -48 : 48 }}
-              transition={panelTween}
+              transition={panelSpring}
             >
               <div
                 className={`${styles.grid}${
@@ -434,6 +472,7 @@ export function ExpertiseSection({
                     key={project.id}
                     project={project}
                     thumbnail={thumbnails[project.id]}
+                    thumbnailsLoading={thumbnailsLoading}
                     index={index}
                     onOpenProject={onOpenProject}
                     motionEnabled={entranceMotionEnabled}
@@ -454,6 +493,7 @@ export function ExpertiseSection({
                   key={project.id}
                   project={project}
                   thumbnail={thumbnails[project.id]}
+                  thumbnailsLoading={thumbnailsLoading}
                   index={index}
                   onOpenProject={onOpenProject}
                   motionEnabled={entranceMotionEnabled}

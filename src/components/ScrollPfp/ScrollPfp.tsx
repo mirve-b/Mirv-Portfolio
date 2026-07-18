@@ -15,6 +15,20 @@ type ScrollPfpProps = {
   mobileNameInputRef?: RefObject<HTMLInputElement | null>
 }
 
+function clearPositionStyles(root: HTMLElement) {
+  root.style.bottom = ''
+  root.style.right = ''
+  root.style.left = ''
+  root.style.top = ''
+  root.style.transform = ''
+}
+
+function isZoneInView(zone: HTMLElement, mobile: boolean) {
+  const rect = zone.getBoundingClientRect()
+  const margin = mobile ? window.innerHeight * 0.12 : window.innerHeight * 0.08
+  return rect.top < window.innerHeight - margin && rect.bottom > 0
+}
+
 function useMobilePosition(
   rootRef: RefObject<HTMLDivElement | null>,
   nameInputRef: RefObject<HTMLInputElement | null> | undefined,
@@ -22,12 +36,12 @@ function useMobilePosition(
   active: boolean,
 ) {
   useLayoutEffect(() => {
+    const root = rootRef.current
     const media = window.matchMedia(MOBILE_MQ)
     let raf = 0
 
     const apply = () => {
       raf = 0
-      const root = rootRef.current
       if (!media.matches || !active || !nameInputRef?.current || !root) return
 
       const rect = nameInputRef.current.getBoundingClientRect()
@@ -48,7 +62,12 @@ function useMobilePosition(
       raf = window.requestAnimationFrame(apply)
     }
 
-    apply()
+    if (media.matches && active) {
+      apply()
+    } else if (root) {
+      clearPositionStyles(root)
+    }
+
     window.addEventListener('resize', schedule)
     window.addEventListener('scroll', schedule, { passive: true })
     media.addEventListener('change', schedule)
@@ -66,6 +85,7 @@ function useMobilePosition(
       window.removeEventListener('scroll', schedule)
       media.removeEventListener('change', schedule)
       resizeObserver?.disconnect()
+      if (root) clearPositionStyles(root)
     }
   }, [rootRef, nameInputRef, zoneRef, active])
 }
@@ -108,12 +128,19 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
   const isMobile = useIsMobile()
   const [revealed, setRevealed] = useState(false)
   const [showBubble, setShowBubble] = useState(false)
-  const [positionReady, setPositionReady] = useState(false)
+  const [layoutMode, setLayoutMode] = useState<'mobile' | 'desktop'>(() =>
+    typeof window !== 'undefined' && window.matchMedia(MOBILE_MQ).matches
+      ? 'mobile'
+      : 'desktop',
+  )
 
   const hide = useCallback(() => {
     setShowBubble(false)
     setRevealed(false)
-    setPositionReady(false)
+  }, [])
+
+  const reveal = useCallback(() => {
+    setRevealed(true)
   }, [])
 
   const cancelHideSchedule = useCallback(() => {
@@ -145,6 +172,27 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
   const handleSlideComplete = useCallback(() => {
     if (revealed) setShowBubble(true)
   }, [revealed])
+
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    const zone = zoneRef.current
+    const nextMode = isMobile ? 'mobile' : 'desktop'
+
+    if (root) clearPositionStyles(root)
+
+    if (zone) {
+      const inView = isZoneInView(zone, isMobile)
+      zoneInView.current = inView
+
+      if (inView) {
+        reveal()
+      } else {
+        hide()
+      }
+    }
+
+    setLayoutMode((current) => (current === nextMode ? current : nextMode))
+  }, [isMobile, zoneRef, hide, reveal])
 
   useEffect(() => {
     const zone = zoneRef.current
@@ -183,14 +231,11 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
         if (entry.isIntersecting) {
           cancelHideSchedule()
-          setPositionReady(true)
-          setRevealed(true)
+          reveal()
           return
         }
 
-        if (isMobile) {
-          hide()
-        }
+        if (isMobile) hide()
       },
       isMobile
         ? { threshold: 0.05, rootMargin: '0px 0px 12% 0px' }
@@ -205,13 +250,13 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
       observer.disconnect()
       window.removeEventListener('scroll', onScroll)
     }
-  }, [zoneRef, hide, cancelHideSchedule, scheduleHideAfterScrollUp, isMobile])
+  }, [zoneRef, hide, reveal, cancelHideSchedule, scheduleHideAfterScrollUp, isMobile])
 
   useMobilePosition(
     rootRef,
     mobileNameInputRef,
     zoneRef,
-    isMobile && positionReady,
+    isMobile && revealed,
   )
 
   return (
@@ -220,31 +265,27 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
       className={`${styles.root}${isMobile ? ` ${styles.rootMobile}` : ''}`}
       aria-hidden={!revealed}
     >
-      {isMobile ? (
+      {layoutMode === 'mobile' ? (
         <div
+          key="mobile-figure"
           className={`${styles.figureWrap} ${styles.figureWrapMobile}`}
           data-revealed={revealed ? '' : undefined}
           onTransitionEnd={(event) => {
             if (event.propertyName === 'transform') handleSlideComplete()
           }}
         >
-          <FigureContent
-            revealed={revealed}
-            showBubble={showBubble}
-          />
+          <FigureContent revealed={revealed} showBubble={showBubble} />
         </div>
       ) : (
         <motion.div
+          key="desktop-figure"
           className={styles.figureWrap}
           initial={false}
           animate={{ y: revealed ? 0 : '100%' }}
           transition={slideSpring}
           onAnimationComplete={handleSlideComplete}
         >
-          <FigureContent
-            revealed={revealed}
-            showBubble={showBubble}
-          />
+          <FigureContent revealed={revealed} showBubble={showBubble} />
         </motion.div>
       )}
     </div>

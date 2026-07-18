@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
+  loadCategoryThumbnails,
   loadProjectAssets,
   mergeProjectWithAssets,
 } from './data/projectAssets'
@@ -21,7 +22,6 @@ import { Navbar } from './components/Navbar'
 import { TaglineDivider } from './components/TaglineDivider'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
 import { pageSlideTween } from './lib/motion'
-import { useIsMobile } from './lib/useIsMobile'
 import {
   type AppRoute,
   type ExpertiseCategory,
@@ -57,7 +57,6 @@ function initialVisitedState() {
 }
 
 function App() {
-  const isMobile = useIsMobile()
   const skipIntro = hasSeenIntro()
   const [showContent, setShowContent] = useState(skipIntro)
   const [showSplash, setShowSplash] = useState(!skipIntro)
@@ -72,6 +71,8 @@ function App() {
   const projectLoadRequest = useRef(0)
   const projectCache = useRef<Map<string, PortfolioProject>>(new Map())
   const historyReady = useRef(false)
+  const pendingExpertiseEntrance = useRef(false)
+  const [expertiseEntranceReady, setExpertiseEntranceReady] = useState(false)
 
   routeRef.current = route
 
@@ -90,6 +91,7 @@ function App() {
     if (!visited.expertise) return
     void import('./components/ProjectGallery')
     void import('./components/ProjectCaseStudy')
+    void loadCategoryThumbnails('development')
   }, [visited.expertise])
 
   useEffect(() => {
@@ -204,6 +206,8 @@ function App() {
       setTabDirection(1)
       setTabPanelMotionEnabled(false)
       setRouteMotion('home-to-expertise')
+      pendingExpertiseEntrance.current = true
+      setExpertiseEntranceReady(false)
       setVisited((current) => ({ ...current, expertise: true }))
       navigate({ type: 'expertise', category })
     },
@@ -310,7 +314,18 @@ function App() {
     if (slideCompleteRef.current) return
     slideCompleteRef.current = true
     setRouteMotion('none')
+
+    if (pendingExpertiseEntrance.current) {
+      pendingExpertiseEntrance.current = false
+      requestAnimationFrame(() => setExpertiseEntranceReady(true))
+    }
   }, [])
+
+  useEffect(() => {
+    if (isExpertise) return
+    pendingExpertiseEntrance.current = false
+    setExpertiseEntranceReady(false)
+  }, [isExpertise])
 
   useEffect(() => {
     if (routeMotion === 'none') return
@@ -401,9 +416,7 @@ function App() {
                       onCategoryChange={handleCategoryChange}
                       onOpenProject={openProject}
                       tabDirection={tabDirection}
-                      entranceMotionEnabled={
-                        routeMotion === 'home-to-expertise' && !isMobile
-                      }
+                      entranceMotionEnabled={expertiseEntranceReady}
                       tabPanelMotionEnabled={tabPanelMotionEnabled}
                     />
                   </motion.div>
