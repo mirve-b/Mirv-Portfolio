@@ -76,22 +76,6 @@
   height: 1.25rem;
 }
 
-.emailLink {
-  display: inline-block;
-  width: fit-content;
-  font-size: var(--text-sm);
-  font-weight: 200;
-  letter-spacing: 0.06em;
-  color: var(--color-white);
-  border-bottom: 1px solid rgba(224, 44, 107, 0.45);
-  padding-bottom: 0.15rem;
-}
-
-.emailLink:hover {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
 /* ── Form ── */
 
 .formCol {

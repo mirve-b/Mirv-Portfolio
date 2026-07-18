@@ -15,8 +15,7 @@ type GalleryVideoItemProps = {
 
 function GalleryVideoItem({ src }: GalleryVideoItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const audibleRef = useRef(false)
-  const [isAudible, setIsAudible] = useState(false)
+  const [isUnmuted, setIsUnmuted] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
@@ -28,7 +27,10 @@ function GalleryVideoItem({ src }: GalleryVideoItemProps) {
           void startMutedPreview(video)
           return
         }
+
         video.pause()
+        video.muted = true
+        setIsUnmuted(false)
       },
       { threshold: 0.15 },
     )
@@ -41,69 +43,46 @@ function GalleryVideoItem({ src }: GalleryVideoItemProps) {
     }
   }, [src])
 
-  const resumeMutedPreview = useCallback(async () => {
+  const handleUnmute = useCallback(async () => {
     const video = videoRef.current
     if (!video) return
 
-    video.muted = true
-    video.loop = true
-    audibleRef.current = false
-    setIsAudible(false)
+    smoothPauseSpotifyPlayback()
 
-    try {
-      await video.play()
-    } catch {
-      /* preview blocked */
-    }
-  }, [])
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, SMOOTH_PAUSE_MS)
+    })
 
-  const handlePlay = useCallback(async () => {
-    const video = videoRef.current
-    if (!video) return
-
-    if (!audibleRef.current) {
-      smoothPauseSpotifyPlayback()
-
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, SMOOTH_PAUSE_MS)
-      })
-    }
-
-    video.pause()
     video.muted = false
-    video.loop = false
-    video.currentTime = 0
-    audibleRef.current = true
-    setIsAudible(true)
+    video.loop = true
 
     try {
-      await video.play()
+      if (video.paused) {
+        await video.play()
+      }
+      setIsUnmuted(true)
     } catch {
       video.muted = true
-      audibleRef.current = false
-      setIsAudible(false)
-      void resumeMutedPreview()
+      setIsUnmuted(false)
+      void startMutedPreview(video)
     }
-  }, [resumeMutedPreview])
+  }, [])
 
-  const handlePause = useCallback(() => {
+  const handleMute = useCallback(() => {
     const video = videoRef.current
     if (!video) return
 
-    video.pause()
     video.muted = true
-    video.loop = true
-    audibleRef.current = false
-    setIsAudible(false)
-  }, [])
+    setIsUnmuted(false)
 
-  const handleEnded = useCallback(() => {
-    void resumeMutedPreview()
-  }, [resumeMutedPreview])
+    if (video.paused) {
+      void startMutedPreview(video)
+    }
+  }, [])
 
   return (
     <figure className={styles.item}>
-      <div className={styles.videoWrap} data-playing={isAudible ? 'true' : undefined}>
+      <div className={styles.videoWrap} data-playing={isUnmuted ? 'true' : undefined}>
         <video
           ref={videoRef}
           src={src}
@@ -113,23 +92,39 @@ function GalleryVideoItem({ src }: GalleryVideoItemProps) {
           playsInline
           preload="metadata"
           draggable={false}
-          onEnded={handleEnded}
         />
         <button
           type="button"
           className={styles.videoControlButton}
-          aria-label={isAudible ? 'Pause video' : 'Play video with sound'}
-          onClick={isAudible ? handlePause : handlePlay}
+          aria-label={isUnmuted ? 'Mute video' : 'Unmute video'}
+          onClick={isUnmuted ? handleMute : handleUnmute}
         >
           <span className={styles.videoControlIcon} aria-hidden="true">
-            {isAudible ? (
-              <svg viewBox="0 0 12 14" fill="none">
-                <rect x="1" y="1" width="3.5" height="12" rx="0.5" fill="currentColor" />
-                <rect x="7.5" y="1" width="3.5" height="12" rx="0.5" fill="currentColor" />
+            {isUnmuted ? (
+              <svg viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M2.5 5.5H4.5L7.5 3V11L4.5 8.5H2.5V5.5Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M10.5 4.5L9 6M9 6L10.5 7.5M9 6L7.5 7.5M9 6L10.5 4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.1"
+                  strokeLinecap="round"
+                />
               </svg>
             ) : (
-              <svg viewBox="0 0 12 14" fill="none">
-                <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
+              <svg viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M2.5 5.5H4.5L7.5 3V11L4.5 8.5H2.5V5.5Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M9.5 5.5C10 6 10.25 6.75 10.25 7.25C10.25 7.75 10 8.5 9.5 9"
+                  stroke="currentColor"
+                  strokeWidth="1.1"
+                  strokeLinecap="round"
+                />
               </svg>
             )}
           </span>

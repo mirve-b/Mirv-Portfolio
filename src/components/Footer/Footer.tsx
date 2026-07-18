@@ -4,7 +4,7 @@ import { ScrollPfp } from '../ScrollPfp'
 import { staggerContainer } from '../../lib/motion'
 import { ContactForm } from './ContactForm'
 import { CONTACT_EMAIL, SOCIAL_LINKS } from './constants'
-import { SocialIcon } from './SocialIcons'
+import { EmailIcon, SocialIcon } from './SocialIcons'
 import styles from './Footer.module.css'
 
 const springBounce = { type: 'spring' as const, stiffness: 400, damping: 13 }
@@ -48,17 +48,19 @@ export function Footer({ scrollPfpEnabled = true }: { scrollPfpEnabled?: boolean
                 </motion.a>
               </li>
             ))}
+            <li>
+              <motion.a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className={styles.socialLink}
+                aria-label={`Email ${CONTACT_EMAIL}`}
+                whileHover={{ scale: 1.14, y: -5, rotate: -3 }}
+                whileTap={{ scale: 0.92 }}
+                transition={springBounce}
+              >
+                <EmailIcon />
+              </motion.a>
+            </li>
           </motion.ul>
-
-          <motion.a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className={styles.emailLink}
-            variants={springItem}
-            whileHover={{ x: 4 }}
-            transition={springBounce}
-          >
-            {CONTACT_EMAIL}
-          </motion.a>
         </motion.div>
 
         <motion.div
