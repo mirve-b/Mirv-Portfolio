@@ -101,6 +101,17 @@
   cursor: default;
 }
 
+.cardPlaceholder {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.cardPlaceholderDevelopment {
+  min-height: clamp(16rem, 28vw, 22rem);
+}
+
 .cardImageWrap {
   position: relative;
   width: 100%;

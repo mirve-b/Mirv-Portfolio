@@ -292,6 +292,17 @@ function ShowcaseVideoCard({ src }: { src: string }) {
   )
 }
 
+function GridPlaceholder({ development = false }: { development?: boolean }) {
+  return (
+    <div
+      className={`${styles.cardPlaceholder}${
+        development ? ` ${styles.cardPlaceholderDevelopment}` : ''
+      }`}
+      aria-hidden="true"
+    />
+  )
+}
+
 function ProjectCard({
   project,
   thumbnail,
@@ -416,25 +427,45 @@ export function ExpertiseSection({
     })
   }, [category])
 
-  const renderCards = (motionEnabled: boolean) => (
-    <div
-      className={`${styles.grid}${
-        category === 'development' ? ` ${styles.gridDevelopment}` : ''
-      }`}
-    >
-      {projects.map((project, index) => (
-        <ProjectCard
-          key={project.id}
-          project={project}
-          thumbnail={thumbnails[project.id]}
-          thumbnailsLoading={thumbnailsLoading}
-          index={index}
-          onOpenProject={onOpenProject}
-          motionEnabled={motionEnabled}
-        />
-      ))}
-    </div>
-  )
+  const renderCards = (motionEnabled: boolean) => {
+    const visibleProjects =
+      category === 'ui-ux'
+        ? projects.filter((project) => project.id === 'blvck' || project.id === 'doubleu')
+        : projects
+
+    const placeholderCount =
+      category === 'ui-ux'
+        ? 1
+        : category === 'development'
+          ? (2 - (visibleProjects.length % 2)) % 2
+          : 0
+
+    return (
+      <div
+        className={`${styles.grid}${
+          category === 'development' ? ` ${styles.gridDevelopment}` : ''
+        }`}
+      >
+        {visibleProjects.map((project, index) => (
+          <ProjectCard
+            key={project.id}
+            project={project}
+            thumbnail={thumbnails[project.id]}
+            thumbnailsLoading={thumbnailsLoading}
+            index={index}
+            onOpenProject={onOpenProject}
+            motionEnabled={motionEnabled}
+          />
+        ))}
+        {Array.from({ length: placeholderCount }, (_, index) => (
+          <GridPlaceholder
+            key={`placeholder-${index}`}
+            development={category === 'development'}
+          />
+        ))}
+      </div>
+    )
+  }
 
   const cardsVisible =
     !hideCards &&
