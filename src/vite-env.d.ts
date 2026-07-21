@@ -10,22 +10,17 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
-declare module '*.glsl?raw' {
-  const source: string
-  export default source
-}
-
-declare module '*.webp' {
-  const src: string
-  export default src
-}
-
 declare module '*.webp' {
   const src: string
   export default src
 }
 
 declare module '*.mp4' {
+  const src: string
+  export default src
+}
+
+declare module '*.mov' {
   const src: string
   export default src
 }

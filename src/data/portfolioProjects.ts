@@ -1,6 +1,6 @@
 import type { ExpertiseCategory } from '../lib/pageNavigation'
 
-export type ProjectDetailType = 'gallery' | 'case-study' | 'video-showcase'
+export type ProjectDetailType = 'gallery' | 'video-showcase'
 export type ThumbnailType = 'image' | 'video'
 
 export type PortfolioProjectMeta = {
@@ -123,18 +123,6 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     detailType: 'gallery',
     galleryMaxColumns: 1,
   },
-  {
-    id: 'product-flow',
-    category: 'ui-ux',
-    title: 'Product Flow',
-    subtitle: 'Case Study',
-  },
-  {
-    id: 'mobile-ui',
-    category: 'ui-ux',
-    title: 'Mobile UI',
-    subtitle: 'Interface',
-  },
 ]
 
 export function getProjectsMetaForCategory(
@@ -148,7 +136,7 @@ export function getProjectMetaById(projectId: string): PortfolioProjectMeta | un
 }
 
 export function isProjectOpenable(project: PortfolioProjectMeta): boolean {
-  return project.detailType === 'gallery' || project.detailType === 'case-study'
+  return project.detailType === 'gallery'
 }
 
 export function isVideoShowcase(project: PortfolioProjectMeta): boolean {

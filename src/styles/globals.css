@@ -84,7 +84,7 @@ ol {
   color: var(--color-white);
 }
 
-html.glass-cursor-active,
-html.glass-cursor-active * {
+html.custom-pointer-active,
+html.custom-pointer-active * {
   cursor: none !important;
 }

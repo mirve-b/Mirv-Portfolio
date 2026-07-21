@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import styles from './GlassCursor.module.css'
+import styles from './CustomPointer.module.css'
 
-type GlitterParticle = {
+type ClickSparkParticle = {
   id: number
   x: number
   y: number
@@ -12,7 +12,7 @@ type GlitterParticle = {
   duration: number
 }
 
-const GLITTER_BURSTS = [
+const CLICK_SPARK_BURSTS = [
   { kind: 'star' as const, size: 11, angle: 12, distance: 48, duration: 640 },
   { kind: 'star' as const, size: 16, angle: 118, distance: 72, duration: 760 },
   { kind: 'star' as const, size: 9, angle: 232, distance: 38, duration: 580 },
@@ -21,19 +21,21 @@ const GLITTER_BURSTS = [
   { kind: 'dot' as const, size: 1.75, angle: 298, distance: 78, duration: 820 },
 ] as const
 
+const HTML_ACTIVE_CLASS = 'custom-pointer-active'
+
 let particleId = 0
 
-export function GlassCursor() {
+export function CustomPointer() {
   const cursorRef = useRef<HTMLDivElement>(null)
   const [enabled, setEnabled] = useState(false)
-  const [particles, setParticles] = useState<GlitterParticle[]>([])
+  const [particles, setParticles] = useState<ClickSparkParticle[]>([])
 
   const removeParticle = useCallback((id: number) => {
     setParticles((current) => current.filter((particle) => particle.id !== id))
   }, [])
 
-  const spawnGlitter = useCallback((x: number, y: number) => {
-    const burst = GLITTER_BURSTS.map((config) => {
+  const spawnClickSpark = useCallback((x: number, y: number) => {
+    const burst = CLICK_SPARK_BURSTS.map((config) => {
       const radians = (config.angle * Math.PI) / 180
       return {
         id: ++particleId,
@@ -74,7 +76,7 @@ export function GlassCursor() {
   useEffect(() => {
     if (!enabled) return
 
-    document.documentElement.classList.add('glass-cursor-active')
+    document.documentElement.classList.add(HTML_ACTIVE_CLASS)
 
     const moveCursor = (x: number, y: number) => {
       const cursor = cursorRef.current
@@ -89,7 +91,7 @@ export function GlassCursor() {
     const onDown = (event: MouseEvent) => {
       moveCursor(event.clientX, event.clientY)
       window.requestAnimationFrame(() => {
-        spawnGlitter(event.clientX, event.clientY)
+        spawnClickSpark(event.clientX, event.clientY)
       })
     }
 
@@ -99,9 +101,9 @@ export function GlassCursor() {
     return () => {
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mousedown', onDown)
-      document.documentElement.classList.remove('glass-cursor-active')
+      document.documentElement.classList.remove(HTML_ACTIVE_CLASS)
     }
-  }, [enabled, spawnGlitter])
+  }, [enabled, spawnClickSpark])
 
   if (!enabled) return null
 

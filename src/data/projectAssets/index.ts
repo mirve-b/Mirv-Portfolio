@@ -16,8 +16,6 @@ const loaderByProjectId: Record<string, () => Promise<{ default: ProjectAssetLoa
   'kael-job-match': () => import('./kaelJobMatch'),
   blvck: () => import('./blvck'),
   doubleu: () => import('./doubleu'),
-  'product-flow': () => import('./productFlow'),
-  'mobile-ui': () => import('./mobileUi'),
 }
 
 const loaderCache = new Map<string, ProjectAssetLoader>()

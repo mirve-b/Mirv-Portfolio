@@ -46,10 +46,6 @@ export function IntroSplash({ onReveal, onExitComplete }: IntroSplashProps) {
   const [phase, setPhase] = useState<SplashPhase>('idle')
 
   useEffect(() => {
-    void import('../../assets/hero.mov')
-  }, [])
-
-  useEffect(() => {
     let cancelled = false
 
     const loadDisplayFont = async () => {

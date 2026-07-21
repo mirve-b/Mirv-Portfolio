@@ -10,7 +10,7 @@ import {
   isProjectOpenable,
   type PortfolioProject,
 } from './data/portfolioProjects'
-import { GlassCursor } from './components/GlassCursor'
+import { CustomPointer } from './components/CustomPointer'
 import { EntryPfp } from './components/EntryPfp'
 import { AboutSection } from './components/AboutSection'
 import { ExpertiseSection } from './components/ExpertiseSection'
@@ -38,11 +38,6 @@ import styles from './App.module.css'
 
 const ProjectGallery = lazy(() =>
   import('./components/ProjectGallery').then((m) => ({ default: m.ProjectGallery })),
-)
-const ProjectCaseStudy = lazy(() =>
-  import('./components/ProjectCaseStudy').then((m) => ({
-    default: m.ProjectCaseStudy,
-  })),
 )
 
 const instantTransition = { duration: 0 }
@@ -101,7 +96,6 @@ function App() {
   useEffect(() => {
     if (route.type === 'home') return
     void import('./components/ProjectGallery')
-    void import('./components/ProjectCaseStudy')
     void loadCategoryThumbnails('development')
   }, [route.type])
 
@@ -167,12 +161,20 @@ function App() {
 
     const requestId = ++projectLoadRequest.current
 
-    loadProjectAssets(projectId).then((assets) => {
-      if (projectLoadRequest.current !== requestId) return
-      const merged = mergeProjectWithAssets(meta, assets)
-      projectCache.current.set(projectId, merged)
-      setLoadedProject(merged)
-    })
+    loadProjectAssets(projectId)
+      .then((assets) => {
+        if (projectLoadRequest.current !== requestId) return
+        const merged = mergeProjectWithAssets(meta, assets)
+        projectCache.current.set(projectId, merged)
+        setLoadedProject(merged)
+      })
+      .catch(() => {
+        if (projectLoadRequest.current !== requestId) return
+        const next = { type: 'home' as const }
+        syncBrowserHistory(next, 'replace')
+        setTransitionInstant(true)
+        setRoute(next)
+      })
   }, [route])
 
   const applyRoute = useCallback((next: AppRoute, mode: 'push' | 'replace') => {
@@ -341,19 +343,11 @@ function App() {
 
   const projectView =
     projectReady && activeProjectMeta ? (
-      loadedProject.detailType === 'case-study' ? (
-        <ProjectCaseStudy
-          key={loadedProject.id}
-          project={loadedProject}
-          onBack={() => backToExpertise(activeProjectMeta.category)}
-        />
-      ) : (
-        <ProjectGallery
-          key={loadedProject.id}
-          project={loadedProject}
-          onBack={() => backToExpertise(activeProjectMeta.category)}
-        />
-      )
+      <ProjectGallery
+        key={loadedProject.id}
+        project={loadedProject}
+        onBack={() => backToExpertise(activeProjectMeta.category)}
+      />
     ) : null
 
   const pageKey =
@@ -365,7 +359,7 @@ function App() {
 
   return (
     <div className={styles.app}>
-      <GlassCursor />
+      <CustomPointer />
       {showContent ? (
         <>
           <EntryPfp active={showContent && isHome} />

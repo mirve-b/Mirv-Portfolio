@@ -38,6 +38,7 @@ export function ContactForm({ nameInputRef }: ContactFormProps) {
           name: data.get('name'),
           email: data.get('email'),
           message: data.get('message'),
+          botcheck: data.get('botcheck'),
           subject: 'New message from MIRVÉ portfolio',
         }),
       })
@@ -60,6 +61,15 @@ export function ContactForm({ nameInputRef }: ContactFormProps) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      <input
+        type="checkbox"
+        name="botcheck"
+        tabIndex={-1}
+        autoComplete="off"
+        className={styles.honeypot}
+        aria-hidden="true"
+      />
+
       <motion.div
         className={styles.field}
         initial={{ opacity: 0, y: 16 }}

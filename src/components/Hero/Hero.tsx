@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
-import heroVideo from '../../assets/hero.mov'
+import heroMp4 from '../../assets/hero.mp4'
+import heroMov from '../../assets/hero.mov'
+import heroPoster from '../../assets/hero-poster.webp'
 import styles from './Hero.module.css'
 
 type HeroProps = {
@@ -18,7 +20,7 @@ export function Hero({ active = true }: HeroProps) {
       return
     }
 
-    video.preload = 'metadata'
+    video.preload = 'auto'
     video.setAttribute('fetchpriority', 'high')
 
     const observer = new IntersectionObserver(
@@ -41,16 +43,19 @@ export function Hero({ active = true }: HeroProps) {
       <div className={styles.imageWrap}>
         <video
           ref={videoRef}
-          src={heroVideo}
           className={styles.image}
+          poster={heroPoster}
           autoPlay
           loop
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-hidden="true"
           draggable={false}
-        />
+        >
+          <source src={heroMp4} type="video/mp4" />
+          <source src={heroMov} type="video/quicktime" />
+        </video>
 
         <div className={styles.overlay} aria-hidden="true">
           <div className={styles.titles}>
