@@ -47,17 +47,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
   {
     id: 'story-shelf',
     category: 'art',
-    title: 'TOY BOX',
-    subtitle: 'Mirvé Kids',
-    detailType: 'gallery',
-  },
-  {
-    id: 'toy-box',
-    category: 'art',
     title: 'Story Shelf',
     subtitle: "Children's book illustrations",
     detailType: 'gallery',
     galleryMaxColumns: 3,
+  },
+  {
+    id: 'toy-box',
+    category: 'art',
+    title: 'TOY BOX',
+    subtitle: 'Mirvé Kids',
+    detailType: 'gallery',
   },
   {
     id: 'frames',
