@@ -12,6 +12,7 @@ const loadGallery = () =>
     import('../../assets/ART/After hours/5.webp').then((m) => m.default),
     import('../../assets/ART/After hours/6.webp').then((m) => m.default),
     import('../../assets/ART/After hours/7.webp').then((m) => m.default),
+    import('../../assets/ART/After hours/8.webp').then((m) => m.default),
   ])
 
 export default createProjectAssetLoader(loadThumbnail, loadGallery)

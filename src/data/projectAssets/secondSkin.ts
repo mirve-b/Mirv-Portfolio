@@ -12,6 +12,7 @@ const loadGallery = () =>
     import('../../assets/ART/Second Skin/5.webp').then((m) => m.default),
     import('../../assets/ART/Second Skin/6.webp').then((m) => m.default),
     import('../../assets/ART/Second Skin/7.webp').then((m) => m.default),
+    import('../../assets/ART/Second Skin/8.webp').then((m) => m.default),
   ])
 
 export default createProjectAssetLoader(loadThumbnail, loadGallery)
