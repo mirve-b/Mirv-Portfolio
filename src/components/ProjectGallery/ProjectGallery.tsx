@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PortfolioProject } from '../../data/portfolioProjects'
 import { isVideoAsset, startMutedPreview } from '../../lib/mediaUtils'
-import { unmuteVideoWithSpotifyHandoff } from '../../lib/spotifyPlayback'
+import {
+  pauseSpotifyPlayback,
+  smoothPauseSpotifyPlayback,
+} from '../../lib/spotifyPlayback'
 import { useMuteVideoOnSpotifyPlay } from '../../lib/useMuteVideoOnSpotifyPlay'
 import styles from './ProjectGallery.module.css'
 
@@ -17,12 +20,14 @@ type GalleryVideoItemProps = {
 
 function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const spotifyHandoffRef = useRef(false)
   const [isUnmuted, setIsUnmuted] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
+    video.muted = true
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -46,6 +51,8 @@ function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemPr
   }, [src])
 
   const handleMute = useCallback(() => {
+    if (spotifyHandoffRef.current) return
+
     const video = videoRef.current
     if (!video) return
 
@@ -59,12 +66,31 @@ function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemPr
 
   useMuteVideoOnSpotifyPlay(isUnmuted, handleMute, muteOnSpotifyPlay)
 
-  const handleUnmute = useCallback(async () => {
+  const handleUnmute = useCallback(() => {
     const video = videoRef.current
     if (!video) return
 
-    const didUnmute = await unmuteVideoWithSpotifyHandoff(video)
-    setIsUnmuted(didUnmute)
+    spotifyHandoffRef.current = true
+    pauseSpotifyPlayback()
+    smoothPauseSpotifyPlayback()
+
+    video.muted = false
+    video.loop = true
+    setIsUnmuted(true)
+
+    const finishHandoff = () => {
+      window.setTimeout(() => {
+        spotifyHandoffRef.current = false
+      }, 600)
+    }
+
+    void video
+      .play()
+      .catch(() => {
+        video.muted = true
+        setIsUnmuted(false)
+      })
+      .finally(finishHandoff)
   }, [])
 
   return (
@@ -74,7 +100,6 @@ function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemPr
           ref={videoRef}
           src={src}
           className={styles.video}
-          muted
           loop
           playsInline
           preload="metadata"

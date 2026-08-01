@@ -1,18 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { startMutedPreview } from '../../lib/mediaUtils'
-import { unmuteVideoWithSpotifyHandoff } from '../../lib/spotifyPlayback'
+import {
+  pauseSpotifyPlayback,
+  smoothPauseSpotifyPlayback,
+} from '../../lib/spotifyPlayback'
 import { useMuteVideoOnSpotifyPlay } from '../../lib/useMuteVideoOnSpotifyPlay'
 import { MediaLoader } from '../ExpertiseSection/ShowcaseVideoCard'
 import styles from './DevSuitePreviewVideo.module.css'
 
+const SPOTIFY_HANDOFF_MS = 600
+
 export function DevSuitePreviewVideo({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const spotifyHandoffRef = useRef(false)
   const [loading, setLoading] = useState(true)
   const [muted, setMuted] = useState(true)
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
+
+    video.muted = true
 
     const onCanPlay = () => setLoading(false)
     const onWaiting = () => setLoading(true)
@@ -32,7 +40,15 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
     }
   }, [src])
 
+  const finishSpotifyHandoff = useCallback(() => {
+    window.setTimeout(() => {
+      spotifyHandoffRef.current = false
+    }, SPOTIFY_HANDOFF_MS)
+  }, [])
+
   const handleMute = useCallback(() => {
+    if (spotifyHandoffRef.current) return
+
     const video = videoRef.current
     if (!video) return
 
@@ -43,20 +59,33 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
 
   useMuteVideoOnSpotifyPlay(!muted, handleMute, true)
 
-  const handleToggleMute = useCallback(async () => {
+  const handleToggleMute = useCallback(() => {
     const video = videoRef.current
     if (!video) return
 
     if (muted) {
-      const didUnmute = await unmuteVideoWithSpotifyHandoff(video)
-      setMuted(!didUnmute)
+      spotifyHandoffRef.current = true
+      pauseSpotifyPlayback()
+      smoothPauseSpotifyPlayback()
+
+      video.muted = false
+      video.loop = true
+      setMuted(false)
+
+      void video
+        .play()
+        .catch(() => {
+          video.muted = true
+          setMuted(true)
+        })
+        .finally(finishSpotifyHandoff)
       return
     }
 
     video.muted = true
     setMuted(true)
     if (video.paused) void startMutedPreview(video)
-  }, [muted])
+  }, [finishSpotifyHandoff, muted])
 
   return (
     <div
@@ -73,7 +102,6 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
         src={src}
         className={styles.previewVideo}
         loop
-        muted={muted}
         playsInline
         autoPlay
         preload="auto"
@@ -85,7 +113,7 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
         aria-label={muted ? 'Unmute preview video' : 'Mute preview video'}
         onClick={(event) => {
           event.stopPropagation()
-          void handleToggleMute()
+          handleToggleMute()
         }}
       >
         <span className={styles.previewMuteIcon} aria-hidden="true">
