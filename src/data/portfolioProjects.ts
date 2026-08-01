@@ -1,6 +1,6 @@
 import type { ExpertiseCategory } from '../lib/pageNavigation'
 
-export type ProjectDetailType = 'gallery' | 'video-showcase'
+export type ProjectDetailType = 'gallery' | 'video-showcase' | 'dev-suite'
 export type ThumbnailType = 'image' | 'video'
 
 export type PortfolioProjectMeta = {
@@ -8,6 +8,8 @@ export type PortfolioProjectMeta = {
   category: ExpertiseCategory
   title: string
   subtitle: string
+  description?: string
+  parentSuiteId?: string
   thumbnailType?: ThumbnailType
   thumbnailPosition?: string
   detailType?: ProjectDetailType
@@ -68,8 +70,18 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     detailType: 'gallery',
   },
   {
+    id: 'kael',
+    category: 'development',
+    title: 'KAEL',
+    subtitle: 'AI career toolkit',
+    description:
+      'An AI-powered suite for profiles, portfolios, ATS resumes, case studies, and job-matched applications — built end to end as a cohesive product experience.',
+    detailType: 'dev-suite',
+  },
+  {
     id: 'kael-profile',
     category: 'development',
+    parentSuiteId: 'kael',
     title: 'KAEL — Profile',
     subtitle: 'AI profile generation',
     thumbnailType: 'video',
@@ -78,6 +90,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
   {
     id: 'kael-case-study',
     category: 'development',
+    parentSuiteId: 'kael',
     title: 'KAEL — Case Study',
     subtitle: 'Automated case study builder',
     thumbnailType: 'video',
@@ -86,6 +99,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
   {
     id: 'kael-portfolio',
     category: 'development',
+    parentSuiteId: 'kael',
     title: 'KAEL — Portfolio',
     subtitle: 'Interactive portfolio templates',
     thumbnailType: 'video',
@@ -94,6 +108,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
   {
     id: 'kael-ats-cv',
     category: 'development',
+    parentSuiteId: 'kael',
     title: 'KAEL — ATS CV',
     subtitle: 'ATS-compatible resume export',
     thumbnailType: 'video',
@@ -102,6 +117,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
   {
     id: 'kael-job-match',
     category: 'development',
+    parentSuiteId: 'kael',
     title: 'KAEL — Job Match',
     subtitle: 'AI job description matching',
     thumbnailType: 'video',
@@ -131,12 +147,24 @@ export function getProjectsMetaForCategory(
   return PORTFOLIO_PROJECTS.filter((project) => project.category === category)
 }
 
+export function getDevTabProjects(): PortfolioProjectMeta[] {
+  return PORTFOLIO_PROJECTS.filter(
+    (project) => project.category === 'development' && project.detailType === 'dev-suite',
+  )
+}
+
+export function getDevSuiteShowcaseProjects(suiteId: string): PortfolioProjectMeta[] {
+  return PORTFOLIO_PROJECTS.filter(
+    (project) => project.parentSuiteId === suiteId && project.detailType === 'video-showcase',
+  )
+}
+
 export function getProjectMetaById(projectId: string): PortfolioProjectMeta | undefined {
   return PORTFOLIO_PROJECTS.find((project) => project.id === projectId)
 }
 
 export function isProjectOpenable(project: PortfolioProjectMeta): boolean {
-  return project.detailType === 'gallery'
+  return project.detailType === 'gallery' || project.detailType === 'dev-suite'
 }
 
 export function isVideoShowcase(project: PortfolioProjectMeta): boolean {

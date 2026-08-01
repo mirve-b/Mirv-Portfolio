@@ -53,7 +53,9 @@ export async function loadProjectShowcaseVideo(projectId: string): Promise<strin
 export async function loadCategoryThumbnails(
   category: ExpertiseCategory,
 ): Promise<Record<string, string>> {
-  const projects = getProjectsMetaForCategory(category)
+  const projects = getProjectsMetaForCategory(category).filter(
+    (project) => project.id in loaderByProjectId,
+  )
   const entries = await Promise.all(
     projects.map(async (project) => {
       const thumbnail = await loadProjectThumbnail(project.id)

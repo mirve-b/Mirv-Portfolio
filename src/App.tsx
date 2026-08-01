@@ -40,6 +40,10 @@ const ProjectGallery = lazy(() =>
   import('./components/ProjectGallery').then((m) => ({ default: m.ProjectGallery })),
 )
 
+const DevSuiteView = lazy(() =>
+  import('./components/DevSuiteView').then((m) => ({ default: m.DevSuiteView })),
+)
+
 const instantTransition = { duration: 0 }
 
 const pageVariants = {
@@ -96,6 +100,7 @@ function App() {
   useEffect(() => {
     if (route.type === 'home') return
     void import('./components/ProjectGallery')
+    void import('./components/DevSuiteView')
     void loadCategoryThumbnails('development')
   }, [route.type])
 
@@ -153,6 +158,13 @@ function App() {
     const cached = projectCache.current.get(projectId)
     if (cached) {
       setLoadedProject(cached)
+      return
+    }
+
+    if (meta.detailType === 'dev-suite') {
+      const merged = mergeProjectWithAssets(meta, { thumbnail: '', gallery: [] })
+      projectCache.current.set(projectId, merged)
+      setLoadedProject(merged)
       return
     }
 
@@ -265,6 +277,14 @@ function App() {
       galleryEntranceRef.current = cached == null
       setLoadedProject(cached ?? null)
 
+      if (project.detailType === 'dev-suite') {
+        const merged = mergeProjectWithAssets(project, { thumbnail: '', gallery: [] })
+        projectCache.current.set(projectId, merged)
+        setLoadedProject(merged)
+        navigate({ type: 'project', projectId })
+        return
+      }
+
       navigate({ type: 'project', projectId })
     },
     [beginAnimatedNavigation, navigate],
@@ -343,11 +363,19 @@ function App() {
 
   const projectView =
     projectReady && activeProjectMeta ? (
-      <ProjectGallery
-        key={loadedProject.id}
-        project={loadedProject}
-        onBack={() => backToExpertise(activeProjectMeta.category)}
-      />
+      activeProjectMeta.detailType === 'dev-suite' ? (
+        <DevSuiteView
+          key={activeProjectMeta.id}
+          project={activeProjectMeta}
+          onBack={() => backToExpertise(activeProjectMeta.category)}
+        />
+      ) : loadedProject ? (
+        <ProjectGallery
+          key={loadedProject.id}
+          project={loadedProject}
+          onBack={() => backToExpertise(activeProjectMeta.category)}
+        />
+      ) : null
     ) : null
 
   const pageKey =

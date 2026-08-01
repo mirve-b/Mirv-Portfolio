@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { loadCategoryThumbnails, loadProjectShowcaseVideo } from '../../data/projectAssets'
+import { loadCategoryThumbnails } from '../../data/projectAssets'
+import { getDevSuiteMedia } from '../../data/devSuites'
 import {
+  getDevTabProjects,
   getProjectsMetaForCategory,
   isProjectOpenable,
   isVideoShowcase,
@@ -12,6 +14,8 @@ import {
   EXPERTISE_TABS,
   type ExpertiseCategory,
 } from '../../lib/pageNavigation'
+import { DevSuitePreviewVideo } from '../DevSuiteView/DevSuitePreviewVideo'
+import { MediaLoader, ShowcaseVideoCard } from './ShowcaseVideoCard'
 import styles from './ExpertiseSection.module.css'
 
 const cardSpring = {
@@ -89,15 +93,6 @@ function useCategoryThumbnails(category: ExpertiseCategory) {
   return { thumbnails, loading }
 }
 
-function MediaLoader({ label = 'Loading preview' }: { label?: string }) {
-  return (
-    <div className={styles.mediaLoader} aria-hidden="true">
-      <span className={styles.mediaLoaderSpinner} />
-      <span className={styles.mediaLoaderText}>{label}</span>
-    </div>
-  )
-}
-
 function CardVideo({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -134,223 +129,57 @@ function CardVideo({ src }: { src: string }) {
   )
 }
 
-function ShowcaseVideoCard({
-  poster,
-  projectId,
+function DevSuiteMainCard({
+  project,
+  index,
+  motionEnabled,
+  onOpenProject,
 }: {
-  poster: string
-  projectId: string
+  project: PortfolioProjectMeta
+  index: number
+  motionEnabled: boolean
+  onOpenProject: (projectId: string) => void
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const loadedVideoSrcRef = useRef<string | null>(null)
-  const [videoSrc, setVideoSrc] = useState<string>()
-  const [videoLoading, setVideoLoading] = useState(false)
-  const [videoActive, setVideoActive] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-
-  const showPlayButton = !videoLoading && !isPlaying
-
-  useEffect(() => {
-    let cancelled = false
-
-    void loadProjectShowcaseVideo(projectId).then((src) => {
-      if (!cancelled && src) setVideoSrc(src)
-    })
-
-    return () => {
-      cancelled = true
-    }
-  }, [projectId, poster])
-
-  useEffect(() => {
-    setVideoLoading(false)
-    setVideoActive(false)
-    setIsPlaying(false)
-    loadedVideoSrcRef.current = null
-  }, [poster, projectId])
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video || !videoActive) return
-
-    const onPlay = () => setIsPlaying(true)
-    const onPause = () => setIsPlaying(false)
-
-    video.addEventListener('play', onPlay)
-    video.addEventListener('pause', onPause)
-
-    return () => {
-      video.removeEventListener('play', onPlay)
-      video.removeEventListener('pause', onPause)
-    }
-  }, [videoActive])
-
-  const handlePlayButton = useCallback(
-    async (event: MouseEvent) => {
-      event.stopPropagation()
-      const video = videoRef.current
-      if (!video) return
-
-      setVideoLoading(true)
-
-      if (videoActive && video.paused && loadedVideoSrcRef.current) {
-        video.muted = true
-        try {
-          await video.play()
-          setIsPlaying(true)
-        } catch {
-          /* playback blocked */
-        } finally {
-          setVideoLoading(false)
-        }
-        return
-      }
-
-      let src = videoSrc
-      if (!src) {
-        src = await loadProjectShowcaseVideo(projectId)
-        if (!src) {
-          setVideoLoading(false)
-          return
-        }
-        setVideoSrc(src)
-      }
-
-      const startPlayback = async () => {
-        video.loop = true
-        // Keep muted so Spotify keeps playing — only art gallery unmute pauses it.
-        video.muted = true
-
-        try {
-          await video.play()
-        } catch {
-          /* autoplay blocked */
-        }
-
-        setVideoActive(true)
-        setIsPlaying(true)
-        setVideoLoading(false)
-      }
-
-      try {
-        if (loadedVideoSrcRef.current !== src) {
-          loadedVideoSrcRef.current = src
-          video.src = src
-          video.preload = 'auto'
-
-          await new Promise<void>((resolve, reject) => {
-            const onReady = () => {
-              cleanup()
-              resolve()
-            }
-            const onError = () => {
-              cleanup()
-              reject(new Error('Video failed to load'))
-            }
-            const cleanup = () => {
-              video.removeEventListener('canplay', onReady)
-              video.removeEventListener('error', onError)
-            }
-
-            video.addEventListener('canplay', onReady, { once: true })
-            video.addEventListener('error', onError, { once: true })
-            video.load()
-          })
-        } else if (video.readyState < 3) {
-          await new Promise<void>((resolve, reject) => {
-            const onReady = () => {
-              cleanup()
-              resolve()
-            }
-            const onError = () => {
-              cleanup()
-              reject(new Error('Video failed to load'))
-            }
-            const cleanup = () => {
-              video.removeEventListener('canplay', onReady)
-              video.removeEventListener('error', onError)
-            }
-
-            video.addEventListener('canplay', onReady, { once: true })
-            video.addEventListener('error', onError, { once: true })
-          })
-        }
-
-        await startPlayback()
-      } catch {
-        setVideoLoading(false)
-      }
-    },
-    [projectId, videoActive, videoSrc],
-  )
-
-  const handleVideoClick = useCallback(async () => {
-    if (!videoActive || videoLoading || showPlayButton) return
-
-    const video = videoRef.current
-    if (!video) return
-
-    if (video.paused) {
-      video.muted = true
-      try {
-        await video.play()
-        setIsPlaying(true)
-      } catch {
-        /* playback blocked */
-      }
-      return
-    }
-
-    video.pause()
-    setIsPlaying(false)
-  }, [showPlayButton, videoActive, videoLoading])
+  const [shouldEntrance] = useState(motionEnabled)
+  const media = getDevSuiteMedia(project.id)
+  const entranceDelay = Math.min(index * 0.08, 0.36)
 
   return (
-    <div className={styles.showcaseVideoWrap}>
-      {videoLoading ? (
-        <div className={styles.showcaseLoaderSlot}>
-          <MediaLoader label="Loading video" />
+    <motion.button
+      type="button"
+      className={styles.devSuiteCard}
+      initial={shouldEntrance ? { opacity: 0, y: 28, scale: 0.98 } : false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        opacity: shouldEntrance
+          ? { ...cardSpring, delay: entranceDelay }
+          : { duration: 0 },
+        y: cardHoverSpring,
+        scale: cardHoverSpring,
+      }}
+      whileHover={{
+        y: -6,
+        scale: 1.01,
+        transition: cardHoverSpring,
+      }}
+      whileTap={{ scale: 0.99, transition: cardHoverSpring }}
+      onClick={() => onOpenProject(project.id)}
+    >
+      {media?.previewVideoSrc ? (
+        <DevSuitePreviewVideo src={media.previewVideoSrc} />
+      ) : (
+        <div className={styles.devSuiteVideoFallback}>
+          <MediaLoader />
         </div>
-      ) : null}
-      {!videoActive ? (
-        <img
-          src={poster}
-          alt=""
-          className={styles.showcasePoster}
-          draggable={false}
-          decoding="async"
-        />
-      ) : null}
-      <video
-        ref={videoRef}
-        className={styles.showcaseVideo}
-        data-ready={poster ? 'true' : undefined}
-        data-active={videoActive ? 'true' : undefined}
-        loop
-        muted
-        playsInline
-        preload="none"
-        draggable={false}
-        onClick={handleVideoClick}
-      />
-      {showPlayButton ? (
-        <button
-          type="button"
-          className={styles.showcasePlayButton}
-          aria-label="Play video"
-          onClick={handlePlayButton}
-        >
-          <span className={styles.showcasePlayIcon} aria-hidden="true">
-            <svg viewBox="0 0 12 14" fill="none">
-              <path d="M1 1.5L11 7L1 12.5V1.5Z" fill="currentColor" />
-            </svg>
-          </span>
-        </button>
-      ) : null}
-      {videoActive && isPlaying && !videoLoading ? (
-        <div className={styles.showcasePausedHint} aria-hidden="true" />
-      ) : null}
-    </div>
+      )}
+      <div className={styles.devSuiteCopy}>
+        <h3 className={styles.cardTitle}>{project.title}</h3>
+        <p className={styles.cardSubtitle}>{project.subtitle}</p>
+        {project.description ? (
+          <p className={styles.devSuiteDescription}>{project.description}</p>
+        ) : null}
+      </div>
+    </motion.button>
   )
 }
 
@@ -491,24 +320,33 @@ export function ExpertiseSection({
   }, [category])
 
   const renderCards = (motionEnabled: boolean) => {
+    if (category === 'development') {
+      const devSuites = getDevTabProjects()
+
+      return (
+        <div className={styles.devColumn}>
+          {devSuites.map((project, index) => (
+            <DevSuiteMainCard
+              key={project.id}
+              project={project}
+              index={index}
+              motionEnabled={motionEnabled}
+              onOpenProject={onOpenProject}
+            />
+          ))}
+        </div>
+      )
+    }
+
     const visibleProjects =
       category === 'ui-ux'
         ? projects.filter((project) => project.id === 'blvck' || project.id === 'doubleu')
         : projects
 
-    const placeholderCount =
-      category === 'ui-ux'
-        ? 1
-        : category === 'development'
-          ? (2 - (visibleProjects.length % 2)) % 2
-          : 0
+    const placeholderCount = category === 'ui-ux' ? 1 : 0
 
     return (
-      <div
-        className={`${styles.grid}${
-          category === 'development' ? ` ${styles.gridDevelopment}` : ''
-        }`}
-      >
+      <div className={styles.grid}>
         {visibleProjects.map((project, index) => (
           <ProjectCard
             key={project.id}
@@ -521,10 +359,7 @@ export function ExpertiseSection({
           />
         ))}
         {Array.from({ length: placeholderCount }, (_, index) => (
-          <GridPlaceholder
-            key={`placeholder-${index}`}
-            development={category === 'development'}
-          />
+          <GridPlaceholder key={`placeholder-${index}`} />
         ))}
       </div>
     )

@@ -1,0 +1,56 @@
+.previewVideoWrap {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  line-height: 0;
+}
+
+.previewVideo {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.previewLoaderSlot {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.previewMuteButton {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  z-index: 3;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--color-white);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-smooth),
+    border-color var(--duration-fast) var(--ease-smooth);
+}
+
+.previewMuteButton:hover {
+  border-color: rgba(224, 44, 107, 0.65);
+  background: rgba(224, 44, 107, 0.35);
+}
+
+.previewMuteIcon {
+  display: flex;
+  width: 0.85rem;
+}
+
+.previewMuteIcon svg {
+  width: 100%;
+  height: auto;
+}
