@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { startMutedPreview } from '../../lib/mediaUtils'
 import { smoothPauseSpotifyPlayback, SMOOTH_PAUSE_MS } from '../../lib/spotifyPlayback'
+import { useMuteVideoOnSpotifyPlay } from '../../lib/useMuteVideoOnSpotifyPlay'
 import { MediaLoader } from '../ExpertiseSection/ShowcaseVideoCard'
 import styles from './DevSuitePreviewVideo.module.css'
 
@@ -30,6 +31,17 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
       video.pause()
     }
   }, [src])
+
+  const handleMute = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    video.muted = true
+    setMuted(true)
+    if (video.paused) void startMutedPreview(video)
+  }, [])
+
+  useMuteVideoOnSpotifyPlay(!muted, handleMute, true)
 
   const handleToggleMute = useCallback(async () => {
     const video = videoRef.current
@@ -72,7 +84,7 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
         src={src}
         className={styles.previewVideo}
         loop
-        muted
+        muted={muted}
         playsInline
         autoPlay
         preload="auto"

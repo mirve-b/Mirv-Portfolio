@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
-import { registerSpotifyControls } from '../../lib/spotifyPlayback'
+import {
+  notifySpotifyPlaybackStart,
+  registerSpotifyControls,
+} from '../../lib/spotifyPlayback'
 import { PLAYLIST_LABEL, SPOTIFY_PLAYLIST_URI } from './constants'
 import { useSpotifyController } from './hooks/useSpotifyController'
 import { preloadSpotifyIframeApi, prefersFastSpotifyWarmup, scheduleSpotifyWarmup } from './spotifyPreload'
@@ -39,6 +42,15 @@ export function NowPlaying() {
       closeDrawer,
     })
   }, [pausePlayback, smoothPausePlayback, closeDrawer])
+
+  const wasPlayingRef = useRef(false)
+
+  useEffect(() => {
+    if (isPlaying && !wasPlayingRef.current) {
+      notifySpotifyPlaybackStart()
+    }
+    wasPlayingRef.current = isPlaying
+  }, [isPlaying])
 
   useEffect(() => {
     void preloadSpotifyIframeApi()

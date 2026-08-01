@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PortfolioProject } from '../../data/portfolioProjects'
 import { isVideoAsset, startMutedPreview } from '../../lib/mediaUtils'
 import { smoothPauseSpotifyPlayback, SMOOTH_PAUSE_MS } from '../../lib/spotifyPlayback'
+import { useMuteVideoOnSpotifyPlay } from '../../lib/useMuteVideoOnSpotifyPlay'
 import styles from './ProjectGallery.module.css'
 
 type ProjectGalleryProps = {
@@ -11,9 +12,10 @@ type ProjectGalleryProps = {
 
 type GalleryVideoItemProps = {
   src: string
+  muteOnSpotifyPlay?: boolean
 }
 
-function GalleryVideoItem({ src }: GalleryVideoItemProps) {
+function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isUnmuted, setIsUnmuted] = useState(false)
 
@@ -43,6 +45,20 @@ function GalleryVideoItem({ src }: GalleryVideoItemProps) {
     }
   }, [src])
 
+  const handleMute = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    video.muted = true
+    setIsUnmuted(false)
+
+    if (video.paused) {
+      void startMutedPreview(video)
+    }
+  }, [])
+
+  useMuteVideoOnSpotifyPlay(isUnmuted, handleMute, muteOnSpotifyPlay)
+
   const handleUnmute = useCallback(async () => {
     const video = videoRef.current
     if (!video) return
@@ -64,18 +80,6 @@ function GalleryVideoItem({ src }: GalleryVideoItemProps) {
     } catch {
       video.muted = true
       setIsUnmuted(false)
-      void startMutedPreview(video)
-    }
-  }, [])
-
-  const handleMute = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-
-    video.muted = true
-    setIsUnmuted(false)
-
-    if (video.paused) {
       void startMutedPreview(video)
     }
   }, [])
@@ -177,7 +181,11 @@ export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
         >
           {project.gallery.map((src, index) =>
             isVideoAsset(src) ? (
-              <GalleryVideoItem key={`${project.id}-${index}`} src={src} />
+              <GalleryVideoItem
+                key={`${project.id}-${index}`}
+                src={src}
+                muteOnSpotifyPlay={project.id === 'frames'}
+              />
             ) : (
               <figure key={`${project.id}-${index}`} className={styles.item}>
                 <img
