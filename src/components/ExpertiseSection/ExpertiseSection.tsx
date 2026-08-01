@@ -159,10 +159,9 @@ function DevSuiteMainCard({
       }}
       whileHover={{
         y: -6,
-        scale: 1.01,
         transition: cardHoverSpring,
       }}
-      whileTap={{ scale: 0.99, transition: cardHoverSpring }}
+      whileTap={{ y: -2, transition: cardHoverSpring }}
       onClick={() => onOpenProject(project.id)}
     >
       {media?.previewVideoSrc ? (

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PortfolioProject } from '../../data/portfolioProjects'
 import { isVideoAsset, startMutedPreview } from '../../lib/mediaUtils'
-import { smoothPauseSpotifyPlayback, SMOOTH_PAUSE_MS } from '../../lib/spotifyPlayback'
+import { unmuteVideoWithSpotifyHandoff } from '../../lib/spotifyPlayback'
 import { useMuteVideoOnSpotifyPlay } from '../../lib/useMuteVideoOnSpotifyPlay'
 import styles from './ProjectGallery.module.css'
 
@@ -63,25 +63,8 @@ function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemPr
     const video = videoRef.current
     if (!video) return
 
-    smoothPauseSpotifyPlayback()
-
-    await new Promise<void>((resolve) => {
-      window.setTimeout(resolve, SMOOTH_PAUSE_MS)
-    })
-
-    video.muted = false
-    video.loop = true
-
-    try {
-      if (video.paused) {
-        await video.play()
-      }
-      setIsUnmuted(true)
-    } catch {
-      video.muted = true
-      setIsUnmuted(false)
-      void startMutedPreview(video)
-    }
+    const didUnmute = await unmuteVideoWithSpotifyHandoff(video)
+    setIsUnmuted(didUnmute)
   }, [])
 
   return (

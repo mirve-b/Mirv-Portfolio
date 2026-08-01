@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { startMutedPreview } from '../../lib/mediaUtils'
-import { smoothPauseSpotifyPlayback, SMOOTH_PAUSE_MS } from '../../lib/spotifyPlayback'
+import { unmuteVideoWithSpotifyHandoff } from '../../lib/spotifyPlayback'
 import { useMuteVideoOnSpotifyPlay } from '../../lib/useMuteVideoOnSpotifyPlay'
 import { MediaLoader } from '../ExpertiseSection/ShowcaseVideoCard'
 import styles from './DevSuitePreviewVideo.module.css'
@@ -48,19 +48,8 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
     if (!video) return
 
     if (muted) {
-      smoothPauseSpotifyPlayback()
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, SMOOTH_PAUSE_MS)
-      })
-
-      video.muted = false
-      try {
-        if (video.paused) await video.play()
-        setMuted(false)
-      } catch {
-        video.muted = true
-        setMuted(true)
-      }
+      const didUnmute = await unmuteVideoWithSpotifyHandoff(video)
+      setMuted(!didUnmute)
       return
     }
 
