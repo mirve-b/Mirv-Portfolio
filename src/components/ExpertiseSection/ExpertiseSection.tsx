@@ -145,8 +145,7 @@ function DevSuiteMainCard({
   const entranceDelay = Math.min(index * 0.08, 0.36)
 
   return (
-    <motion.button
-      type="button"
+    <motion.article
       className={styles.devSuiteCard}
       initial={shouldEntrance ? { opacity: 0, y: 28, scale: 0.98 } : false}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -154,15 +153,7 @@ function DevSuiteMainCard({
         opacity: shouldEntrance
           ? { ...cardSpring, delay: entranceDelay }
           : { duration: 0 },
-        y: cardHoverSpring,
-        scale: cardHoverSpring,
       }}
-      whileHover={{
-        y: -6,
-        transition: cardHoverSpring,
-      }}
-      whileTap={{ y: -2, transition: cardHoverSpring }}
-      onClick={() => onOpenProject(project.id)}
     >
       {media?.previewVideoSrc ? (
         <div className={styles.devSuiteMedia}>
@@ -179,8 +170,18 @@ function DevSuiteMainCard({
         {project.description ? (
           <p className={styles.devSuiteDescription}>{project.description}</p>
         ) : null}
+        <motion.button
+          type="button"
+          className={styles.devSuiteExplore}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          transition={cardHoverSpring}
+          onClick={() => onOpenProject(project.id)}
+        >
+          Explore
+        </motion.button>
       </div>
-    </motion.button>
+    </motion.article>
   )
 }
 
