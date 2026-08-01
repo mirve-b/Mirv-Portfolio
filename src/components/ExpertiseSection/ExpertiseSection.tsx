@@ -166,7 +166,7 @@ function DevSuiteMainCard({
     >
       {media?.previewVideoSrc ? (
         <div className={styles.devSuiteMedia}>
-          <DevSuitePreviewVideo src={media.previewVideoSrc} />
+          <DevSuitePreviewVideo src={media.previewVideoSrc} fillCard />
         </div>
       ) : (
         <div className={`${styles.devSuiteMedia} ${styles.devSuiteVideoFallback}`}>

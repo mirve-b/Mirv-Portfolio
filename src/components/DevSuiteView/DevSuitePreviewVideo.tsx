@@ -10,7 +10,13 @@ import styles from './DevSuitePreviewVideo.module.css'
 
 const SPOTIFY_HANDOFF_MS = 600
 
-export function DevSuitePreviewVideo({ src }: { src: string }) {
+export function DevSuitePreviewVideo({
+  src,
+  fillCard = false,
+}: {
+  src: string
+  fillCard?: boolean
+}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const spotifyHandoffRef = useRef(false)
   const [loading, setLoading] = useState(true)
@@ -89,7 +95,9 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
 
   return (
     <div
-      className={styles.previewVideoWrap}
+      className={`${styles.previewVideoWrap}${
+        fillCard ? ` ${styles.previewVideoWrapFill}` : ''
+      }`}
       onPointerDown={(event) => event.stopPropagation()}
     >
       {loading ? (
@@ -100,7 +108,9 @@ export function DevSuitePreviewVideo({ src }: { src: string }) {
       <video
         ref={videoRef}
         src={src}
-        className={styles.previewVideo}
+        className={`${styles.previewVideo}${
+          fillCard ? ` ${styles.previewVideoFill}` : ''
+        }`}
         loop
         playsInline
         autoPlay
