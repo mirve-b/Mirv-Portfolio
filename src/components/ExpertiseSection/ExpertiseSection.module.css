@@ -75,8 +75,6 @@
   flex-direction: column;
   gap: clamp(1.25rem, 3vw, 2rem);
   width: 100%;
-  max-width: min(100%, 52rem);
-  margin: 0 auto;
   max-height: min(calc(100dvh - 14rem), 56rem);
   overflow-y: auto;
   overflow-x: hidden;
@@ -88,9 +86,9 @@
 
 .devSuiteCard {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: stretch;
-  gap: clamp(0.875rem, 2vw, 1.125rem);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
   width: 100%;
   padding: clamp(0.875rem, 2vw, 1.125rem);
   border: 1px solid var(--color-border);
@@ -99,6 +97,12 @@
   cursor: pointer;
   text-align: left;
   flex-shrink: 0;
+}
+
+.devSuiteMedia {
+  flex: 0 0 min(44%, 24rem);
+  min-width: 0;
+  align-self: center;
 }
 
 .devSuiteVideoFallback {
@@ -112,10 +116,19 @@
 
 .devSuiteCopy {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 0.35rem;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  min-width: 0;
+}
+
+.devSuiteCard .cardTitle,
+.devSuiteCard .cardSubtitle {
+  text-align: left;
+  width: auto;
 }
 
 .devSuiteDescription {
@@ -127,7 +140,7 @@
   letter-spacing: 0.02em;
   color: rgba(255, 255, 255, 0.68);
   text-transform: none;
-  max-width: 38rem;
+  max-width: none;
 }
 
 .grid {
@@ -437,6 +450,16 @@
     max-height: none;
     overflow-y: visible;
     padding-right: 0;
+  }
+
+  .devSuiteCard {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .devSuiteMedia {
+    flex: none;
+    width: 100%;
   }
 
   .card {

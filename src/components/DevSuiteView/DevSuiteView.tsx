@@ -13,6 +13,12 @@ type DevSuiteViewProps = {
   onBack: () => void
 }
 
+function ShowcasePlaceholder() {
+  return (
+    <div className={styles.showcasePlaceholder} aria-hidden="true" />
+  )
+}
+
 function SuiteShowcaseCard({
   project,
   thumbnail,
@@ -53,6 +59,7 @@ export function DevSuiteView({ project, onBack }: DevSuiteViewProps) {
   const showcaseProjects = getDevSuiteShowcaseProjects(project.id)
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({})
   const [thumbnailsLoading, setThumbnailsLoading] = useState(true)
+  const placeholderCount = (2 - (showcaseProjects.length % 2)) % 2
 
   useEffect(() => {
     let cancelled = false
@@ -93,7 +100,7 @@ export function DevSuiteView({ project, onBack }: DevSuiteViewProps) {
         </div>
       </div>
 
-      <div className={styles.scrollColumn}>
+      <div className={styles.showcaseGrid}>
         {showcaseProjects.map((item) => (
           <SuiteShowcaseCard
             key={item.id}
@@ -101,6 +108,9 @@ export function DevSuiteView({ project, onBack }: DevSuiteViewProps) {
             thumbnail={thumbnails[item.id]}
             loading={thumbnailsLoading}
           />
+        ))}
+        {Array.from({ length: placeholderCount }, (_, index) => (
+          <ShowcasePlaceholder key={`placeholder-${index}`} />
         ))}
       </div>
     </section>

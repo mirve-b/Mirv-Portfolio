@@ -166,9 +166,11 @@ function DevSuiteMainCard({
       onClick={() => onOpenProject(project.id)}
     >
       {media?.previewVideoSrc ? (
-        <DevSuitePreviewVideo src={media.previewVideoSrc} />
+        <div className={styles.devSuiteMedia}>
+          <DevSuitePreviewVideo src={media.previewVideoSrc} />
+        </div>
       ) : (
-        <div className={styles.devSuiteVideoFallback}>
+        <div className={`${styles.devSuiteMedia} ${styles.devSuiteVideoFallback}`}>
           <MediaLoader />
         </div>
       )}
