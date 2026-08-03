@@ -76,7 +76,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     title: 'KAEL',
     subtitle: 'AI career toolkit',
     description:
-      'An AI-powered suite for profiles, portfolios, ATS resumes, case studies, and job-matched applications — built end to end as a cohesive product experience.',
+      'An AI-powered suite for profiles, portfolios, ATS resumes, case studies, and job-matched applications, built end to end as a cohesive product experience.',
     techStack: ['Flutter / Dart'],
     detailType: 'dev-suite',
   },

@@ -189,13 +189,14 @@
 
 .devSuiteCard .cardSubtitle {
   margin-top: 0.15rem;
+  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
   color: rgba(255, 255, 255, 0.72);
 }
 
 .devSuiteDescription {
   margin: 0.35rem 0 0;
   font-family: var(--font-body);
-  font-size: clamp(0.9375rem, 1.35vw, 1.0625rem);
+  font-size: clamp(0.875rem, 1.2vw, 0.975rem);
   font-weight: 300;
   line-height: 1.7;
   letter-spacing: 0.015em;
