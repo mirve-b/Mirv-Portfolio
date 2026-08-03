@@ -16,9 +16,15 @@ type ProjectGalleryProps = {
 type GalleryVideoItemProps = {
   src: string
   muteOnSpotifyPlay?: boolean
+  /** Full-width muted loop — no crop, no mute control (e.g. UI/UX prototypes). */
+  previewOnly?: boolean
 }
 
-function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemProps) {
+function GalleryVideoItem({
+  src,
+  muteOnSpotifyPlay = false,
+  previewOnly = false,
+}: GalleryVideoItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const spotifyHandoffRef = useRef(false)
   const [isUnmuted, setIsUnmuted] = useState(false)
@@ -64,7 +70,7 @@ function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemPr
     }
   }, [])
 
-  useMuteVideoOnSpotifyPlay(isUnmuted, handleMute, muteOnSpotifyPlay)
+  useMuteVideoOnSpotifyPlay(isUnmuted, handleMute, muteOnSpotifyPlay && !previewOnly)
 
   const handleUnmute = useCallback(() => {
     const video = videoRef.current
@@ -95,52 +101,62 @@ function GalleryVideoItem({ src, muteOnSpotifyPlay = false }: GalleryVideoItemPr
 
   return (
     <figure className={styles.item}>
-      <div className={styles.videoWrap} data-playing={isUnmuted ? 'true' : undefined}>
+      <div
+        className={`${styles.videoWrap}${
+          previewOnly ? ` ${styles.videoWrapPreview}` : ''
+        }`}
+        data-playing={!previewOnly && isUnmuted ? 'true' : undefined}
+      >
         <video
           ref={videoRef}
           src={src}
-          className={styles.video}
+          className={`${styles.video}${
+            previewOnly ? ` ${styles.videoPreview}` : ''
+          }`}
           loop
           playsInline
+          muted={previewOnly || undefined}
           preload="metadata"
           draggable={false}
         />
-        <button
-          type="button"
-          className={styles.videoControlButton}
-          aria-label={isUnmuted ? 'Mute video' : 'Unmute video'}
-          onClick={isUnmuted ? handleMute : handleUnmute}
-        >
-          <span className={styles.videoControlIcon} aria-hidden="true">
-            {isUnmuted ? (
-              <svg viewBox="0 0 14 14" fill="none">
-                <path
-                  d="M2.5 5.5H4.5L7.5 3V11L4.5 8.5H2.5V5.5Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M10.5 4.5L9 6M9 6L10.5 7.5M9 6L7.5 7.5M9 6L10.5 4.5"
-                  stroke="currentColor"
-                  strokeWidth="1.1"
-                  strokeLinecap="round"
-                />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 14 14" fill="none">
-                <path
-                  d="M2.5 5.5H4.5L7.5 3V11L4.5 8.5H2.5V5.5Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M9.5 5.5C10 6 10.25 6.75 10.25 7.25C10.25 7.75 10 8.5 9.5 9"
-                  stroke="currentColor"
-                  strokeWidth="1.1"
-                  strokeLinecap="round"
-                />
-              </svg>
-            )}
-          </span>
-        </button>
+        {!previewOnly ? (
+          <button
+            type="button"
+            className={styles.videoControlButton}
+            aria-label={isUnmuted ? 'Mute video' : 'Unmute video'}
+            onClick={isUnmuted ? handleMute : handleUnmute}
+          >
+            <span className={styles.videoControlIcon} aria-hidden="true">
+              {isUnmuted ? (
+                <svg viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M2.5 5.5H4.5L7.5 3V11L4.5 8.5H2.5V5.5Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M10.5 4.5L9 6M9 6L10.5 7.5M9 6L7.5 7.5M9 6L10.5 4.5"
+                    stroke="currentColor"
+                    strokeWidth="1.1"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M2.5 5.5H4.5L7.5 3V11L4.5 8.5H2.5V5.5Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M9.5 5.5C10 6 10.25 6.75 10.25 7.25C10.25 7.75 10 8.5 9.5 9"
+                    stroke="currentColor"
+                    strokeWidth="1.1"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+            </span>
+          </button>
+        ) : null}
       </div>
     </figure>
   )
@@ -193,6 +209,7 @@ export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
                 key={`${project.id}-${index}`}
                 src={src}
                 muteOnSpotifyPlay={project.id === 'frames'}
+                previewOnly={project.id === 'doubleu'}
               />
             ) : (
               <figure key={`${project.id}-${index}`} className={styles.item}>
