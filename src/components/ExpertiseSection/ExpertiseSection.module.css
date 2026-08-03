@@ -183,12 +183,12 @@
 }
 
 .devSuiteCard .cardTitle {
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-size: clamp(1.2rem, 2.1vw, 1.65rem);
   letter-spacing: 0.1em;
 }
 
 .devSuiteCard .cardSubtitle {
-  margin-top: 0.15rem;
+  margin-top: -0.45rem;
   font-size: clamp(0.75rem, 1.1vw, 0.875rem);
   color: rgba(255, 255, 255, 0.72);
 }
