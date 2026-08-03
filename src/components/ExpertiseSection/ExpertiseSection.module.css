@@ -183,23 +183,23 @@
 }
 
 .devSuiteCard .cardTitle {
-  font-size: clamp(1.2rem, 2.1vw, 1.65rem);
-  letter-spacing: 0.1em;
+  font-size: var(--text-base);
+  letter-spacing: 0.12em;
 }
 
 .devSuiteCard .cardSubtitle {
-  margin-top: -0.45rem;
-  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
+  margin-top: -0.4rem;
+  font-size: var(--text-xs);
   color: rgba(255, 255, 255, 0.72);
 }
 
 .devSuiteDescription {
-  margin: 0.35rem 0 0;
+  margin: 0.3rem 0 0;
   font-family: var(--font-body);
-  font-size: clamp(0.875rem, 1.2vw, 0.975rem);
+  font-size: var(--text-sm);
   font-weight: 300;
-  line-height: 1.7;
-  letter-spacing: 0.015em;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
   color: rgba(255, 255, 255, 0.88);
   text-transform: none;
   max-width: none;
