@@ -6,6 +6,7 @@ const loadThumbnail = () =>
 const loadGallery = () =>
   Promise.all([
     import('../../assets/UI-UX/DOUBLEU/1.png').then((m) => m.default),
+    import('../../assets/UI-UX/DOUBLEU/prototype.mp4').then((m) => m.default),
     import('../../assets/UI-UX/DOUBLEU/2.png').then((m) => m.default),
     import('../../assets/UI-UX/DOUBLEU/3.png').then((m) => m.default),
     import('../../assets/UI-UX/DOUBLEU/4.png').then((m) => m.default),
