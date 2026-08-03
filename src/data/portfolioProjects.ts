@@ -9,6 +9,7 @@ export type PortfolioProjectMeta = {
   title: string
   subtitle: string
   description?: string
+  techStack?: string[]
   parentSuiteId?: string
   thumbnailType?: ThumbnailType
   thumbnailPosition?: string
@@ -76,6 +77,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     subtitle: 'AI career toolkit',
     description:
       'An AI-powered suite for profiles, portfolios, ATS resumes, case studies, and job-matched applications — built end to end as a cohesive product experience.',
+    techStack: ['Wireframes', 'Prototyping', 'Flutter', 'API', 'Firebase'],
     detailType: 'dev-suite',
   },
   {

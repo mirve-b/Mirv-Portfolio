@@ -14,7 +14,7 @@ export type ToolboxTool = {
 export const EXPERTISE_HEADINGS = [
   'Product Engineering',
   'Product Design',
-  'Illustration',
+  'Product Illustration',
 ] as const
 
 export const TOOLBOX: ToolboxTool[] = [

@@ -170,6 +170,22 @@ function DevSuiteMainCard({
         {project.description ? (
           <p className={styles.devSuiteDescription}>{project.description}</p>
         ) : null}
+        {project.techStack && project.techStack.length > 0 ? (
+          <ul className={styles.devSuiteTechStack} aria-label="Tech stack">
+            {project.techStack.map((item) => (
+              <li key={item}>
+                <motion.span
+                  className={styles.devSuiteTechChip}
+                  whileHover={{ scale: 1.08, y: -3 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={cardHoverSpring}
+                >
+                  {item}
+                </motion.span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <motion.button
           type="button"
           className={styles.devSuiteExplore}
