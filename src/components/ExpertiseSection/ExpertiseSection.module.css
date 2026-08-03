@@ -58,7 +58,7 @@
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .cardsStage[data-hidden='true'] {

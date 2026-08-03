@@ -64,10 +64,8 @@ function App() {
   const [showSplash, setShowSplash] = useState(!skipIntro)
   const [route, setRoute] = useState<AppRoute>(() => getInitialRoute())
   const [loadedProject, setLoadedProject] = useState<PortfolioProject | null>(null)
-  const [tabPanelMotionEnabled, setTabPanelMotionEnabled] = useState(false)
   const [transitionDirection, setTransitionDirection] = useState(1)
   const [transitionInstant, setTransitionInstant] = useState(false)
-  const [expertiseEntranceActive, setExpertiseEntranceActive] = useState(false)
   const [expertiseEntrancePending, setExpertiseEntrancePending] = useState(false)
   const expertiseEntrancePendingRef = useRef(false)
   const [tabDirection, setTabDirection] = useState(1)
@@ -126,8 +124,7 @@ function App() {
       }
 
       setTransitionInstant(true)
-      setTabPanelMotionEnabled(false)
-      setExpertiseEntranceActive(false)
+
       setExpertiseEntrancePending(false)
       expertiseEntrancePendingRef.current = false
       setTransitionDirection(routeDepth(next) >= routeDepth(previous) ? 1 : -1)
@@ -138,7 +135,6 @@ function App() {
         previous.category !== next.category
       ) {
         setTabDirection(expertiseTabDirection(previous.category, next.category))
-        setTabPanelMotionEnabled(true)
       }
 
       setRoute(next)
@@ -228,10 +224,9 @@ function App() {
     (category: ExpertiseCategory) => {
       beginAnimatedNavigation(1)
       setTabDirection(1)
-      setTabPanelMotionEnabled(false)
       setExpertiseEntrancePending(true)
       expertiseEntrancePendingRef.current = true
-      setExpertiseEntranceActive(false)
+
       navigate({ type: 'expertise', category })
     },
     [beginAnimatedNavigation, navigate],
@@ -245,8 +240,7 @@ function App() {
 
     setTransitionDirection(-1)
     setTransitionInstant(true)
-    setTabPanelMotionEnabled(false)
-    setExpertiseEntranceActive(false)
+
     navigate({ type: 'home' })
   }, [navigate])
 
@@ -254,9 +248,8 @@ function App() {
     (category: ExpertiseCategory) => {
       if (route.type !== 'expertise') return
       setTabDirection(expertiseTabDirection(route.category, category))
-      setTabPanelMotionEnabled(true)
       setTransitionInstant(true)
-      setExpertiseEntranceActive(false)
+
       replaceRoute({ type: 'expertise', category })
     },
     [replaceRoute, route],
@@ -268,8 +261,7 @@ function App() {
       if (!project || !isProjectOpenable(project)) return
 
       beginAnimatedNavigation(1)
-      setTabPanelMotionEnabled(false)
-      setExpertiseEntranceActive(false)
+
       setExpertiseEntrancePending(false)
       expertiseEntrancePendingRef.current = false
 
@@ -292,8 +284,7 @@ function App() {
 
   const backToExpertise = useCallback((_category: ExpertiseCategory) => {
     setTransitionInstant(true)
-    setTabPanelMotionEnabled(false)
-    setExpertiseEntranceActive(false)
+
     window.history.back()
   }, [])
 
@@ -318,23 +309,6 @@ function App() {
   const isHome = route.type === 'home'
   const isProject = route.type === 'project'
 
-  const expertiseCategory: ExpertiseCategory =
-    route.type === 'expertise'
-      ? route.category
-      : route.type === 'project' && activeProjectMeta
-        ? activeProjectMeta.category
-        : 'art'
-
-  useEffect(() => {
-    if (!tabPanelMotionEnabled) return
-
-    const timer = window.setTimeout(() => {
-      setTabPanelMotionEnabled(false)
-    }, 320)
-
-    return () => window.clearTimeout(timer)
-  }, [tabPanelMotionEnabled, expertiseCategory])
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [route])
@@ -358,7 +332,6 @@ function App() {
 
     expertiseEntrancePendingRef.current = false
     setExpertiseEntrancePending(false)
-    setExpertiseEntranceActive(true)
   }, [])
 
   const projectView =
@@ -436,8 +409,6 @@ function App() {
                         onOpenProject={openProject}
                         tabDirection={tabDirection}
                         hideCards={expertiseEntrancePending}
-                        entranceMotionEnabled={expertiseEntranceActive}
-                        tabPanelMotionEnabled={tabPanelMotionEnabled}
                       />
                     ) : null}
 

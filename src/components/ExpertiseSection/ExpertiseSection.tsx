@@ -20,8 +20,9 @@ import styles from './ExpertiseSection.module.css'
 
 const cardSpring = {
   type: 'spring' as const,
-  stiffness: 420,
-  damping: 22,
+  stiffness: 340,
+  damping: 26,
+  mass: 0.85,
 }
 
 const cardHoverSpring = {
@@ -31,10 +32,11 @@ const cardHoverSpring = {
   mass: 0.9,
 }
 
-const panelSpring = {
+const tabPanelSpring = {
   type: 'spring' as const,
-  stiffness: 380,
-  damping: 28,
+  stiffness: 260,
+  damping: 30,
+  mass: 0.9,
 }
 
 const tabIndicatorSpring = {
@@ -48,9 +50,7 @@ type ExpertiseSectionProps = {
   onCategoryChange: (category: ExpertiseCategory) => void
   onOpenProject: (projectId: string) => void
   tabDirection: number
-  entranceMotionEnabled?: boolean
   hideCards?: boolean
-  tabPanelMotionEnabled?: boolean
 }
 
 const thumbnailCache = new Map<ExpertiseCategory, Record<string, string>>()
@@ -142,18 +142,18 @@ function DevSuiteMainCard({
 }) {
   const [shouldEntrance] = useState(motionEnabled)
   const media = getDevSuiteMedia(project.id)
-  const entranceDelay = Math.min(index * 0.08, 0.36)
+  const entranceDelay = Math.min(index * 0.07, 0.28)
 
   return (
     <motion.article
       className={styles.devSuiteCard}
-      initial={shouldEntrance ? { opacity: 0, y: 28, scale: 0.98 } : false}
+      initial={shouldEntrance ? { opacity: 0, y: 18, scale: 0.985 } : false}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{
-        opacity: shouldEntrance
+      transition={
+        shouldEntrance
           ? { ...cardSpring, delay: entranceDelay }
-          : { duration: 0 },
-      }}
+          : { duration: 0 }
+      }
     >
       {media?.previewVideoSrc ? (
         <div className={styles.devSuiteMedia}>
@@ -235,17 +235,17 @@ function ProjectCard({
     project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
   const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
 
-  const entranceDelay = Math.min(index * 0.06, 0.36)
+  const entranceDelay = Math.min(index * 0.055, 0.3)
   const cardMotion = {
-    initial: shouldEntrance ? { opacity: 0, y: 28, scale: 0.94 } : false,
+    initial: shouldEntrance ? { opacity: 0, y: 16, scale: 0.97 } : false,
     animate: { opacity: 1, y: 0, scale: 1 },
-    transition: {
-      opacity: shouldEntrance
-        ? { ...cardSpring, delay: entranceDelay }
-        : { duration: 0 },
-      y: cardHoverSpring,
-      scale: cardHoverSpring,
-    },
+    transition: shouldEntrance
+      ? {
+          ...cardSpring,
+          delay: entranceDelay,
+          opacity: { ...cardSpring, delay: entranceDelay },
+        }
+      : { duration: 0 },
     whileHover: isClickable
       ? {
           y: -10,
@@ -321,9 +321,7 @@ export function ExpertiseSection({
   onCategoryChange,
   onOpenProject,
   tabDirection,
-  entranceMotionEnabled = false,
   hideCards = false,
-  tabPanelMotionEnabled = false,
 }: ExpertiseSectionProps) {
   const projects = getProjectsMetaForCategory(category)
   const { thumbnails, loading: thumbnailsLoading } = useCategoryThumbnails(category)
@@ -420,25 +418,27 @@ export function ExpertiseSection({
         data-hidden={hideCards || !cardsVisible ? 'true' : undefined}
       >
         {cardsVisible ? (
-          tabPanelMotionEnabled ? (
-            <AnimatePresence custom={tabDirection} initial={false}>
-              <motion.div
-                key={category}
-                className={styles.panel}
-                custom={tabDirection}
-                initial={{ opacity: 0, x: tabDirection > 0 ? 48 : -48 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: tabDirection > 0 ? -48 : 48 }}
-                transition={panelSpring}
-              >
-                {renderCards(false)}
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <div key={category} className={styles.panel}>
-              {renderCards(entranceMotionEnabled)}
-            </div>
-          )
+          <AnimatePresence mode="wait" custom={tabDirection} initial={false}>
+            <motion.div
+              key={category}
+              className={styles.panel}
+              custom={tabDirection}
+              initial={{
+                opacity: 0,
+                y: 14,
+                x: tabDirection > 0 ? 18 : -18,
+              }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              exit={{
+                opacity: 0,
+                y: -10,
+                x: tabDirection > 0 ? -14 : 14,
+              }}
+              transition={tabPanelSpring}
+            >
+              {renderCards(true)}
+            </motion.div>
+          </AnimatePresence>
         ) : null}
       </div>
     </section>
