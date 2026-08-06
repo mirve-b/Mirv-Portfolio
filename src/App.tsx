@@ -456,7 +456,7 @@ function App() {
               aria-hidden={isProject}
             >
               <NameMarquee />
-              <Footer scrollPfpEnabled={isHome} />
+              <Footer scrollPfpEnabled={!isProject} />
             </div>
           </main>
         </>
