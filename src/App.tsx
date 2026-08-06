@@ -456,7 +456,10 @@ function App() {
               aria-hidden={isProject}
             >
               <NameMarquee />
-              <Footer scrollPfpEnabled={!isProject} />
+              <Footer
+                scrollPfpEnabled={!isProject}
+                scrollPfpKey={isHome ? 'home' : 'expertise'}
+              />
             </div>
           </main>
         </>

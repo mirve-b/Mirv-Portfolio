@@ -9,6 +9,8 @@ const bubbleSpring = { type: 'spring' as const, stiffness: 480, damping: 14 }
 const MOBILE_MQ = '(max-width: 768px)'
 const SCROLL_UP_HIDE_DELAY_MS = 320
 const SCROLL_UP_DISTANCE_PX = 48
+/** Ignore footer peeks right after route changes / at the top of the page. */
+const MIN_SCROLL_TO_REVEAL_PX = 64
 
 type ScrollPfpProps = {
   zoneRef: RefObject<HTMLElement | null>
@@ -34,6 +36,11 @@ function isZoneInView(zone: HTMLElement, mobile: boolean) {
 
   // Require a real footer entry — not a tiny peek at the bottom of a short page.
   return rect.top < vh * 0.7 && rect.bottom > vh * 0.22
+}
+
+function canRevealPfp(zone: HTMLElement, mobile: boolean) {
+  if (window.scrollY < MIN_SCROLL_TO_REVEAL_PX) return false
+  return isZoneInView(zone, mobile)
 }
 
 function useMobilePosition(
@@ -188,7 +195,7 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
     if (root) clearPositionStyles(root)
 
     if (zone) {
-      const inView = isZoneInView(zone, isMobile)
+      const inView = canRevealPfp(zone, isMobile)
       zoneInView.current = inView
 
       if (inView) {
@@ -209,7 +216,7 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
     const onScroll = () => {
       const zoneEl = zoneRef.current
-      if (zoneEl && !isZoneInView(zoneEl, isMobile)) {
+      if (zoneEl && !canRevealPfp(zoneEl, isMobile)) {
         if (zoneInView.current) {
           zoneInView.current = false
           cancelHideSchedule()
@@ -245,7 +252,8 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const inView = entry.isIntersecting && isZoneInView(zone, isMobile)
+        const inView =
+          entry.isIntersecting && canRevealPfp(zone, isMobile)
         zoneInView.current = inView
 
         if (inView) {

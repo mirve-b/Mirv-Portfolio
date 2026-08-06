@@ -9,7 +9,14 @@ import styles from './Footer.module.css'
 
 const springBounce = { type: 'spring' as const, stiffness: 400, damping: 13 }
 
-export function Footer({ scrollPfpEnabled = true }: { scrollPfpEnabled?: boolean }) {
+export function Footer({
+  scrollPfpEnabled = true,
+  scrollPfpKey = 'default',
+}: {
+  scrollPfpEnabled?: boolean
+  /** Remount ScrollPfp on route changes so a previous reveal can't flash. */
+  scrollPfpKey?: string
+}) {
   const footerRef = useRef<HTMLElement>(null)
   const nameInputRef = useRef<HTMLInputElement>(null)
 
@@ -75,7 +82,11 @@ export function Footer({ scrollPfpEnabled = true }: { scrollPfpEnabled?: boolean
       </div>
 
       {scrollPfpEnabled ? (
-        <ScrollPfp zoneRef={footerRef} mobileNameInputRef={nameInputRef} />
+        <ScrollPfp
+          key={scrollPfpKey}
+          zoneRef={footerRef}
+          mobileNameInputRef={nameInputRef}
+        />
       ) : null}
 
       <motion.p
