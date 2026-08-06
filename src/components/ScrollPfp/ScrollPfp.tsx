@@ -25,8 +25,15 @@ function clearPositionStyles(root: HTMLElement) {
 
 function isZoneInView(zone: HTMLElement, mobile: boolean) {
   const rect = zone.getBoundingClientRect()
-  const margin = mobile ? window.innerHeight * 0.12 : window.innerHeight * 0.08
-  return rect.top < window.innerHeight - margin && rect.bottom > 0
+  const vh = window.innerHeight
+
+  if (mobile) {
+    const margin = vh * 0.12
+    return rect.top < vh - margin && rect.bottom > 0
+  }
+
+  // Require a real footer entry — not a tiny peek at the bottom of a short page.
+  return rect.top < vh * 0.7 && rect.bottom > vh * 0.22
 }
 
 function useMobilePosition(
@@ -201,6 +208,17 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
     lastScrollY.current = window.scrollY
 
     const onScroll = () => {
+      const zoneEl = zoneRef.current
+      if (zoneEl && !isZoneInView(zoneEl, isMobile)) {
+        if (zoneInView.current) {
+          zoneInView.current = false
+          cancelHideSchedule()
+          hide()
+        }
+        lastScrollY.current = window.scrollY
+        return
+      }
+
       if (isMobile && zoneInView.current) {
         lastScrollY.current = window.scrollY
         return
@@ -227,19 +245,21 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        zoneInView.current = entry.isIntersecting
+        const inView = entry.isIntersecting && isZoneInView(zone, isMobile)
+        zoneInView.current = inView
 
-        if (entry.isIntersecting) {
+        if (inView) {
           cancelHideSchedule()
           reveal()
           return
         }
 
-        if (isMobile) hide()
+        cancelHideSchedule()
+        hide()
       },
       isMobile
-        ? { threshold: 0.05, rootMargin: '0px 0px 12% 0px' }
-        : { threshold: 0.08, rootMargin: '0px 0px -8% 0px' },
+        ? { threshold: [0.05, 0.12], rootMargin: '0px 0px 12% 0px' }
+        : { threshold: [0.12, 0.22], rootMargin: '0px 0px -28% 0px' },
     )
 
     observer.observe(zone)
