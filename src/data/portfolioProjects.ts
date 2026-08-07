@@ -6,6 +6,8 @@ export type ThumbnailType = 'image' | 'video'
 export type GallerySection = {
   title: string
   maxColumns?: number
+  /** First section asset is used as the suite card thumb only, not in the opened grid. */
+  cardThumbnailOnly?: boolean
 }
 
 export type PortfolioProjectMeta = {
@@ -70,8 +72,12 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     subtitle: 'Mirvé Kids',
     detailType: 'gallery',
     gallerySections: [
-      { title: 'CHARACTER DESIGNS' },
-      { title: "children's story book illustrations", maxColumns: 3 },
+      { title: 'Character Designs' },
+      {
+        title: "Children's Book Illustrations",
+        maxColumns: 3,
+        cardThumbnailOnly: true,
+      },
     ],
   },
   {
