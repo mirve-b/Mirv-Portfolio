@@ -201,12 +201,18 @@ function DevSuiteMainCard({
   )
 }
 
-function GridPlaceholder({ development = false }: { development?: boolean }) {
+function GridPlaceholder({
+  development = false,
+  strokeOnly = false,
+}: {
+  development?: boolean
+  strokeOnly?: boolean
+}) {
   return (
     <div
       className={`${styles.cardPlaceholder}${
         development ? ` ${styles.cardPlaceholderDevelopment}` : ''
-      }`}
+      }${strokeOnly ? ` ${styles.cardPlaceholderStroke}` : ''}`}
       aria-hidden="true"
     />
   )
@@ -359,7 +365,8 @@ export function ExpertiseSection({
         ? projects.filter((project) => project.id === 'blvck' || project.id === 'doubleu')
         : projects
 
-    const placeholderCount = category === 'ui-ux' ? 1 : 0
+    const placeholderCount =
+      category === 'ui-ux' ? 1 : category === 'art' ? 2 : 0
 
     return (
       <div className={styles.grid}>
@@ -375,7 +382,10 @@ export function ExpertiseSection({
           />
         ))}
         {Array.from({ length: placeholderCount }, (_, index) => (
-          <GridPlaceholder key={`placeholder-${index}`} />
+          <GridPlaceholder
+            key={`placeholder-${index}`}
+            strokeOnly={category === 'art'}
+          />
         ))}
       </div>
     )

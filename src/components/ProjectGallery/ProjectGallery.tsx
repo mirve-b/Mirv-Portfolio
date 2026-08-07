@@ -169,8 +169,61 @@ function pauseGalleryMedia(root: HTMLElement | null) {
   })
 }
 
+function galleryClassName(maxColumns?: number) {
+  return `${styles.grid}${
+    maxColumns === 1
+      ? ` ${styles.gridColumn}`
+      : maxColumns === 3
+        ? ` ${styles.gridMax3}`
+        : ''
+  }`
+}
+
+function GalleryMediaGrid({
+  projectId,
+  items,
+  maxColumns,
+  startIndex = 0,
+}: {
+  projectId: string
+  items: string[]
+  maxColumns?: number
+  startIndex?: number
+}) {
+  return (
+    <div className={galleryClassName(maxColumns)}>
+      {items.map((src, index) =>
+        isVideoAsset(src) ? (
+          <GalleryVideoItem
+            key={`${projectId}-${startIndex + index}`}
+            src={src}
+            muteOnSpotifyPlay={projectId === 'frames' || projectId === 'somewhere-else'}
+            previewOnly={projectId === 'doubleu'}
+          />
+        ) : (
+          <figure key={`${projectId}-${startIndex + index}`} className={styles.item}>
+            <img
+              src={src}
+              alt=""
+              className={styles.image}
+              draggable={false}
+              loading={startIndex + index < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={startIndex + index === 0 ? 'high' : 'low'}
+            />
+          </figure>
+        ),
+      )}
+    </div>
+  )
+}
+
 export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
   const sectionRef = useRef<HTMLElement>(null)
+  const hasSections =
+    Boolean(project.gallerySections?.length) &&
+    Boolean(project.sectionGalleries?.length) &&
+    project.gallerySections!.length === project.sectionGalleries!.length
 
   const handleBack = useCallback(() => {
     pauseGalleryMedia(sectionRef.current)
@@ -193,39 +246,35 @@ export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
         </div>
       </div>
 
-      {project.gallery.length > 0 ? (
-        <div
-          className={`${styles.grid}${
-            project.galleryMaxColumns === 1
-              ? ` ${styles.gridColumn}`
-              : project.galleryMaxColumns === 3
-                ? ` ${styles.gridMax3}`
-                : ''
-          }`}
-        >
-          {project.gallery.map((src, index) =>
-            isVideoAsset(src) ? (
-              <GalleryVideoItem
-                key={`${project.id}-${index}`}
-                src={src}
-                muteOnSpotifyPlay={project.id === 'frames'}
-                previewOnly={project.id === 'doubleu'}
-              />
-            ) : (
-              <figure key={`${project.id}-${index}`} className={styles.item}>
-                <img
-                  src={src}
-                  alt=""
-                  className={styles.image}
-                  draggable={false}
-                  loading={index < 2 ? 'eager' : 'lazy'}
-                  decoding="async"
-                  fetchPriority={index === 0 ? 'high' : 'low'}
+      {hasSections ? (
+        <div className={styles.sections}>
+          {project.gallerySections!.map((section, sectionIndex) => {
+            const items = project.sectionGalleries![sectionIndex] ?? []
+            if (items.length === 0) return null
+
+            const startIndex = project.sectionGalleries!
+              .slice(0, sectionIndex)
+              .reduce((sum, list) => sum + list.length, 0)
+
+            return (
+              <div key={section.title} className={styles.gallerySection}>
+                <h2 className={styles.sectionTitle}>{section.title}</h2>
+                <GalleryMediaGrid
+                  projectId={project.id}
+                  items={items}
+                  maxColumns={section.maxColumns ?? project.galleryMaxColumns}
+                  startIndex={startIndex}
                 />
-              </figure>
-            ),
-          )}
+              </div>
+            )
+          })}
         </div>
+      ) : project.gallery.length > 0 ? (
+        <GalleryMediaGrid
+          projectId={project.id}
+          items={project.gallery}
+          maxColumns={project.galleryMaxColumns}
+        />
       ) : (
         <p className={styles.empty}>Gallery coming soon.</p>
       )}

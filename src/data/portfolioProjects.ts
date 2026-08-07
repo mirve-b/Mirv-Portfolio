@@ -3,6 +3,11 @@ import type { ExpertiseCategory } from '../lib/pageNavigation'
 export type ProjectDetailType = 'gallery' | 'video-showcase' | 'dev-suite'
 export type ThumbnailType = 'image' | 'video'
 
+export type GallerySection = {
+  title: string
+  maxColumns?: number
+}
+
 export type PortfolioProjectMeta = {
   id: string
   category: ExpertiseCategory
@@ -15,11 +20,15 @@ export type PortfolioProjectMeta = {
   thumbnailPosition?: string
   detailType?: ProjectDetailType
   galleryMaxColumns?: number
+  /** Ordered section labels for multi-section galleries (e.g. Toy Box). */
+  gallerySections?: GallerySection[]
 }
 
 export type PortfolioProject = PortfolioProjectMeta & {
   thumbnail: string
   gallery: string[]
+  /** Parallel to gallerySections — each entry is that section's media URLs. */
+  sectionGalleries?: string[][]
 }
 
 /**
@@ -41,6 +50,13 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     detailType: 'gallery',
   },
   {
+    id: 'somewhere-else',
+    category: 'art',
+    title: 'SOMEWHERE ELSE',
+    subtitle: 'NARRATIVE ILLUSTRATIONS',
+    detailType: 'gallery',
+  },
+  {
     id: 'archive',
     category: 'art',
     title: 'Archive',
@@ -48,19 +64,15 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     detailType: 'gallery',
   },
   {
-    id: 'story-shelf',
-    category: 'art',
-    title: 'Story Shelf',
-    subtitle: "Children's book illustrations",
-    detailType: 'gallery',
-    galleryMaxColumns: 3,
-  },
-  {
     id: 'toy-box',
     category: 'art',
     title: 'TOY BOX',
     subtitle: 'Mirvé Kids',
     detailType: 'gallery',
+    gallerySections: [
+      { title: 'CHARACTER DESIGNS' },
+      { title: "children's story book illustrations", maxColumns: 3 },
+    ],
   },
   {
     id: 'frames',

@@ -5,8 +5,8 @@ import type { LoadedProjectAssets, ProjectAssetLoader } from './types'
 const loaderByProjectId: Record<string, () => Promise<{ default: ProjectAssetLoader }>> = {
   'after-hours': () => import('./afterHours'),
   'second-skin': () => import('./secondSkin'),
+  'somewhere-else': () => import('./somewhereElse'),
   archive: () => import('./archive'),
-  'story-shelf': () => import('./storyShelf'),
   'toy-box': () => import('./toyBox'),
   frames: () => import('./frames'),
   'kael-profile': () => import('./kaelProfile'),

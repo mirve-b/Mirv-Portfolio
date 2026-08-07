@@ -204,6 +204,30 @@
   color: var(--color-grey-200);
 }
 
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.25rem, 5vw, 3.25rem);
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.gallerySection {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 @media (max-width: 768px) {
   .section {
     padding-top: calc(var(--navbar-height) + 1.5rem);
