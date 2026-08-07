@@ -3,8 +3,8 @@ import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { loadCategoryThumbnails } from '../../data/projectAssets'
 import { getDevSuiteMedia } from '../../data/devSuites'
 import {
+  getCategoryGridProjects,
   getDevTabProjects,
-  getProjectsMetaForCategory,
   isProjectOpenable,
   isVideoShowcase,
   type PortfolioProjectMeta,
@@ -323,7 +323,7 @@ export function ExpertiseSection({
   tabDirection,
   hideCards = false,
 }: ExpertiseSectionProps) {
-  const projects = getProjectsMetaForCategory(category)
+  const projects = getCategoryGridProjects(category)
   const { thumbnails, loading: thumbnailsLoading } = useCategoryThumbnails(category)
 
   useEffect(() => {

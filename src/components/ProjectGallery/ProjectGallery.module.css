@@ -204,75 +204,9 @@
   color: var(--color-grey-200);
 }
 
-.suiteGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.25rem, 3vw, 2rem);
-  width: 100%;
-  max-width: var(--container-max);
-  margin: 0 auto;
-}
-
-.suiteCard {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
-  width: 100%;
-  padding: clamp(0.875rem, 2vw, 1.125rem);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.35);
-  text-align: left;
-  cursor: pointer;
-  transition:
-    border-color var(--duration-fast) var(--ease-smooth),
-    background var(--duration-fast) var(--ease-smooth),
-    transform var(--duration-fast) var(--ease-smooth);
-}
-
-.suiteCard:hover {
-  border-color: rgba(224, 44, 107, 0.45);
-  background: rgba(224, 44, 107, 0.08);
-  transform: translateY(-4px);
-}
-
-.suiteCardImageWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  line-height: 0;
-}
-
-.suiteCardImage {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.suiteCardTitle {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-white);
-  text-align: center;
-}
-
 @media (max-width: 768px) {
   .section {
     padding-top: calc(var(--navbar-height) + 1.5rem);
-  }
-
-  .suiteGrid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
   }
 }
 

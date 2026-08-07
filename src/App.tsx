@@ -44,6 +44,14 @@ const DevSuiteView = lazy(() =>
   import('./components/DevSuiteView').then((m) => ({ default: m.DevSuiteView })),
 )
 
+const ToyBoxSuiteView = lazy(() =>
+  import('./components/ToyBoxSuiteView').then((m) => ({ default: m.ToyBoxSuiteView })),
+)
+
+function isSuiteDetail(detailType: string | undefined) {
+  return detailType === 'dev-suite' || detailType === 'art-suite'
+}
+
 const instantTransition = { duration: 0 }
 
 const pageVariants = {
@@ -99,6 +107,7 @@ function App() {
     if (route.type === 'home') return
     void import('./components/ProjectGallery')
     void import('./components/DevSuiteView')
+    void import('./components/ToyBoxSuiteView')
     void loadCategoryThumbnails('development')
   }, [route.type])
 
@@ -157,7 +166,7 @@ function App() {
       return
     }
 
-    if (meta.detailType === 'dev-suite') {
+    if (isSuiteDetail(meta.detailType)) {
       const merged = mergeProjectWithAssets(meta, { thumbnail: '', gallery: [] })
       projectCache.current.set(projectId, merged)
       setLoadedProject(merged)
@@ -255,6 +264,8 @@ function App() {
     [replaceRoute, route],
   )
 
+  const openedSuiteChildRef = useRef(false)
+
   const openProject = useCallback(
     (projectId: string) => {
       const project = getProjectMetaById(projectId)
@@ -265,11 +276,17 @@ function App() {
       setExpertiseEntrancePending(false)
       expertiseEntrancePendingRef.current = false
 
+      const current = routeRef.current
+      openedSuiteChildRef.current =
+        Boolean(project.parentSuiteId) &&
+        current.type === 'project' &&
+        current.projectId === project.parentSuiteId
+
       const cached = projectCache.current.get(projectId)
       galleryEntranceRef.current = cached == null
       setLoadedProject(cached ?? null)
 
-      if (project.detailType === 'dev-suite') {
+      if (isSuiteDetail(project.detailType)) {
         const merged = mergeProjectWithAssets(project, { thumbnail: '', gallery: [] })
         projectCache.current.set(projectId, merged)
         setLoadedProject(merged)
@@ -287,6 +304,44 @@ function App() {
 
     window.history.back()
   }, [])
+
+  const backFromProject = useCallback(
+    (projectId: string) => {
+      const project = getProjectMetaById(projectId)
+      if (!project) return
+
+      setTransitionInstant(true)
+
+      if (project.parentSuiteId) {
+        if (openedSuiteChildRef.current) {
+          openedSuiteChildRef.current = false
+          window.history.back()
+          return
+        }
+
+        beginAnimatedNavigation(-1)
+
+        const parentId = project.parentSuiteId
+        const parent = getProjectMetaById(parentId)
+        if (!parent) {
+          window.history.back()
+          return
+        }
+
+        if (isSuiteDetail(parent.detailType)) {
+          const merged = mergeProjectWithAssets(parent, { thumbnail: '', gallery: [] })
+          projectCache.current.set(parentId, merged)
+          setLoadedProject(merged)
+        }
+
+        replaceRoute({ type: 'project', projectId: parentId })
+        return
+      }
+
+      window.history.back()
+    },
+    [beginAnimatedNavigation, replaceRoute],
+  )
 
   const activeProjectMeta =
     route.type === 'project' ? getProjectMetaById(route.projectId) : undefined
@@ -342,11 +397,18 @@ function App() {
           project={activeProjectMeta}
           onBack={() => backToExpertise(activeProjectMeta.category)}
         />
+      ) : activeProjectMeta.detailType === 'art-suite' ? (
+        <ToyBoxSuiteView
+          key={activeProjectMeta.id}
+          project={activeProjectMeta}
+          onBack={() => backToExpertise(activeProjectMeta.category)}
+          onOpenProject={openProject}
+        />
       ) : loadedProject ? (
         <ProjectGallery
           key={loadedProject.id}
           project={loadedProject}
-          onBack={() => backToExpertise(activeProjectMeta.category)}
+          onBack={() => backFromProject(activeProjectMeta.id)}
         />
       ) : null
     ) : null

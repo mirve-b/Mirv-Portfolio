@@ -1,14 +1,7 @@
 import type { ExpertiseCategory } from '../lib/pageNavigation'
 
-export type ProjectDetailType = 'gallery' | 'video-showcase' | 'dev-suite'
+export type ProjectDetailType = 'gallery' | 'video-showcase' | 'dev-suite' | 'art-suite'
 export type ThumbnailType = 'image' | 'video'
-
-export type GallerySection = {
-  title: string
-  maxColumns?: number
-  /** First section asset is used as the suite card thumb only, not in the opened grid. */
-  cardThumbnailOnly?: boolean
-}
 
 export type PortfolioProjectMeta = {
   id: string
@@ -22,15 +15,11 @@ export type PortfolioProjectMeta = {
   thumbnailPosition?: string
   detailType?: ProjectDetailType
   galleryMaxColumns?: number
-  /** Ordered section labels for multi-section galleries (e.g. Toy Box). */
-  gallerySections?: GallerySection[]
 }
 
 export type PortfolioProject = PortfolioProjectMeta & {
   thumbnail: string
   gallery: string[]
-  /** Parallel to gallerySections — each entry is that section's media URLs. */
-  sectionGalleries?: string[][]
 }
 
 /**
@@ -70,15 +59,24 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     category: 'art',
     title: 'TOY BOX',
     subtitle: 'Mirvé Kids',
+    detailType: 'art-suite',
+  },
+  {
+    id: 'character-designs',
+    category: 'art',
+    parentSuiteId: 'toy-box',
+    title: 'Character Designs',
+    subtitle: 'TOY BOX',
     detailType: 'gallery',
-    gallerySections: [
-      { title: 'Character Designs' },
-      {
-        title: "Children's Book Illustrations",
-        maxColumns: 3,
-        cardThumbnailOnly: true,
-      },
-    ],
+  },
+  {
+    id: 'childrens-book-illustrations',
+    category: 'art',
+    parentSuiteId: 'toy-box',
+    title: "Children's Book Illustrations",
+    subtitle: 'TOY BOX',
+    detailType: 'gallery',
+    galleryMaxColumns: 3,
   },
   {
     id: 'frames',
@@ -167,6 +165,13 @@ export function getProjectsMetaForCategory(
   return PORTFOLIO_PROJECTS.filter((project) => project.category === category)
 }
 
+/** Top-level cards for an expertise tab (excludes nested suite children). */
+export function getCategoryGridProjects(
+  category: ExpertiseCategory,
+): PortfolioProjectMeta[] {
+  return getProjectsMetaForCategory(category).filter((project) => !project.parentSuiteId)
+}
+
 export function getDevTabProjects(): PortfolioProjectMeta[] {
   return PORTFOLIO_PROJECTS.filter(
     (project) => project.category === 'development' && project.detailType === 'dev-suite',
@@ -179,12 +184,22 @@ export function getDevSuiteShowcaseProjects(suiteId: string): PortfolioProjectMe
   )
 }
 
+export function getArtSuiteProjects(suiteId: string): PortfolioProjectMeta[] {
+  return PORTFOLIO_PROJECTS.filter(
+    (project) => project.parentSuiteId === suiteId && project.detailType === 'gallery',
+  )
+}
+
 export function getProjectMetaById(projectId: string): PortfolioProjectMeta | undefined {
   return PORTFOLIO_PROJECTS.find((project) => project.id === projectId)
 }
 
 export function isProjectOpenable(project: PortfolioProjectMeta): boolean {
-  return project.detailType === 'gallery' || project.detailType === 'dev-suite'
+  return (
+    project.detailType === 'gallery' ||
+    project.detailType === 'dev-suite' ||
+    project.detailType === 'art-suite'
+  )
 }
 
 export function isVideoShowcase(project: PortfolioProjectMeta): boolean {

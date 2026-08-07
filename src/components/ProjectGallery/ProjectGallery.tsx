@@ -183,33 +183,31 @@ function GalleryMediaGrid({
   projectId,
   items,
   maxColumns,
-  startIndex = 0,
 }: {
   projectId: string
   items: string[]
   maxColumns?: number
-  startIndex?: number
 }) {
   return (
     <div className={galleryClassName(maxColumns)}>
       {items.map((src, index) =>
         isVideoAsset(src) ? (
           <GalleryVideoItem
-            key={`${projectId}-${startIndex + index}`}
+            key={`${projectId}-${index}`}
             src={src}
             muteOnSpotifyPlay={projectId === 'frames'}
             previewOnly={projectId === 'doubleu' || projectId === 'somewhere-else'}
           />
         ) : (
-          <figure key={`${projectId}-${startIndex + index}`} className={styles.item}>
+          <figure key={`${projectId}-${index}`} className={styles.item}>
             <img
               src={src}
               alt=""
               className={styles.image}
               draggable={false}
-              loading={startIndex + index < 2 ? 'eager' : 'lazy'}
+              loading={index < 2 ? 'eager' : 'lazy'}
               decoding="async"
-              fetchPriority={startIndex + index === 0 ? 'high' : 'low'}
+              fetchPriority={index === 0 ? 'high' : 'low'}
             />
           </figure>
         ),
@@ -220,39 +218,11 @@ function GalleryMediaGrid({
 
 export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
   const sectionRef = useRef<HTMLElement>(null)
-  const [activeSectionIndex, setActiveSectionIndex] = useState<number | null>(null)
-  const hasSections =
-    Boolean(project.gallerySections?.length) &&
-    Boolean(project.sectionGalleries?.length) &&
-    project.gallerySections!.length === project.sectionGalleries!.length
-
-  const activeSection =
-    hasSections && activeSectionIndex != null
-      ? project.gallerySections![activeSectionIndex]
-      : null
-  const activeSectionItems = (() => {
-    if (!hasSections || activeSectionIndex == null || !activeSection) return []
-    const items = project.sectionGalleries![activeSectionIndex] ?? []
-    return activeSection.cardThumbnailOnly ? items.slice(1) : items
-  })()
-
-  useEffect(() => {
-    setActiveSectionIndex(null)
-  }, [project.id])
 
   const handleBack = useCallback(() => {
-    if (hasSections && activeSectionIndex != null) {
-      pauseGalleryMedia(sectionRef.current)
-      setActiveSectionIndex(null)
-      return
-    }
-
     pauseGalleryMedia(sectionRef.current)
     onBack()
-  }, [activeSectionIndex, hasSections, onBack])
-
-  const headerTitle = activeSection?.title ?? project.title
-  const headerSubtitle = activeSection ? project.title : project.subtitle
+  }, [onBack])
 
   return (
     <section
@@ -265,51 +235,12 @@ export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
           ← Back
         </button>
         <div className={styles.titles}>
-          <h1 className={styles.title}>{headerTitle}</h1>
-          <p className={styles.subtitle}>{headerSubtitle}</p>
+          <h1 className={styles.title}>{project.title}</h1>
+          <p className={styles.subtitle}>{project.subtitle}</p>
         </div>
       </div>
 
-      {hasSections && activeSectionIndex == null ? (
-        <div className={styles.suiteGrid}>
-          {project.gallerySections!.map((section, sectionIndex) => {
-            const items = project.sectionGalleries![sectionIndex] ?? []
-            const thumbnail = items[0]
-            if (!thumbnail) return null
-
-            return (
-              <button
-                key={section.title}
-                type="button"
-                className={styles.suiteCard}
-                onClick={() => setActiveSectionIndex(sectionIndex)}
-              >
-                <div className={styles.suiteCardImageWrap}>
-                  <img
-                    src={thumbnail}
-                    alt=""
-                    className={styles.suiteCardImage}
-                    draggable={false}
-                    loading={sectionIndex < 2 ? 'eager' : 'lazy'}
-                    decoding="async"
-                  />
-                </div>
-                <h2 className={styles.suiteCardTitle}>{section.title}</h2>
-              </button>
-            )
-          })}
-        </div>
-      ) : hasSections && activeSection ? (
-        activeSectionItems.length > 0 ? (
-          <GalleryMediaGrid
-            projectId={project.id}
-            items={activeSectionItems}
-            maxColumns={activeSection.maxColumns ?? project.galleryMaxColumns}
-          />
-        ) : (
-          <p className={styles.empty}>Gallery coming soon.</p>
-        )
-      ) : project.gallery.length > 0 ? (
+      {project.gallery.length > 0 ? (
         <GalleryMediaGrid
           projectId={project.id}
           items={project.gallery}
