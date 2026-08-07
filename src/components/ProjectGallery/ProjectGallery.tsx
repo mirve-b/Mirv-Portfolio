@@ -197,8 +197,8 @@ function GalleryMediaGrid({
           <GalleryVideoItem
             key={`${projectId}-${startIndex + index}`}
             src={src}
-            muteOnSpotifyPlay={projectId === 'frames' || projectId === 'somewhere-else'}
-            previewOnly={projectId === 'doubleu'}
+            muteOnSpotifyPlay={projectId === 'frames'}
+            previewOnly={projectId === 'doubleu' || projectId === 'somewhere-else'}
           />
         ) : (
           <figure key={`${projectId}-${startIndex + index}`} className={styles.item}>

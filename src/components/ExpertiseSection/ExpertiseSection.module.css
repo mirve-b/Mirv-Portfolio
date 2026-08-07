@@ -282,12 +282,6 @@
   pointer-events: none;
 }
 
-.cardPlaceholderStroke {
-  background: transparent;
-  min-height: clamp(16rem, 32vw, 24rem);
-  aspect-ratio: 3 / 4;
-}
-
 .cardPlaceholderDevelopment {
   min-height: clamp(16rem, 28vw, 22rem);
 }
