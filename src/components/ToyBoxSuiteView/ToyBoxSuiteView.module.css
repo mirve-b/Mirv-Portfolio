@@ -1,11 +1,9 @@
 .section {
   position: relative;
   width: 100%;
-  min-height: calc(100dvh - var(--navbar-height, 5rem));
   padding: clamp(1.5rem, 4vw, 2.5rem) var(--container-padding)
-    clamp(2rem, 5vw, 3.5rem);
+    clamp(1rem, 2.5vw, 1.5rem);
   background: var(--color-bg);
-  overflow: hidden;
 }
 
 .header {
@@ -13,9 +11,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.875rem;
-  margin-bottom: clamp(1.5rem, 4vw, 2.25rem);
-  position: relative;
-  z-index: 2;
+  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
 }
 
 .backButton {
@@ -66,113 +62,14 @@
   color: var(--color-grey-200);
 }
 
-.stage {
-  position: relative;
-  width: 100%;
-  max-width: min(56rem, 100%);
-  margin: 0 auto;
-  min-height: clamp(22rem, 52vh, 34rem);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1rem, 4vw, 2.5rem);
-}
-
-.deco {
-  position: absolute;
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-}
-
-.decoStarBottomLeft {
-  left: clamp(-0.5rem, 1vw, 1rem);
-  bottom: clamp(0.5rem, 3vw, 2rem);
-  width: clamp(7rem, 18vw, 12rem);
-  height: auto;
-  opacity: 0.9;
-}
-
-.decoStarTopRight {
-  right: clamp(-0.25rem, 1vw, 1.25rem);
-  top: clamp(0rem, 1vw, 1rem);
-  width: clamp(6.5rem, 16vw, 11rem);
-  height: auto;
-  opacity: 0.9;
-}
-
-.decoCircleLeft {
-  left: clamp(0.5rem, 4vw, 3rem);
-  top: 42%;
-  transform: translateY(-50%);
-  width: clamp(2.25rem, 5vw, 3.5rem);
-  height: auto;
-  opacity: 0.85;
-}
-
-.decoCircleRight {
-  right: clamp(-1rem, 0vw, 0.5rem);
-  top: 38%;
-  width: clamp(5.5rem, 14vw, 9.5rem);
-  height: auto;
-  opacity: 0.85;
-}
-
-.cardRow {
-  position: relative;
-  z-index: 1;
+.grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.25rem, 4vw, 2.75rem);
-  width: min(100%, 34rem);
-}
-
-.suiteCard {
-  display: block;
+  gap: clamp(1rem, 3vw, 2rem);
   width: 100%;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  text-align: center;
-}
-
-.suiteCardFrame {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  padding: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 14px;
-  background: transparent;
-  transition:
-    border-color var(--duration-fast) var(--ease-smooth),
-    background var(--duration-fast) var(--ease-smooth),
-    transform var(--duration-fast) var(--ease-smooth);
-}
-
-.suiteCard:hover .suiteCardFrame,
-.suiteCard:focus-visible .suiteCardFrame {
-  border-color: rgba(224, 44, 107, 0.65);
-  background: rgba(224, 44, 107, 0.06);
-  transform: translateY(-4px);
-}
-
-.suiteCardTitle {
-  font-family: var(--font-body);
-  font-size: clamp(0.7rem, 1.4vw, 0.8rem);
-  font-weight: 300;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-grey-200);
-  transition: color var(--duration-fast) var(--ease-smooth);
-}
-
-.suiteCard:hover .suiteCardTitle,
-.suiteCard:focus-visible .suiteCardTitle {
-  color: var(--color-white);
+  max-width: min(40rem, 100%);
+  margin: 0 auto;
+  padding-top: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 @media (max-width: 768px) {
@@ -180,35 +77,8 @@
     padding-top: calc(var(--navbar-height) + 1.5rem);
   }
 
-  .stage {
-    min-height: auto;
-    padding: 2rem 0.5rem 3rem;
-  }
-
-  .cardRow {
-    width: min(100%, 18rem);
+  .grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .decoStarBottomLeft {
-    width: 5.5rem;
-    left: -0.25rem;
-    bottom: 0.25rem;
-  }
-
-  .decoStarTopRight {
-    width: 5rem;
-    right: -0.25rem;
-  }
-
-  .decoCircleLeft {
-    width: 1.75rem;
-    left: 0.25rem;
-  }
-
-  .decoCircleRight {
-    width: 4.5rem;
-    right: -0.75rem;
+    max-width: 18rem;
   }
 }
