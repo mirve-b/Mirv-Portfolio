@@ -157,6 +157,14 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     detailType: 'gallery',
     galleryMaxColumns: 1,
   },
+  {
+    id: 'molly',
+    category: 'ui-ux',
+    title: 'MOLLY',
+    subtitle: 'Product Design',
+    detailType: 'gallery',
+    galleryMaxColumns: 1,
+  },
 ]
 
 export function getProjectsMetaForCategory(

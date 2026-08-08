@@ -354,12 +354,8 @@ export function ExpertiseSection({
       )
     }
 
-    const visibleProjects =
-      category === 'ui-ux'
-        ? projects.filter((project) => project.id === 'blvck' || project.id === 'doubleu')
-        : projects
-
-    const placeholderCount = category === 'ui-ux' ? 1 : 0
+    const visibleProjects = projects
+    const placeholderCount = 0
 
     return (
       <div className={styles.grid}>
