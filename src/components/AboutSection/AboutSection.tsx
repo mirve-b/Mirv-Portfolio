@@ -151,9 +151,9 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
       }}
     >
       <AnimatePresence mode="wait">
-        {isMobile && folderPhase === 'idle' ? (
+        {folderPhase === 'idle' ? (
           <motion.div
-            key="tap-bubble"
+            key={isMobile ? 'tap-bubble' : 'hover-bubble'}
             className={`${styles.collageBubbleAnchor} ${styles.collageBubbleTap}`}
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
@@ -167,14 +167,14 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
               exit={{ opacity: 0, scale: 1.22 }}
               transition={bubblePop}
             >
-              TAP!!
+              {isMobile ? 'TAP!!' : 'Hover to explore'}
             </motion.div>
           </motion.div>
         ) : null}
 
-        {isMobile && folderPhase === 'open' ? (
+        {folderPhase === 'open' ? (
           <motion.div
-            key="pick-bubble"
+            key={isMobile ? 'pick-bubble' : 'select-bubble'}
             className={`${styles.collageBubbleAnchor} ${styles.collageBubblePick}`}
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
@@ -188,7 +188,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
               exit={{ opacity: 0, scale: 0.88, y: -6 }}
               transition={bubblePop}
             >
-              Pick one!!
+              {isMobile ? 'Pick one!!' : 'Select one'}
             </motion.div>
           </motion.div>
         ) : null}

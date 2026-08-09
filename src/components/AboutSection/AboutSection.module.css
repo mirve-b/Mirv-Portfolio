@@ -681,59 +681,67 @@
     pointer-events: auto;
   }
 
-  .collageBubbleAnchor {
-    position: absolute;
-    z-index: 8;
-    pointer-events: none;
-  }
-
-  .collageBubble {
-    position: relative;
-    margin: 0;
-    padding: 0.5rem 0.8rem;
-    width: max-content;
-    border: 1px solid rgba(224, 44, 107, 0.55);
-    border-radius: 1rem;
-    background: var(--color-accent);
-    box-shadow: 0 8px 22px rgba(224, 44, 107, 0.32);
-    font-family: var(--font-body);
-    font-size: var(--text-xs);
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    line-height: 1.2;
-    text-align: center;
-    color: var(--color-white);
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .collageBubble::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    width: 10px;
-    height: 10px;
-    border: none;
-    background: var(--color-accent);
-    transform: translateX(-50%) rotate(45deg) translateY(-5px);
-  }
-
   .collageBubbleTap {
     top: 54%;
-    left: 50%;
-    transform: translateX(-50%);
   }
 
   .collageBubblePick {
     top: 6%;
-    left: 50%;
-    transform: translateX(-50%);
   }
+}
 
-  .collageBubbleVibrate {
-    animation: collageBubbleVibrate 0.55s ease-in-out infinite;
-  }
+.collageBubbleAnchor {
+  position: absolute;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.collageBubble {
+  position: relative;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  width: max-content;
+  border: 1px solid rgba(224, 44, 107, 0.55);
+  border-radius: 1rem;
+  background: var(--color-accent);
+  box-shadow: 0 8px 22px rgba(224, 44, 107, 0.32);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--color-white);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.collageBubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border: none;
+  background: var(--color-accent);
+  transform: translateX(-50%) rotate(45deg) translateY(-5px);
+}
+
+.collageBubbleTap {
+  top: 48%;
+  left: 52%;
+  transform: translateX(-50%);
+}
+
+.collageBubblePick {
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.collageBubbleVibrate {
+  animation: collageBubbleVibrate 0.55s ease-in-out infinite;
 }
 
 @media (max-width: 768px) and (pointer: coarse) {
