@@ -14,6 +14,8 @@
     "assets:dev-posters": "node scripts/generate-dev-posters.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "framer-motion": "^12.42.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"

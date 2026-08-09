@@ -1,5 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import {
   loadCategoryThumbnails,
   loadProjectAssets,
@@ -31,6 +33,7 @@ import {
   pathToRoute,
   readRouteFromHistoryState,
   routeDepth,
+  routeToPath,
   storeRoute,
   syncBrowserHistory,
 } from './lib/pageNavigation'
@@ -420,6 +423,8 @@ function App() {
         ? 'expertise'
         : `project-${route.projectId}`
 
+  const analyticsPath = routeToPath(route)
+
   return (
     <div className={styles.app}>
       <CustomPointer />
@@ -533,6 +538,9 @@ function App() {
           onExitComplete={handleIntroExitComplete}
         />
       ) : null}
+
+      <Analytics path={analyticsPath} />
+      <SpeedInsights route={analyticsPath} />
     </div>
   )
 }
