@@ -683,10 +683,12 @@
 
   .collageBubbleTap {
     top: 54%;
+    left: 50%;
   }
 
   .collageBubblePick {
     top: 6%;
+    left: 50%;
   }
 }
 
@@ -694,6 +696,8 @@
   position: absolute;
   z-index: 8;
   pointer-events: none;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
 }
 
 .collageBubble {
@@ -729,19 +733,19 @@
 }
 
 .collageBubbleTap {
-  top: 48%;
+  top: 52%;
   left: 52%;
-  transform: translateX(-50%);
 }
 
 .collageBubblePick {
-  top: 4%;
+  /* Sit just above the skill notes — higher values get clipped by section overflow */
+  top: 26%;
   left: 50%;
-  transform: translateX(-50%);
 }
 
 .collageBubbleVibrate {
   animation: collageBubbleVibrate 0.55s ease-in-out infinite;
+  transform-origin: 50% 100%;
 }
 
 @media (max-width: 768px) and (pointer: coarse) {

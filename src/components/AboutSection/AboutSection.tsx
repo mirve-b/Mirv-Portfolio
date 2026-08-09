@@ -30,7 +30,43 @@ const SKILL_LINKS = [
 
 type FolderPhase = 'idle' | 'open' | 'closing'
 
-const bubblePop = { type: 'spring' as const, stiffness: 560, damping: 16 }
+const bubblePopIn = {
+  type: 'spring' as const,
+  stiffness: 720,
+  damping: 12,
+  mass: 0.55,
+}
+
+const bubblePopOut = {
+  type: 'spring' as const,
+  stiffness: 640,
+  damping: 18,
+  mass: 0.5,
+}
+
+const exploreBubbleMotion = {
+  initial: { opacity: 0, scale: 0.2, x: '-50%', y: 22 },
+  animate: { opacity: 1, scale: 1, x: '-50%', y: 0 },
+  exit: {
+    opacity: 0,
+    scale: 0.25,
+    x: '-50%',
+    y: 18,
+    transition: bubblePopOut,
+  },
+}
+
+const selectBubbleMotion = {
+  initial: { opacity: 0, scale: 0.2, x: '-50%', y: 20 },
+  animate: { opacity: 1, scale: 1, x: '-50%', y: 0 },
+  exit: {
+    opacity: 0,
+    scale: 0.3,
+    x: '-50%',
+    y: -10,
+    transition: bubblePopOut,
+  },
+}
 
 type SkillsCollageProps = {
   onSelectCategory: (category: ExpertiseCategory) => void
@@ -155,20 +191,16 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
           <motion.div
             key={isMobile ? 'tap-bubble' : 'hover-bubble'}
             className={`${styles.collageBubbleAnchor} ${styles.collageBubbleTap}`}
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 1 }}
+            aria-hidden="true"
+            initial={exploreBubbleMotion.initial}
+            animate={exploreBubbleMotion.animate}
+            exit={exploreBubbleMotion.exit}
+            transition={bubblePopIn}
+            style={{ transformOrigin: '50% 100%' }}
           >
-            <motion.div
-              className={`${styles.collageBubble} ${styles.collageBubbleVibrate}`}
-              aria-hidden="true"
-              initial={{ opacity: 0, scale: 0.45 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.22 }}
-              transition={bubblePop}
-            >
+            <div className={`${styles.collageBubble} ${styles.collageBubbleVibrate}`}>
               {isMobile ? 'TAP!!' : 'Hover to explore'}
-            </motion.div>
+            </div>
           </motion.div>
         ) : null}
 
@@ -176,20 +208,16 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
           <motion.div
             key={isMobile ? 'pick-bubble' : 'select-bubble'}
             className={`${styles.collageBubbleAnchor} ${styles.collageBubblePick}`}
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 1 }}
+            aria-hidden="true"
+            initial={selectBubbleMotion.initial}
+            animate={selectBubbleMotion.animate}
+            exit={selectBubbleMotion.exit}
+            transition={{ ...bubblePopIn, delay: 0.05 }}
+            style={{ transformOrigin: '50% 100%' }}
           >
-            <motion.div
-              className={styles.collageBubble}
-              aria-hidden="true"
-              initial={{ opacity: 0, scale: 0.45, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.88, y: -6 }}
-              transition={bubblePop}
-            >
+            <div className={styles.collageBubble}>
               {isMobile ? 'Pick one!!' : 'Select one'}
-            </motion.div>
+            </div>
           </motion.div>
         ) : null}
       </AnimatePresence>
