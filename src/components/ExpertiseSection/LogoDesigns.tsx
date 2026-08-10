@@ -7,9 +7,9 @@ import styles from './ExpertiseSection.module.css'
 
 const LOGOS = [
   { id: 'curdon', src: curdonLogo, alt: 'Curdon logo' },
-  { id: 'danyk', src: danykLogo, alt: 'Danyk logo' },
+  { id: 'danyk', src: danykLogo, alt: 'Danyk logo', size: 'lg' as const },
   { id: 'zent', src: zentLogo, alt: 'Zent logo' },
-  { id: 'zent-primary', src: zentPrimaryLogo, alt: 'Zent primary logo' },
+  { id: 'zent-primary', src: zentPrimaryLogo, alt: 'Zent primary logo', size: 'xl' as const },
 ] as const
 
 const logoHoverSpring = {
@@ -29,7 +29,13 @@ export function LogoDesigns() {
         {LOGOS.map((logo) => (
           <motion.div
             key={logo.id}
-            className={styles.logoItem}
+            className={`${styles.logoItem}${
+              logo.size === 'xl'
+                ? ` ${styles.logoItemXl}`
+                : logo.size === 'lg'
+                  ? ` ${styles.logoItemLg}`
+                  : ''
+            }`}
             whileHover={{ scale: 1.12, y: -6 }}
             whileTap={{ scale: 0.96 }}
             transition={logoHoverSpring}

@@ -301,6 +301,24 @@
   will-change: transform;
 }
 
+.logoItemLg {
+  max-width: 11.25rem;
+}
+
+.logoItemXl {
+  max-width: 15.5rem;
+}
+
+.logoItemLg .logoImage {
+  width: 108%;
+  height: 108%;
+}
+
+.logoItemXl .logoImage {
+  width: 135%;
+  height: 135%;
+}
+
 .logoImage {
   display: block;
   width: 100%;
@@ -625,6 +643,14 @@
 
   .logoItem {
     max-width: 7.5rem;
+  }
+
+  .logoItemLg {
+    max-width: 8.5rem;
+  }
+
+  .logoItemXl {
+    max-width: 11rem;
   }
 
   .devColumn {
