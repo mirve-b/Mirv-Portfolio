@@ -5,18 +5,38 @@ import zentLogo from '../../assets/UI-UX/LOGOS/zent.webp'
 import zentPrimaryLogo from '../../assets/UI-UX/LOGOS/zent_primary.webp'
 import styles from './ExpertiseSection.module.css'
 
-const LOGOS = [
+type LogoSize = 'lg' | 'xl'
+
+type LogoItem = {
+  id: string
+  src: string
+  alt: string
+  size?: LogoSize
+}
+
+const LOGOS: LogoItem[] = [
   { id: 'curdon', src: curdonLogo, alt: 'Curdon logo' },
-  { id: 'danyk', src: danykLogo, alt: 'Danyk logo', size: 'lg' as const },
+  { id: 'danyk', src: danykLogo, alt: 'Danyk logo', size: 'lg' },
   { id: 'zent', src: zentLogo, alt: 'Zent logo' },
-  { id: 'zent-primary', src: zentPrimaryLogo, alt: 'Zent primary logo', size: 'xl' as const },
-] as const
+  {
+    id: 'zent-primary',
+    src: zentPrimaryLogo,
+    alt: 'Zent primary logo',
+    size: 'xl',
+  },
+]
 
 const logoHoverSpring = {
   type: 'spring' as const,
   stiffness: 420,
   damping: 16,
   mass: 0.7,
+}
+
+function logoSizeClass(size?: LogoSize) {
+  if (size === 'xl') return ` ${styles.logoItemXl}`
+  if (size === 'lg') return ` ${styles.logoItemLg}`
+  return ''
 }
 
 export function LogoDesigns() {
@@ -29,13 +49,7 @@ export function LogoDesigns() {
         {LOGOS.map((logo) => (
           <motion.div
             key={logo.id}
-            className={`${styles.logoItem}${
-              logo.size === 'xl'
-                ? ` ${styles.logoItemXl}`
-                : logo.size === 'lg'
-                  ? ` ${styles.logoItemLg}`
-                  : ''
-            }`}
+            className={`${styles.logoItem}${logoSizeClass(logo.size)}`}
             whileHover={{ scale: 1.12, y: -6 }}
             whileTap={{ scale: 0.96 }}
             transition={logoHoverSpring}
