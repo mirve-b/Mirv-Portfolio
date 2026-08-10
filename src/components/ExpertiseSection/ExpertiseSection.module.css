@@ -244,11 +244,77 @@
   color: var(--color-beige);
 }
 
+.uiUxStack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  width: 100%;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1rem, 3vw, 2rem);
   padding-top: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.logoSection {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 1.75rem);
+  width: 100%;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.logoSectionTitle {
+  margin: 0;
+  align-self: flex-start;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+.logoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: center;
+  justify-items: center;
+  width: 100%;
+  padding: clamp(0.5rem, 1.5vw, 1rem) 0 clamp(0.25rem, 1vw, 0.5rem);
+}
+
+.logoItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 9.5rem;
+  aspect-ratio: 1 / 1;
+  cursor: default;
+  will-change: transform;
+}
+
+.logoImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(1) contrast(1.05);
+  transition: filter 0.4s var(--ease-smooth);
+  user-select: none;
+  pointer-events: none;
+}
+
+.logoItem:hover .logoImage,
+.logoItem:focus-within .logoImage {
+  filter: grayscale(0) contrast(1);
 }
 
 .card {
@@ -547,6 +613,20 @@
     gap: 1rem;
   }
 
+  .logoSectionTitle {
+    align-self: center;
+    text-align: center;
+  }
+
+  .logoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .logoItem {
+    max-width: 7.5rem;
+  }
+
   .devColumn {
     max-height: none;
     overflow-y: visible;
@@ -614,6 +694,10 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .grid:not(.gridDevelopment) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .logoGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

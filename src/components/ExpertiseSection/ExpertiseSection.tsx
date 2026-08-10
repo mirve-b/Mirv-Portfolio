@@ -15,6 +15,7 @@ import {
   type ExpertiseCategory,
 } from '../../lib/pageNavigation'
 import { DevSuitePreviewVideo } from '../DevSuiteView/DevSuitePreviewVideo'
+import { LogoDesigns } from './LogoDesigns'
 import { MediaLoader, ShowcaseVideoCard } from './ShowcaseVideoCard'
 import styles from './ExpertiseSection.module.css'
 
@@ -201,17 +202,6 @@ function DevSuiteMainCard({
   )
 }
 
-function GridPlaceholder({ development = false }: { development?: boolean }) {
-  return (
-    <div
-      className={`${styles.cardPlaceholder}${
-        development ? ` ${styles.cardPlaceholderDevelopment}` : ''
-      }`}
-      aria-hidden="true"
-    />
-  )
-}
-
 function ProjectCard({
   project,
   thumbnail,
@@ -354,12 +344,9 @@ export function ExpertiseSection({
       )
     }
 
-    const visibleProjects = projects
-    const placeholderCount = 0
-
-    return (
+    const cards = (
       <div className={styles.grid}>
-        {visibleProjects.map((project, index) => (
+        {projects.map((project, index) => (
           <ProjectCard
             key={project.id}
             project={project}
@@ -370,11 +357,19 @@ export function ExpertiseSection({
             motionEnabled={motionEnabled}
           />
         ))}
-        {Array.from({ length: placeholderCount }, (_, index) => (
-          <GridPlaceholder key={`placeholder-${index}`} />
-        ))}
       </div>
     )
+
+    if (category === 'ui-ux') {
+      return (
+        <div className={styles.uiUxStack}>
+          {cards}
+          <LogoDesigns />
+        </div>
+      )
+    }
+
+    return cards
   }
 
   const cardsVisible = !hideCards
