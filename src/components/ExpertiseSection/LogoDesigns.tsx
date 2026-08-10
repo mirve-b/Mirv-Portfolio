@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import curdonLogo from '../../assets/UI-UX/LOGOS/curdon.webp'
 import danykLogo from '../../assets/UI-UX/LOGOS/danyk.webp'
 import zentLogo from '../../assets/UI-UX/LOGOS/zent.webp'
-import zentPrimaryLogo from '../../assets/UI-UX/LOGOS/zent_primary.webp'
+import zentPLogo from '../../assets/UI-UX/LOGOS/zent_p.webp'
 import styles from './ExpertiseSection.module.css'
 
 type LogoSize = 'lg' | 'xl'
@@ -19,9 +19,9 @@ const LOGOS: LogoItem[] = [
   { id: 'danyk', src: danykLogo, alt: 'Danyk logo', size: 'lg' },
   { id: 'zent', src: zentLogo, alt: 'Zent logo' },
   {
-    id: 'zent-primary',
-    src: zentPrimaryLogo,
-    alt: 'Zent primary logo',
+    id: 'zent-p',
+    src: zentPLogo,
+    alt: 'Zent logo',
     size: 'xl',
   },
 ]
