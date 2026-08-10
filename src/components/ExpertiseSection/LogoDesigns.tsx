@@ -22,7 +22,6 @@ const LOGOS: LogoItem[] = [
     id: 'zent-p',
     src: zentPLogo,
     alt: 'Zent logo',
-    size: 'xl',
   },
 ]
 
