@@ -669,11 +669,22 @@
     flex: none;
     width: 100%;
     max-width: none;
-    min-height: clamp(11rem, 52vw, 15rem);
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .devSuiteMedia > * {
+    flex: none;
+    height: 100%;
+    min-height: 0;
   }
 
   .devSuiteVideoFallback {
-    min-height: clamp(11rem, 52vw, 15rem);
+    min-height: 0;
+    height: 100%;
+    aspect-ratio: unset;
   }
 
   .devSuiteCopy {

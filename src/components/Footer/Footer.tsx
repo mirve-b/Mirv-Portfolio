@@ -18,7 +18,6 @@ export function Footer({
   scrollPfpKey?: string
 }) {
   const footerRef = useRef<HTMLElement>(null)
-  const nameInputRef = useRef<HTMLInputElement>(null)
 
   return (
     <footer ref={footerRef} className={styles.footer} aria-labelledby="footer-heading">
@@ -77,16 +76,12 @@ export function Footer({
           viewport={{ once: true, margin: '-60px' }}
           transition={{ ...springBounce, delay: 0.1 }}
         >
-          <ContactForm nameInputRef={nameInputRef} />
+          <ContactForm />
         </motion.div>
       </div>
 
       {scrollPfpEnabled ? (
-        <ScrollPfp
-          key={scrollPfpKey}
-          zoneRef={footerRef}
-          mobileNameInputRef={nameInputRef}
-        />
+        <ScrollPfp key={scrollPfpKey} zoneRef={footerRef} />
       ) : null}
 
       <motion.p

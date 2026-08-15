@@ -1,122 +1,33 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
-import { createPortal } from 'react-dom'
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import pfpImg from '../../assets/PFP.webp'
 import { useIsMobile } from '../../lib/useIsMobile'
 import styles from './ScrollPfp.module.css'
 
-const slideSpring = { type: 'spring' as const, stiffness: 360, damping: 22 }
+const slideSpring = { type: 'spring' as const, stiffness: 360, damping: 24 }
 const bubbleSpring = { type: 'spring' as const, stiffness: 480, damping: 14 }
-const MOBILE_MQ = '(max-width: 768px)'
-const SCROLL_UP_HIDE_DELAY_MS = 320
-const SCROLL_UP_DISTANCE_PX = 48
-/** Ignore footer peeks right after route changes / at the top of the page. */
-const MIN_SCROLL_TO_REVEAL_PX = 64
+const MIN_SCROLL_TO_REVEAL_PX = 80
+const SCROLL_UP_HIDE_PX = 40
 
 type ScrollPfpProps = {
   zoneRef: RefObject<HTMLElement | null>
-  mobileNameInputRef?: RefObject<HTMLInputElement | null>
 }
 
-function clearPositionStyles(root: HTMLElement) {
-  root.style.bottom = ''
-  root.style.right = ''
-  root.style.left = ''
-  root.style.top = ''
-  root.style.transform = ''
-}
-
-function isZoneInView(zone: HTMLElement, mobile: boolean) {
+function footerInView(zone: HTMLElement, mobile: boolean) {
   const rect = zone.getBoundingClientRect()
   const vh = window.innerHeight
 
   if (mobile) {
-    const margin = vh * 0.12
-    return rect.top < vh - margin && rect.bottom > 0
+    // Show while the top of the footer is meaningfully on screen.
+    return rect.top < vh * 0.85 && rect.top > vh * -0.15
   }
 
-  // Require a real footer entry — not a tiny peek at the bottom of a short page.
   return rect.top < vh * 0.7 && rect.bottom > vh * 0.22
 }
 
-function canRevealPfp(zone: HTMLElement, mobile: boolean) {
+function canShow(zone: HTMLElement, mobile: boolean) {
   if (window.scrollY < MIN_SCROLL_TO_REVEAL_PX) return false
-  return isZoneInView(zone, mobile)
-}
-
-function useMobilePosition(
-  rootRef: RefObject<HTMLDivElement | null>,
-  nameInputRef: RefObject<HTMLInputElement | null> | undefined,
-  zoneRef: RefObject<HTMLElement | null>,
-  active: boolean,
-) {
-  useLayoutEffect(() => {
-    const root = rootRef.current
-    const media = window.matchMedia(MOBILE_MQ)
-    let raf = 0
-
-    const apply = () => {
-      raf = 0
-      if (!media.matches || !active || !root) return
-
-      const input = nameInputRef?.current
-      if (!input) {
-        // Fall back to the footer zone until the name field mounts.
-        const zone = zoneRef.current
-        if (!zone) return
-        const rect = zone.getBoundingClientRect()
-        root.style.bottom = `${Math.max(window.innerHeight - rect.top - 12, 72)}px`
-        root.style.right = 'var(--container-padding)'
-        root.style.left = 'auto'
-        root.style.top = 'auto'
-        root.style.transform = 'none'
-        return
-      }
-
-      const rect = input.getBoundingClientRect()
-      const container = zoneRef.current?.firstElementChild as HTMLElement | null
-      const paddingRight = container
-        ? Number.parseFloat(getComputedStyle(container).paddingRight) || 16
-        : 16
-
-      root.style.bottom = `${Math.max(window.innerHeight - rect.top, 0)}px`
-      root.style.right = `${paddingRight}px`
-      root.style.left = 'auto'
-      root.style.top = 'auto'
-      root.style.transform = 'none'
-    }
-
-    const schedule = () => {
-      if (raf) return
-      raf = window.requestAnimationFrame(apply)
-    }
-
-    if (media.matches && active) {
-      apply()
-    } else if (root) {
-      clearPositionStyles(root)
-    }
-
-    window.addEventListener('resize', schedule)
-    window.addEventListener('scroll', schedule, { passive: true })
-    media.addEventListener('change', schedule)
-
-    const input = nameInputRef?.current
-    const resizeObserver =
-      active && input && typeof ResizeObserver !== 'undefined'
-        ? new ResizeObserver(schedule)
-        : null
-    if (input && resizeObserver) resizeObserver.observe(input)
-
-    return () => {
-      if (raf) window.cancelAnimationFrame(raf)
-      window.removeEventListener('resize', schedule)
-      window.removeEventListener('scroll', schedule)
-      media.removeEventListener('change', schedule)
-      resizeObserver?.disconnect()
-      if (root) clearPositionStyles(root)
-    }
-  }, [rootRef, nameInputRef, zoneRef, active])
+  return footerInView(zone, mobile)
 }
 
 type FigureContentProps = {
@@ -132,7 +43,7 @@ function FigureContent({ revealed, showBubble }: FigureContentProps) {
           <motion.div
             className={styles.bubble}
             initial={{ opacity: 0, scale: 0.75, y: 10 }}
-            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 8 }}
             transition={bubbleSpring}
           >
@@ -147,81 +58,32 @@ function FigureContent({ revealed, showBubble }: FigureContentProps) {
   )
 }
 
-export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
-  const rootRef = useRef<HTMLDivElement>(null)
+export function ScrollPfp({ zoneRef }: ScrollPfpProps) {
   const lastScrollY = useRef(0)
-  const zoneInView = useRef(false)
-  const scrollUpStartedAt = useRef<number | null>(null)
   const scrollUpAccum = useRef(0)
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const revealedRef = useRef(false)
   const isMobile = useIsMobile()
   const [revealed, setRevealed] = useState(false)
   const [showBubble, setShowBubble] = useState(false)
-  const [layoutMode, setLayoutMode] = useState<'mobile' | 'desktop'>(() =>
-    typeof window !== 'undefined' && window.matchMedia(MOBILE_MQ).matches
-      ? 'mobile'
-      : 'desktop',
-  )
 
   const hide = useCallback(() => {
+    if (!revealedRef.current) return
+    revealedRef.current = false
+    scrollUpAccum.current = 0
     setShowBubble(false)
     setRevealed(false)
   }, [])
 
   const reveal = useCallback(() => {
+    scrollUpAccum.current = 0
+    if (revealedRef.current) return
+    revealedRef.current = true
     setRevealed(true)
   }, [])
 
-  const cancelHideSchedule = useCallback(() => {
-    scrollUpStartedAt.current = null
-    scrollUpAccum.current = 0
-    if (hideTimer.current) {
-      clearTimeout(hideTimer.current)
-      hideTimer.current = null
-    }
-  }, [])
-
-  const scheduleHideAfterScrollUp = useCallback(() => {
-    if (hideTimer.current) return
-
-    if (scrollUpStartedAt.current === null) {
-      scrollUpStartedAt.current = performance.now()
-    }
-
-    const elapsed = performance.now() - scrollUpStartedAt.current
-    const remaining = Math.max(0, SCROLL_UP_HIDE_DELAY_MS - elapsed)
-
-    hideTimer.current = setTimeout(() => {
-      hideTimer.current = null
-      scrollUpStartedAt.current = null
-      hide()
-    }, remaining)
-  }, [hide])
-
   const handleSlideComplete = useCallback(() => {
-    if (revealed) setShowBubble(true)
-  }, [revealed])
-
-  useLayoutEffect(() => {
-    const root = rootRef.current
-    const zone = zoneRef.current
-    const nextMode = isMobile ? 'mobile' : 'desktop'
-
-    if (root) clearPositionStyles(root)
-
-    if (zone) {
-      const inView = canRevealPfp(zone, isMobile)
-      zoneInView.current = inView
-
-      if (inView) {
-        reveal()
-      } else {
-        hide()
-      }
-    }
-
-    setLayoutMode((current) => (current === nextMode ? current : nextMode))
-  }, [isMobile, zoneRef, hide, reveal])
+    if (revealedRef.current) setShowBubble(true)
+  }, [])
 
   useEffect(() => {
     const zone = zoneRef.current
@@ -229,30 +91,12 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
     lastScrollY.current = window.scrollY
 
-    const onScroll = () => {
+    const sync = () => {
       const zoneEl = zoneRef.current
       if (!zoneEl) return
 
-      const canShow = canRevealPfp(zoneEl, isMobile)
-
-      if (!canShow) {
-        if (zoneInView.current) {
-          zoneInView.current = false
-          cancelHideSchedule()
-          hide()
-        }
-        lastScrollY.current = window.scrollY
-        return
-      }
-
-      if (!zoneInView.current) {
-        zoneInView.current = true
-        cancelHideSchedule()
-        reveal()
-      }
-
-      // Mobile stays visible while the footer zone is in view.
-      if (isMobile) {
+      if (!canShow(zoneEl, isMobile)) {
+        hide()
         lastScrollY.current = window.scrollY
         return
       }
@@ -262,15 +106,12 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
       if (delta > 1) {
         scrollUpAccum.current += delta
-
-        if (scrollUpAccum.current >= SCROLL_UP_DISTANCE_PX) {
-          cancelHideSchedule()
+        if (scrollUpAccum.current >= SCROLL_UP_HIDE_PX) {
           hide()
-        } else {
-          scheduleHideAfterScrollUp()
         }
-      } else if (delta < -1) {
-        cancelHideSchedule()
+      } else {
+        scrollUpAccum.current = 0
+        reveal()
       }
 
       lastScrollY.current = currentY
@@ -278,77 +119,41 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const inView =
-          entry.isIntersecting && canRevealPfp(zone, isMobile)
-        zoneInView.current = inView
-
-        if (inView) {
-          cancelHideSchedule()
+        if (entry.isIntersecting && canShow(zone, isMobile)) {
           reveal()
           return
         }
-
-        cancelHideSchedule()
         hide()
       },
       isMobile
-        ? { threshold: [0, 0.05, 0.12], rootMargin: '0px 0px 20% 0px' }
+        ? { threshold: [0, 0.08], rootMargin: '0px 0px -8% 0px' }
         : { threshold: [0.12, 0.22], rootMargin: '0px 0px -28% 0px' },
     )
 
     observer.observe(zone)
-    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('scroll', sync, { passive: true })
+    sync()
 
     return () => {
-      cancelHideSchedule()
       observer.disconnect()
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', sync)
     }
-  }, [zoneRef, hide, reveal, cancelHideSchedule, scheduleHideAfterScrollUp, isMobile])
+  }, [zoneRef, hide, reveal, isMobile])
 
-  useMobilePosition(
-    rootRef,
-    mobileNameInputRef,
-    zoneRef,
-    isMobile && revealed,
-  )
-
-  const content = (
+  return (
     <div
-      ref={rootRef}
       className={`${styles.root}${isMobile ? ` ${styles.rootMobile}` : ''}`}
       aria-hidden={!revealed}
     >
-      {layoutMode === 'mobile' ? (
-        <div
-          key="mobile-figure"
-          className={`${styles.figureWrap} ${styles.figureWrapMobile}`}
-          data-revealed={revealed ? '' : undefined}
-          onTransitionEnd={(event) => {
-            if (event.propertyName === 'transform') handleSlideComplete()
-          }}
-        >
-          <FigureContent revealed={revealed} showBubble={showBubble} />
-        </div>
-      ) : (
-        <motion.div
-          key="desktop-figure"
-          className={styles.figureWrap}
-          initial={false}
-          animate={{ y: revealed ? 0 : '100%' }}
-          transition={slideSpring}
-          onAnimationComplete={handleSlideComplete}
-        >
-          <FigureContent revealed={revealed} showBubble={showBubble} />
-        </motion.div>
-      )}
+      <motion.div
+        className={styles.figureWrap}
+        initial={false}
+        animate={{ y: revealed ? 0 : '110%' }}
+        transition={slideSpring}
+        onAnimationComplete={handleSlideComplete}
+      >
+        <FigureContent revealed={revealed} showBubble={showBubble} />
+      </motion.div>
     </div>
   )
-
-  // Portal on mobile so fixed positioning isn't trapped by parent overflow clipping.
-  if (isMobile && typeof document !== 'undefined') {
-    return createPortal(content, document.body)
-  }
-
-  return content
 }

@@ -15,6 +15,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  will-change: transform;
 }
 
 .pfp {
@@ -70,49 +71,29 @@
 
 @media (max-width: 768px) {
   .rootMobile {
-    /* Above footer formCol (z-index: 2) so the PFP isn't covered */
+    left: auto;
+    right: var(--container-padding);
+    transform: none;
     z-index: 6;
-  }
-
-  .rootMobile .figureWrapMobile {
-    flex-direction: column;
-    align-items: flex-end;
-    transform: translate3d(0, 115%, 0);
-    transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
-  }
-
-  .rootMobile .figureWrapMobile[data-revealed] {
-    transform: translate3d(0, 0, 0);
   }
 
   .rootMobile .pfp {
     height: clamp(8.75rem, 32vw, 10.5rem);
-    flex-shrink: 0;
   }
 
   .rootMobile .bubble {
-    position: absolute;
-    bottom: calc(100% + 0.5rem);
     left: auto;
     right: 0;
-    align-self: auto;
-    margin-bottom: 0;
+    bottom: calc(100% + 0.5rem);
     padding: 0.5rem 0.75rem;
     max-width: min(9.5rem, calc(100vw - (var(--container-padding) * 2) - 1rem));
     font-size: var(--text-xs);
-    text-align: center;
     transform: none;
   }
 
   .rootMobile .bubble::after {
-    top: 100%;
     left: auto;
     right: 1.25rem;
-    bottom: auto;
-    border-right: 1px solid rgba(224, 44, 107, 0.4);
-    border-bottom: 1px solid rgba(224, 44, 107, 0.4);
-    border-top: none;
     transform: rotate(45deg) translateY(-5px);
   }
 }
