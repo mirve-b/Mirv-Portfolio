@@ -177,7 +177,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
       data-open={folderPhase === 'open' ? '' : undefined}
       data-closing={folderPhase === 'closing' ? '' : undefined}
       data-mobile={isMobile ? '' : undefined}
-      aria-label="Skills collage — hover folder front to reveal navigation notes"
+      aria-label="Skills collage. Hover folder front to reveal navigation notes"
       onMouseLeave={isMobile ? undefined : closeFolder}
       onBlur={(event) => {
         if (isMobile) return
@@ -396,7 +396,7 @@ export function AboutSection({
               Equal parts pixels, logic, and sketchbooks
             </p>
             <p className={styles.body}>
-              Product Engineer with a background in illustration — I build
+              Product Engineer with a background in illustration. I build
               user-centered digital products through Flutter, UI/UX, and
               scalable frontend architecture, from concept to shipped experience.
             </p>

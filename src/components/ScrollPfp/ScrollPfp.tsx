@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import pfpImg from '../../assets/PFP.webp'
 import { useIsMobile } from '../../lib/useIsMobile'
@@ -56,15 +57,29 @@ function useMobilePosition(
 
     const apply = () => {
       raf = 0
-      if (!media.matches || !active || !nameInputRef?.current || !root) return
+      if (!media.matches || !active || !root) return
 
-      const rect = nameInputRef.current.getBoundingClientRect()
+      const input = nameInputRef?.current
+      if (!input) {
+        // Fall back to the footer zone until the name field mounts.
+        const zone = zoneRef.current
+        if (!zone) return
+        const rect = zone.getBoundingClientRect()
+        root.style.bottom = `${Math.max(window.innerHeight - rect.top - 12, 72)}px`
+        root.style.right = 'var(--container-padding)'
+        root.style.left = 'auto'
+        root.style.top = 'auto'
+        root.style.transform = 'none'
+        return
+      }
+
+      const rect = input.getBoundingClientRect()
       const container = zoneRef.current?.firstElementChild as HTMLElement | null
       const paddingRight = container
         ? Number.parseFloat(getComputedStyle(container).paddingRight) || 16
         : 16
 
-      root.style.bottom = `${window.innerHeight - rect.top}px`
+      root.style.bottom = `${Math.max(window.innerHeight - rect.top, 0)}px`
       root.style.right = `${paddingRight}px`
       root.style.left = 'auto'
       root.style.top = 'auto'
@@ -216,7 +231,11 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
 
     const onScroll = () => {
       const zoneEl = zoneRef.current
-      if (zoneEl && !canRevealPfp(zoneEl, isMobile)) {
+      if (!zoneEl) return
+
+      const canShow = canRevealPfp(zoneEl, isMobile)
+
+      if (!canShow) {
         if (zoneInView.current) {
           zoneInView.current = false
           cancelHideSchedule()
@@ -226,7 +245,14 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
         return
       }
 
-      if (isMobile && zoneInView.current) {
+      if (!zoneInView.current) {
+        zoneInView.current = true
+        cancelHideSchedule()
+        reveal()
+      }
+
+      // Mobile stays visible while the footer zone is in view.
+      if (isMobile) {
         lastScrollY.current = window.scrollY
         return
       }
@@ -266,7 +292,7 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
         hide()
       },
       isMobile
-        ? { threshold: [0.05, 0.12], rootMargin: '0px 0px 12% 0px' }
+        ? { threshold: [0, 0.05, 0.12], rootMargin: '0px 0px 20% 0px' }
         : { threshold: [0.12, 0.22], rootMargin: '0px 0px -28% 0px' },
     )
 
@@ -287,7 +313,7 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
     isMobile && revealed,
   )
 
-  return (
+  const content = (
     <div
       ref={rootRef}
       className={`${styles.root}${isMobile ? ` ${styles.rootMobile}` : ''}`}
@@ -318,4 +344,11 @@ export function ScrollPfp({ zoneRef, mobileNameInputRef }: ScrollPfpProps) {
       )}
     </div>
   )
+
+  // Portal on mobile so fixed positioning isn't trapped by parent overflow clipping.
+  if (isMobile && typeof document !== 'undefined') {
+    return createPortal(content, document.body)
+  }
+
+  return content
 }

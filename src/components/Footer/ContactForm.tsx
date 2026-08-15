@@ -152,7 +152,7 @@ export function ContactForm({ nameInputRef }: ContactFormProps) {
           transition={springBounce}
           role="status"
         >
-          Message sent — I&apos;ll get back to you soon.
+          Message sent. I&apos;ll get back to you soon.
         </motion.p>
       )}
 

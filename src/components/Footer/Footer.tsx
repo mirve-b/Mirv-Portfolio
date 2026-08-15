@@ -96,7 +96,7 @@ export function Footer({
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        © {new Date().getFullYear()} MIRVÉ — All rights reserved
+        © {new Date().getFullYear()} MIRVÉ. All rights reserved
       </motion.p>
     </footer>
   )

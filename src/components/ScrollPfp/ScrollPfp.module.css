@@ -70,7 +70,8 @@
 
 @media (max-width: 768px) {
   .rootMobile {
-    z-index: 1;
+    /* Above footer formCol (z-index: 2) so the PFP isn't covered */
+    z-index: 6;
   }
 
   .rootMobile .figureWrapMobile {
@@ -79,7 +80,6 @@
     transform: translate3d(0, 115%, 0);
     transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
-    contain: layout style;
   }
 
   .rootMobile .figureWrapMobile[data-revealed] {

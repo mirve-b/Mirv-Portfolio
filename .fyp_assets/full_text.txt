@@ -1,0 +1,2140 @@
+
+
+=====PAGE 1=====
+KAEL
+ 
+Desktop Application
+Supervised By
+Sir Syed Umair Asghar
+Head of Department
+Dr. Naeem Aslam
+DEPARTMENT OF COMPUTER SCIENCE
+NFC Institute of Engineering & Technology, Multan
+A project submitted
+in partial fulfillment of the requirements for the degree of
+Bachelor of Science in Computer Science
+Hoorulain Fatima (2k22-BSCS-207)
+Fatima Usman (2k22-BSCS-225)
+Abeeha Fatima (2k22-BSCS-212)
+Khadija Sajid (2k22-BSCS-256)
+
+
+=====PAGE 2=====
+Beginning with Allah, the Merciful and Mighty One. All admiration and praise is directed
+towards Allah Almighty, who is the Most Beneficent and Most Merciful, and the One Who
+Rule The Day of Judgment. Our esteem Prophet Muhammad (PBUH) is our prayer and we
+pray to Allah for His blessings and tranquility.
+This project report is the result of our thankfulness to Allah Almighty, who provided us with
+endless blessings, guidance, and mercy. Sir Syed Umair Asghar, our respected supervisor, has
+been a source of inspiration for us to work on “KAEL” Web Application. We are grateful for his
+unwavering support and valuable advice throughout this project. Sir Naeem Aslam's support,
+encouragement, and helpfulness have been instrumental in enabling us to achieve our goals.
+We would like to acknowledge and appreciate the exceptional faculty members and
+administration of the Computer Science Department at NFC IET for their assistance,
+cooperation, and helpfulness in developing this project. Without their support and guidance,
+this success would not have been possible.
+ii
+ACKNOWLEDGEMENT
+
+
+=====PAGE 3=====
+ABSTRACT
+ 
+iii
+KAEL is an innovative online library and portfoliocreator that strives to improve student
+productivity and career readiness. At present, university students create a diverse range of
+academic and creative work using specialized resources. It is a waste of time to gather and
+organize everything when applying for jobs or studying abroad, which can take weeks. KAEL
+is composed of Flutter, Darts, and Firebase. Every day, individuals utilize a central
+workspace to record information, upload their projects and organize it automatically. The
+primary objective is to convert the daily tasks of students into aesthetically pleasing
+professional portfolios or CV links that can be shared immediately. Additionally, this
+website promotes student work through online platforms like Glassdoor for academic
+purposes. By focusing on their work, students can quickly see the benefits of doing so in
+their careers. The platform was created by two Computer Science students and has an
+elaborate future plan.
+
+
+=====PAGE 4=====
+iv
+
+
+=====PAGE 5=====
+TABLE OF CONTENTS
+ACKNOWLEDGEMENT . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ii
+ABSTRACT . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . iii
+TABLE OF CONTENTS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . v
+LIST OF FIGURES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . viii
+LIST OF TABLES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . x
+CHAPTER 1: INTRODUCTION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+1.1 INTRODUCTION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+1
+1.2 Domain . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+Subdomain . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+1.3 Problem Statement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+1.4 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+1.5 Definition of Terms . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+1.6 Workflow . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+1.7 Goal of Project . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+CHAPTER 2: EXISTING SYSTEM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+2.1 Relative Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5
+2.2 Existing Websites and their features . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+2.3 Novelty . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.4 Solution Available in KAEL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.5 System Requirement Specification . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.5.1 User Interfaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+6
+2.5.2 Hardware Interfaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.5.3 Software Interfaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.6 Functional Requirements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.6.1 Use Case Diagram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2.6.2 Requirement Shells . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.7 Non Functional Requirements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+2.7.1 Shell Requiremnets . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+CHAPTER 3: SOFTWARE PROCESS MODEL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+19
+3.1 Software Process Model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+3.2 Proposed Model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+3.2.1 Why Agile Scrum was chosen . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+v
+
+
+=====PAGE 6=====
+3.3 Implementation of Agile Scrum . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+CHAPTER 4: PROPOSED SYSTEM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+4.1 Need for the proposed system . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+4.2 Features of Proposed System . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+4.2.1 User Data Collection . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+23
+4.2.2 AI Processing Pipeline . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+4.2.3 Automated generation of case studies . . . . . . . . . . . . . . . . . . . . . . . . . 24
+4.2.4 Portfolio Builder . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+4.2.5 ATS-Friendly CV Builder . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+4.3 Business Context . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+4.3.1 Advantages in Business . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+4.3.2 Stakeholder's Profiles . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26
+4.3.3 Project Priorities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+27
+4.4 Operating Environment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+Client-Side Requirements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+Server-Side / Backend Requirements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+Security and Compliance Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+CHAPTER 5: SYSTEM DESIGN . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+5.1 Brief Description . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+5.2 UI/UX Design . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+1. Landing Page . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30
+2. Sign Up . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+3. Onboarding & Visual Identity Curation . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+4. Profile Creation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+5. Case Study Generator . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+6. CV Generator . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+7. Portfolio Generator . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+5.3 ER Diagram for KAEL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+5.4 DFD Diagram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+Level 0 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+40
+Level 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+41
+Level 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+42
+vi
+
+
+=====PAGE 7=====
+5.5 Activity Diagram KAEL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+5.6 Class Diagram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+5.7 Software Architectural Design . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+5.8 Sequence Diagram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 48
+CHAPTER 6: DEVELOPMENT . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+6.1 Selection of Tools & Technology . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+6.1.1 Hardware . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+6.1.2 Software . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+49
+CHAPTER 7: SOFTWARE TESTING . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+7.1 Software Testing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+7.2 Testing Process . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+7.3 Black Box Testing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+7.4 Test Cases . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 53
+CHAPTER 8: IMPLEMENTATION AND TRAINING . . . . . . . . . . . . . . . . . . . . . . . . . . . 56
+8.1 Implementation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56
+8.2 Project Overview (Key Features only) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57
+Expected Outcome . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57
+8.3 Training . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 58
+Required Skillset . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 58
+User Training Protocol . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 58
+CONCLUSION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 60
+REFERENCES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 61
+FINAL YEAR PROJECT UNDERTAKING FORM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 62
+vii
+
+
+=====PAGE 8=====
+LIST OF FIGURES
+Figure 1.1 KAEL Gantt Chart......................................................................................4
+Figure 2.1 Use case diagram - Student.........................................................................9
+Figure 2.2 Use case diagram - Recruiter......................................................................9
+Figure 2.3 Use case diagram - Academic Authority..................................................10
+Figure 3.1 Agile scrum cycle adopted for KAEL development process....................20
+Figure 5.1 KAEL landing page..................................................................................30
+Figure 5.2 Sign-Up Screen.........................................................................................31
+Figure 5.3 Creative-Academic Identity Setup............................................................31
+Figure 5.4 Profile Photo Upload.................................................................................32
+Figure 5.5 Educational Background Form.................................................................32
+Figure 5.6 Skills & Interests Selection.......................................................................33
+Figure 5.7 Project Catalogue Workspace...................................................................33
+Figure 5.8 Profile Editor (Dark Theme).....................................................................34
+Figure 5.9 Profile Editor (Light Theme)....................................................................34
+Figure 5.10 Project Data Upload................................................................................35
+Figure 5.11 AI Case Study Processing.......................................................................35
+Figure 5.12 Generated Case Study View...................................................................36
+Figure 5.13 Skills section for CV...............................................................................36
+Figure 5.14 Job Match Analysis.................................................................................37
+Figure 5.15 Final ATS CV Preview...........................................................................37
+Figure 5.16 Generated Portfolio View.......................................................................38
+Figure 5.17 Banner Image Selection..........................................................................38
+Figure 5.18 Portfolio Colour Customization..............................................................39
+Figure 5.19 Customized Portfolio..............................................................................39
+Figure 5.20 Entity-Relationship Diagram of KAEL..................................................40
+Figure 5.21 DFD Level 0 - KAEL System Context...................................................40
+viii
+
+
+=====PAGE 9=====
+ix
+Figure 5.22 DFD Level 1 - Onboarding, Case Study, Portfolio & Job Match
+Processes......................................................................................................................41
+Figure 5.23 DFD Level 2 - Decomposition of Case Study Creation Process............42
+Figure 5.24 Authentication & Onboarding (Activity Diagram).................................43
+Figure 5.25 Case Study Creation (Activity Diagram)................................................44
+Figure 5.26 Portfolio Generation & Publishing.........................................................45
+Figure 5.27 Job Match & Tailored CV Generation....................................................46
+Figure 5.28 Class Diagram of KAEL.........................................................................47
+Figure 5.29 Software Architectural Design................................................................47
+Figure 5.30 Sequence Diagram of KAEL..................................................................48
+
+
+=====PAGE 10=====
+LIST OF TABLES
+Table 1.1 Explanation of terms used in documentation...............................................3
+Table 2.1 Comparison with existing related web applications.....................................5
+Table 2.2 Software interfaces used...............................................................................7
+Table 4.1 Stakeholder's profiles..................................................................................26
+Table 4.2 Project Priorities of KAEL.........................................................................27
+Table 7.1 Test cases for KAEL...................................................................................53
+x
+
+
+=====PAGE 11=====
+CHAPTER 1: INTRODUCTION
+The domain is an intelligent, high availability web and mobile web system that processes,
+analyzes and handles academic file hosting, deep knowledge parsing and dynamically
+renders the layout of career assets.
+The end-users may be engineering students, researchers or academic professionals of national
+and international origin but the main target area will be across Pakistan. The user operates the
+software to safely keep academic project documentation, research notes, source code
+repositories and media assets. The user can choose to upload information to the advanced
+language model pipelines in the cloud, or can carefully 
+The field of software engineering has seen rapid developments, and other areas like cloud
+computing have revolutionized the way technical accomplishments, universal discoveries and
+research findings are shared and sold to the global industry. The current learning and working
+environment is saturated with a tremendous amount of unstructured, technical information—
+whether it's complex source code repositories or local project files. However, achieving these
+unprocessed assets into professional and persuasive stories is a big challenge. Most technical
+personnel can perform analytical work well, but are challenged with designing their portfolio
+in a visual format, establishing their strategy, branding it and copy editing. So critical
+engineering proofs are frequently hidden in local directories, not to be available in the
+clamorous recruitment channels.
+KAEL, with its new features of Natural Language Processing (NLP) and seamless 
+cross-platform mobile web environments, is changing the way people create portfolios 
+by combining traditional thinking. Users are not asked to make a long list of case studies 
+for a project, build a layout matrix or create a hierarchy of index keywords from ground 
+up, instead, the system sets up an automated pipeline to work. Here, the person who 
+occupies the property gives just the basic analytical facts, and the system intelligence 
+builds the organized professional story.
+1
+1.2 Domain
+1.1 INTRODUCTION
+
+
+=====PAGE 12=====
+curate the information manually to generate real-time professional presences that are
+appropriate for recruiters.
+Subdomain
+Multimodal File Ingestion & Dedicated Storage Clusters ("The Cells")
+AI Content Extraction & Predictive Skill Mapping can be automated.
+The composition of the generated interface and the intelligent layout of the portfolio.
+Compliance-Driven ATS CV Compiling & Verification Engine
+Conventional way of making professional engineering and academic portfolios is very time
+consuming. The "evidence" of technical competence is vast: raw source code repositories,
+research drafts and dense PDFs; software architecture charts to project recordings, students,
+software developers, academic researchers have a huge “evidence” of technical competence.
+What stands in the way is the creation of these raw, simple materials into a cohesive story and a
+refined skill for presentation. But, most professionals lack the necessary UI/UX design skills and
+copywriting skills to properly present their engineering accomplishments and makes them sit in
+isolated local hard drives. Moreover, contemporary job application networks are highly
+dependent on ATS software that discard resumes which are not optimized, therefore ensuring
+that only the best will have the ability to get into industrial hiring pipelines.
+The system aims to make this process automatic, leveraging multimodal large language 
+models and integrated cross-platform development tools, ensuring that a lack of 
+presentation layout skills won't cause technical capabilities, academic projects, and 
+software milestones to slip through the cracks.
+KAEL is designed to completely revolutionize the way portfolios are created. Unlike other
+techniques, KAEL offers an indexing of strategic keywords, manual composition, and user-
+driven layout alignment. The intelligent intermediary layer gives analytical evidence to the user,
+and the systemic intelligence gives a professional narrative.
+2
+1.4 Motivation
+1.3 Problem Statement
+
+
+=====PAGE 13=====
+ 
+Some of the terms used throughout the documentation and project are listed below.
+3
+Table 1.1 Explanation of terms used in documentation.
+Sr No
+Terms
+Meaning
+The building block of data storage and 
+processing; a secure, modular digital storage that
+can hold raw PDFs and files.
+A comprehensive and advanced multimodal large 
+language model pipeline developed by Google 
+that provides automated file extraction and 
+semantic processing.
+The cloud infrastructure layer utilizing Firebase 
+Authentication, Cloud Firestore (database 
+management), and Cloud Storage to securely 
+ingest documents and host student assets.
+An exceptionally well structured CV format, 
+specifically tailored for passing the ATS Profile 
+Applicant Tracking System profile.
+1
+Cell
+2
+Gemini API
+Firebase Core
+Services
+3
+4
+ATS Profile
+(Columnheadersindicate project weeks W1–W18.)
+Task
+Requirement Analysis
+UI/UX Design
+Core System Development
+Documentation (Draft)
+Portfolio Module
+Development
+AI Profile Features
+ATS CV Generation & PDF
+Export
+AI Job Match & Tailored CV
+Portfolio Publishing (Flutter
+Web)
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+1.6 Workflow
+1.5 Definition of Terms
+
+
+=====PAGE 14=====
+4
+Figure 1.1 KAEL Gantt Chart
+Our project has the following aims:
+Optimize the front end pipeline to be extremely flexible to safely archive a variety of
+files into a permanent academic archive through automated ingestion and archive.
+With sophisticated multimodal LLM configurations, Intelligent Content Extraction
+can automatically dissect projects, automatically generate structural stories, link
+key technical competencies, and perform metadata tagging.
+Create interactive digital portfolios in real-time via a real time web and mobile
+presentation with Dynamic Portfolio Synthesis, which is powered by the cloud. It is
+possible to program a parsing matrix that transforms the form records and
+extracted metrics into optimized digital CVs, optimized in an algorithmic CV
+optimization technique, which can be compatible with ATS.
+Task
+Firebase Integration
+Agile Testing & Debugging
+User Acceptance Testing
+Documentation (Final)
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+1.7 Goal of Project
+
+
+=====PAGE 15=====
+CHAPTER 2: EXISTING SYSTEM
+2.1 Relative Work
+On closer inspection, today's software solutions are seen as two separate, standalone
+paradigms: digital storage libraries and automatic portfolio/web-building platforms. Cloud file
+storage is a reality; services such as Google Drive, Dropbox, and even dedicated institutional E-
+repositories are highly secure and reliable, but are passive file hosting servers with no
+capability to read or understand files and gain contextual business value from them. By
+comparison, simple resumes like text files can be built with modern resume and portfolio tools
+such as Kickresume and Rezi, but the project file can't be a mixture of different files, which
+these tools cannot handle to dynamically create an interactive project portfolio gallery.
+Obviously, there are no intelligent cross- over systems that can automatically generate the web
+presentation frameworks from raw files.
+5
+Table 2.1 Comparison with existing related web applications.
+Existing 
+Features Included
+Website Link
+Applications
+https://
+workspace.google.com/
+products/drive/
+Secure file storage, multi format
+storage, basic access control links.
+Basic fields for a summary, structured
+career history forms, professional
+networking.
+Create detailed text summaries, bullet 
+points, and “About Me” sections 
+automatically, specific to the tech 
+industry.
+Behance is a creative portfolio site 
+where creatives upload their design 
+projects manually.
+Google Drive
+LinkedIn
+Profiles
+https://pk.linkedin.com/
+https://
+www.kickresume.com/
+en/
+Kickresume 
+Behance
+https://www.behance.net/
+2.2 Existing Websites and their features
+
+
+=====PAGE 16=====
+2.3 Novelty
+KAEL guarantees complete convergence of automated extraction and graphic presentation, which
+leads to a strict novelty. It brings a self contained Intelligence Pipeline, eliminating the design and
+layout barrier. Instead of the engineer having to manipulate raw files as bits and bytes, KAEL
+works with multimodal model ingestion to take in context, analyse analytical results, perform
+structural skill mapping, and map text into beautifully deployed UI templates.
+2.4 Solution Available in KAEL
+These architectural issues are resolved by the KAEL platform through deployment of an
+integrated multi module workflow. The system can automatically extract the hidden business
+value in the project materials uploaded by the user, analyze and generate detailed analytical
+descriptions, generate a customized theme aesthetics based on the text-to-image foundation
+model, and synthesize a digital resume that passes the real- time automatic recruiter filtering
+pipeline.
+2.5 System Requirement Specification
+SRS or System Requirement Specification document is a document that describes the system
+that is being developed. It consists of functional requirements, use cases to display the major
+elements of the system and also non functional requirements.
+2.5.1 User Interfaces
+6
+Recruiter Portal
+Student Portal
+Academic Authority
+2.5.2 Hardware Interfaces
+Desktop or Laptop Computer (Primary Interface)Intel x64 processor or Apple Silicon (M-
+series)
+Minimum 8 GB RAM (16 GB recommended)
+Keyboard and mouse/trackpad
+Display with a minimum resolution of 1280 × 720 (1920 × 1080 recommended)
+Internet ConnectionRequired for AI-powered features (Gemini API), Firebase Authentication,
+Firestore database synchronization, cloud storage, and portfolio publishing.
+Storage DeviceSSD or HDD for application installation, local caching, temporary files, and
+exported portfolio/CV documents.
+Input DevicesKeyboard for text input and shortcuts.
+
+
+=====PAGE 17=====
+Software
+Operating System
+Database engine
+Languages
+Frameworks
+macOS
+Cloud Firestore
+Dart
+Flutter SDK
+7
+2.5.3 Software Interfaces
+Table 2.2 Software interfaces used.
+Description
+Profile Management: Gives an interactive canvas for users to organize their personal
+information, education, skills and professional objectives. This is the basic metadata which is
+used as the main context in AI generation and layout engines downstream.
+Project Upload: Consumes diverse engineering files such as heavy PDF 
+documents, documentation reports, source code files, screenshots and 
+demonstration videos. These unstructured assets are fed directly into separate 
+non-corruptible Firebase Storage buckets.
+AI Project Analysis: Extracts information in a multimodal way from uploaded documents to
+capture underlying project targets, tools and technical competencies. It removes the need for
+manual tracking, and automatically extracts accurate performance data directly from raw files.
+Automatic Case Study Generation: Applies rich contextual cues to transform 'clumps' of
+academic project information into well-formulated domain-specific case studies tailored to the
+conventions of that specific academic or industry field. It is designed to create clean content
+blocks, from problem statements, methodologies and results, to personal reflections.
+AI Portfolio Generation: Cleanly groups student assets by technical domains and
+automatically designs and structures accessible web portfolio dashboards. It's automatically
+synchronized with refreshing of the visual components the moment a candidate confirms
+changes over a case study.
+2.6 Functional Requirements
+Mouse or trackpad for navigation, editing, and interaction with the user interface.
+Graphics HardwareIntegrated or dedicated graphics capable of rendering Flutter desktop
+applications with smooth animations and responsive UI.
+
+
+=====PAGE 18=====
+8
+ATS CV Generator: Exports extracted skills and project histories to cleanly structured CVs
+with one column, dynamically. Removes parsing errors, optimizing the final document
+format to get the biggest candidate match percentages in corporate tracking systems.
+Academic Document Upload: Serves as a private cloud vault for the safe storage of
+everyday lecture notes, assignments, research papers, and certificates. It remains
+clean between the "working" sorts of studies, and assets that are high profile and public
+facing.
+Soft Skill Analysis: Compares non-technical performance attributes, such as rate of
+change in assets, document structure decisions, and quality of the writing over time. It
+takes these administrative tracking variables and makes them measurable variables for
+talent acquisition teams.
+Academic Performance Matrix: Gathers and presents department grades, skill points,
+project feedback milestones in a neat visual dashboard for analytics. It plots the growth
+trends of learning that are deep, thereby helping students identify weak areas in their
+learning and recruiters identify specific expertise areas.
+Portfolio & CV Export: Creates unauthenticated public sharing web subdomains, and
+enables quick local downloads of printable PDF resumes. It provides the flexibility to easily
+share verified portfolios around the world in any hiring loop or network.
+AI Job Match Analyzer: Compares a candidate's current engineering description to job
+posting requirements through a real-time semantic comparison of keywords. Generates clear
+compatibility matching percentage and surfaces exact technical skill gap suggestions.
+
+
+=====PAGE 19=====
+2.6.1 Use Case Diagram
+9
+Figure 2.1 Use case diagram - Student
+Figure 2.2 Use case diagram - Recruiter
+
+
+=====PAGE 20=====
+10
+Figure 2.3 Use case diagram - Academic Authority
+2.6.2 Requirement Shells
+Requirement #1 (Type: Functional)
+Event/Use Case
+Description
+1
+Handles manual text entry for personal and educational 
+metrics, as well as goals.
+Gathers foundational personal identity data for inclusion in 
+portfolios and for AI contextualization.
+Academic Placement Cell & Student Users.
+The user's profile text changes should be reflected
+immediately in Firestore after saving any text change.
+High
+5
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+Cloud Firestore Data Collections
+none
+Created 20/06/26
+
+
+=====PAGE 21=====
+Requirement #3 (Type: Functional)
+Event/Use Case
+Description
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+3
+Parses files using LLMs for objectives, tools and skills.
+Automates data entry from accurate skill markers directly 
+from raw technical documents.
+Core AI Development Team.
+Data tags extracted from files needed to be returned from
+the Gemini API within 6 seconds of file submission.
+High
+5
+1
+Gemini Prompt Engineering Blueprints
+none
+11
+Requirement #2 (Type: Functional)
+Event/Use Case
+Description
+2
+Uploads technical files of various formats directly into 
+cloud data cells.
+To gather unorganized technical evidence files in the 
+cloud, and then use AI tools to process them.
+Engineering Researchers & Student Users.
+Local files selected must be uploaded to Firebase Storage
+without any byte corruption.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+1
+Firebase Cloud Storage Rules
+none
+Created 20/06/26
+
+
+=====PAGE 22=====
+History
+Event/Use Case
+Description
+Rationale
+Originator
+Fit Criterion
+Priority
+Customer
+Satisfaction
+Requirement #3 (Type: Functional)
+Created 20/06/26
+Requirement #5 (Type: Functional)
+5
+Dynamically organises projects on a structured public web 
+portfolio.
+Provides a current public landing space, while not 
+requiring candidates to write layout or styling code.
+UI/UX Design Stakeholders.
+Live portfolio web layouts should update within 2 seconds
+of confirmation.
+High
+5
+12
+Requirement #4 (Type: Functional)
+Event/Use Case
+Description
+4
+Transforms project data to engineering narrative blocks.
+Saves professional copywriting time and converts 
+academic research into industry standard development case 
+studies.
+Industry Placement Experts & Research teams.
+Creates text that is neatly distributed across each of the 
+seven engineering checkpoints into the user editing canvas.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+5
+Google Gemini API Token Schemas
+none
+Created 20/06/26
+
+
+=====PAGE 23=====
+Event/Use Case
+Description
+Rationale
+Originator
+13
+Requirement #5 (Type: Functional)
+Customer
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+Dynamic Web Template Library
+none
+Created 20/06/26
+Requirement #7 (Type: Functional)
+7
+Save everyday study notes and assignments.
+Provides a work space for private clouds to sequester 
+educational study content from open portfolio pages.
+Academic Students and Lab Managers.
+Requirement #6 (Type: Functional)
+Event/Use Case
+Description
+6
+Gathers the information about the candidates and formats it 
+into a single column in ATS format.
+Optimizes scores inside automated corporate applicant 
+tracking screeners for matching keywords.
+Academic Placement Officers & Corporate Recruiters.
+Output should be structured around Markdown/JSON
+templates that are accessible as normal digital documents.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+Global ATS Parser Compliance Specs
+none
+Created 20/06/26
+
+
+=====PAGE 24=====
+14
+Requirement #7 (Type: Functional)
+The uploaded resources must be saved without any issues
+in the designated metadata folder paths inside the
+database tier.
+High
+5
+Fit Criterion
+Priority
+Customer 
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+3
+Firestore File Hierarchies
+none
+Created 20/06/26
+Requirement #8 (Type: Functional)
+Event/Use Case
+Description
+8
+Documentation of the quality of text and file timelines for 
+behavioral indicators.
+Describes non-technical assets such as consistency, 
+communication style, etc. for target filters in talent 
+acquisition.
+Talent Acquisition Specialists & Psychometric Analysts.
+System should be able to consistently produce a behavioral 
+score vector from asset timestamps.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+3
+Behavioral Mapping Logic Schemas
+none
+Created 20/06/26
+
+
+=====PAGE 25=====
+Requirement #9 (Type: Functional)
+Event/Use Case
+Description
+9
+Plots subject grades, trend and skill progress graphs.
+Provides rapid visual analytics to support students' efforts 
+to remediate deficiencies and to alert recruiters of the key 
+skills.
+Departmental Heads/Academic Advisors.
+Add aggregates class grades and project tags to a 
+responsive dashboard metrics object.
+High
+5
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+Data Visualization Dashboard APIs
+none
+Created 20/06/26
+Requirement #10 (Type: Functional)
+Event/Use Case
+Description
+10
+Sends printable PDF CVs and enables public web-share 
+links.
+This will enable users to use verified technical 
+accomplishments in external job application channels with 
+ease.
+Recruitment Channels & Students.
+Public URLs will direct all outside users to landing pages 
+that do not ask for login parameters.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+3
+Firebase Web Hosting Rules & PDF Engines
+15
+
+
+=====PAGE 26=====
+Conflict
+History
+Requirement #10 (Type: Functional)
+none
+Created 20/06/26
+●
+●
+●
+●
+Security & Data Protection
+Performance & Responsiveness
+Scalability & Availability
+Usability & Accessibility
+2.7.1 Shell Requiremnets
+Requirement #1 (Type: Non-Functional)
+Description
+Security and data protection.
+16
+Requirement #11 (Type: Functional)
+Event/Use Case
+Description
+11
+Describes syntactic and semantic matching to job postings.
+Allows candidates to target their CVs for specific job 
+opportunities by identifying their critical skills gaps at a 
+moments notice.
+Career Guidance Consultants & Student Users.
+The output should include a corresponding percentage 
+calculation.
+High
+5
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+Semantic Keyword Matching Logic APIs
+none
+Created 20/06/26
+2.7 Non Functional Requirements
+
+
+=====PAGE 27=====
+17
+Requirement #1 (Type: Non-Functional)
+Protects intellectual project data, and does not allow any
+unauthorized exposure of the data.
+System Architect
+All user data endpoints need to be rejecting incoming
+REST requests without having a token.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+none
+none
+Created 20/06/26
+Requirement #2 (Type: Non-Functional)
+Description
+Performance and responsiveness.
+Avoids application drop-off while performing data heavy 
+AI tasks, which ensures interactive user states are 
+maintained.
+Front-End UI/UX Engineering Team
+UI loading shimmers need to be completed within 500ms 
+of being invoked.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+none
+none
+Created 20/06/26
+
+
+=====PAGE 28=====
+18
+Requirement #4 (Type: Non-Functional)
+Description
+Usability and accessibility.
+Reduces the hurdles of getting to the point of 
+demonstrating portfolios quickly without needing to learn 
+a ton of technical stuff.
+Core Product Designer
+Within 4 different layout clicks, new users should be able 
+to start building a case study.
+High
+4
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+4
+none
+none
+Created 20/06/26
+Requirement #3 (Type: Non-Functional)
+Description
+Rationale
+Originator
+Fit Criterion
+Priority 
+Customer
+Satisfaction
+Customer 
+Dissatisfaction
+Supporting Material
+Conflict 
+History
+Scalability and availability.
+To increase the dependability of the system when multiple 
+academic cohorts upload data simultaneously.
+Project Manager
+Platform backend infrastructure needs to have an
+operational runtime uptime of 99.5% continuously.
+High
+4
+4
+none
+none
+Created 20/06/26
+
+
+=====PAGE 29=====
+CHAPTER 3: SOFTWARE PROCESS MODEL
+3.1 Software Process Model
+A software process model is a structured framework that outlines the activities,
+milestones, and deliverables in developing, designing, building, testing, and deploying 
+a software system. It thus provides a development team with a disciplined approach to
+managing scope, time, quality, and risks to ensure that the developed product will satisfy
+its intended users. The process model is usually selected early because it lays down how
+requirements will be gathered, how work will be done, how progress will be assessed,
+and how feedback will be handled on the developed product.
+In contrast, traditional process models like the Waterfall embody a linear, sequential approach:
+each phase - requirements, design, implementation, testing, deployment, and maintenance -
+wholly precedes the other. This approach best fits processes where requirements are clear
+from the start and fixed, technology is well-understood and known, and immediate response to
+iterative feedback from one developer is very fast. Since the KAEL project applies AI pipeline
+development iteratively, in which features are added continuously and, at times, may even
+need to be removed, coupled with the fact that this is a single-developer team, an iterative and
+incremental process model fits better than the pure sequential model.
+19
+
+
+=====PAGE 30=====
+3.2 Proposed Model
+Figure 3.1 Agile scrum cycle adopted for KAEL development process
+3.2.1 Why Agile Scrum was chosen
+Agile Scrum is chosen because of the following reasons:
+Uncertain and changing requirements: KAEL relies on behaviour that evolves and changes - such as
+extracting skills, generating case studies, formatting CVs - and only the actual confidence in the output
+quality can be judged by building, testing and refining prototypes, not by designing it upfront. Doing so by
+delivering value incrementally in sprints enabled a snapshot of a working system (e.g., upload data,
+process data using AI, generate case studies, export the CV), to be created at the end of each sprint,
+before the complete system would be developed.
+Flexibility for one developer: Scrum's light ceremonies — sprint planning, daily self review, sprint review,
+retrospective — can be reduced to one person and still maintain the discipline of prioritised backlog and
+time-boxed delivery.
+Risk reduction: AI components (data extraction, summarisation, ATS compliant formatting) had the
+highest technical uncertainty; this meant that tackling these in early sprints meant that integration
+risks were raised but there was still time left in the project lifecycle to adapt the design.
+20
+
+
+=====PAGE 31=====
+The final year project fits in the scope of Phase 1 of the KAEL roadmap — the AI Portfolio and
+CV Generator — while Phases 2 to 4 (Academic Workspace, Ecosystem Integration and
+Personal AI Career Assistant) will be treated as backlog for future work outside of this
+project scope. The initial Product Backlog was broken down into four coherent and
+demonstrable slices for four sprints in the Phase 1 Product Backlog.
+Sprint 1 (Dedicated to laying the groundwork of the system): It included defining user
+stories for the target users (students and fresh graduates), designing the onboarding flow
+and the profile creation process, and building the module to upload the raw academic
+artefacts (notes, assignments, certificates, PDFs, images, screenshots). A working
+pipeline to upload and store was completed, and initial profile fields were completed, for
+use later when generating a CV (personal information, education, and skills).
+Sprint 2 (Focused on implementing the AI Processing Pipeline): The second sprint
+focused on the core AI ability of KAEL: useful information extraction from uploaded
+academic data, skills and tool identification, achievement detection and structured
+summarising. This sprint resulted in a working pipeline for extracting and analysing data
+from the unstructured input, which would then be fed to other sprints as structured
+intermediate data, such as skills lists, project descriptions and achievement notes.
+Sprint 3 (Focused on developing an automated case study generator and portfolio
+builder): In the third sprint the structured data created in Sprint 2 was used to create
+automated case study generation, i.e. each project is transformed into a problem
+statement, a solution, a methodology, results, skills used, tools used, and a reflection; and
+the portfolio builder, which arranges the case studies into project, academic and
+professional portfolio views. A user would be able to upload project material in raw 
+21
+Continuous stakeholder feedback: Frequent working increments allowed the system to be
+validated throughout development with real stakeholder needs (students, graduates and
+prospective employers) rather than just at the final submission.
+It was these attributes that made Agile Scrum a better process model than Waterfall or a purely
+predictive model for a project that was weathering the exploratory, AI-driven landscape of KAEL.
+3.3 Implementation of Agile Scrum
+
+
+=====PAGE 32=====
+22
+format and receive a well formed and presentable case study with no manual writing at the end of
+this sprint.
+Sprint 4 (ATS-Friendly CV builder, testing and refinement): The final sprint brought
+the ATS friendly CV builder that gathers personal data, organises skills, lists
+achievements, and generates a recruiter friendly downloadable PDF CV. This sprint
+also involved integration testing, across the whole pipeline (upload, AI processing,
+case study, portfolio, CV export), usability testing with sample users and refinement
+based on the feedback collected in the Sprint Review.In each of the four sprints, the
+Sprint Retrospective was used to review priorities in the backlog (for example, re-
+prioritizing a “nice-to-have” feature to the Phase 2+ roadmap when it was determined
+that it represented a risk of development without being critical to the Minimum Viable
+Product (MVP)). This re-prioritisation process repeated itself, and the project
+continued to stay within the academic timeline without sacrificing a coherent and a
+working system.
+
+
+=====PAGE 33=====
+CHAPTER 4: PROPOSED SYSTEM
+4.2 Features of Proposed System
+The proposed system is structured into five main feature groups that represent the five stages in
+the pipeline that transform raw academic data into professional output.
+4.2.1 User Data Collection
+KAEL enables the user to upload the content of his academic life in its current form, 
+whether it is in the form of notes, pdfs, screen shots, or images, without reformatting or 
+rewriting anything.
+4.1 Need for the proposed system
+After years of study, projects and accomplishments, many students and new graduates find it
+hard to present their academic careers professionally. This is due to some common issues:
+23
+Students who have not had much experience in creating professional documents are daunted
+by CV creation.
+Developing a portfolio is a time-consuming, design- and technically skilled 
+task, which is not something students can manage alongside their studies.
+No one knows where all the academic work is located — it's on notebooks, 
+PDFs and devices.
+Students miss on internship and freelance opportunities due to lack of a ready portfolio.
+New graduates waste weeks or months after leaving university to catch up with their past
+work.
+Current portfolio systems are clunky and seldom are updated.
+This means that qualified students are denied internships, scholarships and employment
+opportunities, not because they are not qualified, but because they are not properly documented
+nor in a timely fashion. That's where KAEL comes in, filling our CV and portfolio with academic
+information in a professional and career ready format without having to do anything ourselves.
+
+
+=====PAGE 34=====
+24
+In addition to being a system for storing and organizing academic information, KAEL is viewed as
+a product that bridges the gap between institution and career readiness, as described in its own
+pitch as a “system that transforms a student's academic journey into 
+a continuously evolving professional portfolio.” This section examines KAEL in a business context:
+its benefits to stakeholders, the stakeholder profiles and the priorities that limit the current
+release.
+4.2.2 AI Processing Pipeline
+The uploaded content goes through an AI processing pipeline, which extracts valuable
+information, recognizes demonstrated skills, comprehends the results of a project, identifies
+significant achievements, and generates structured summaries that are consumed by
+downstream modules.
+4.2.3 Automated generation of case studies
+Instead, the user is asked to input data about their project into the KAEL and the flow is guided to
+create a case study based on that data in a format similar to what employers and evaluators
+would expect to see: problem statement, solution, methodology, results, skills used, tools used,
+and reflection section.
+4.2.4 Portfolio Builder
+The generated cases are immediately stored in project portfolios, academic portfolios, and
+professional showcases, allowing the user to have several automatically created presentations
+of the same set of cases for the different audiences (e.g., an internship employer, a scholarship
+committee).
+4.2.5 ATS-Friendly CV Builder
+KAEL captures personal data and organizes skills, lists achievements and tailors
+professional experience into a downloadable, ATS-compliant, recruiter-friendly PDF CV by
+following a guided onboarding and profile process, which is the last professional product
+created by the Phase 1 pipeline.
+4.3 Business Context
+
+
+=====PAGE 35=====
+25
+4.3.1 Advantages in Business
+Reduced Friction for the Primary Audience: Improved friction for the main audience
+(students and fresh graduates), making it easier for a larger number of people to apply to
+internships, scholarships, and jobs, making the platform more useful and stickier on a daily
+basis.
+Continuous, Automated Portfolio Maintenance: What sets KAEL apart from the
+existing static, manually-maintained portfolio builders in the market is its automatic,
+continuous maintenance of portfolios.
+Roadmap-Driven Upsell Opportunities: A logical extension and upsell opportunity is available
+through the multi-phase roadmap: Phase 1 CV/portfolio generator can be offered as a low cost
+entry point, Phase 2 (Academic Workspace), Phase 3 (Ecosystem Integration with GitHub,
+LinkedIn, Fiverr, Upwork, Behance, Dribbble) and Phase 4 (Personal AI Career Assistant) all
+provide premium upsell opportunities and institutional licensing opportunities.
+Institutional Partnerships with Universities: A second business channel is the
+universities and training institutes, where the institutions have an interest in
+showcasing their high graduate employment rates and are potentially able to
+implement KAEL at a cohort level.
+Value for Recruiters and Employers: Applicants and recruiters/employers are indirectly
+assisted by having structured, ATS compatible, verifiable case studies instead of CVs that
+can be used as a future partnership or referral.
+Within the current release, further constraints on the pursuit of these advantages are set by Table
+4.2 (Project Priorities), prioritising a working core pipeline over breadth of features.
+
+
+=====PAGE 36=====
+4.3.2 Stakeholder's Profiles
+Table 4.1 Stakeholder's profiles.
+StakeholderStake
+S
+Major Value
+Attitudes
+Major Interests
+Constraints
+Student (Primary
+User)
+Automated
+portfolio and CV
+creation without
+manual writing
+or design effort.
+Views the
+system as a way
+to reduce the
+stress and
+intimidation of
+CV/portfolio
+creation.
+Accurate AI-
+generated case
+studies, skill
+tracking, ease of
+use.
+Concerned
+about data
+privacy; needs
+the AI output to
+faithfully
+represent their
+actual work.
+Fresh Graduate
+Faster, higher-
+quality job and
+internship
+applications
+immediately
+after graduation.
+Sees the
+platform as a
+competitive
+advantage over
+peers with
+unstructured
+CVs.
+Recruiter-ready
+CV, professional
+portfolio quality,
+quick
+turnaround.
+Time pressure
+post-
+graduation;
+output quality
+depends on
+how much
+academic data
+was captured
+during study.
+University /
+Academic
+Institution
+Improved
+graduate
+employability
+outcomes and
+stronger
+institutional
+showcase.
+Supportive
+where the
+system can
+integrate with
+existing
+academic
+records or LMS.
+Cohort-level
+employability
+metrics,
+institutional
+branding,
+industry
+readiness.
+Data-sharing
+and privacy
+policy
+compliance;
+integration
+effort with
+legacy systems.
+Recruiter /
+Employer
+Faster candidate
+screening
+through
+structured, ATS-
+parseable case
+studies and CVs.
+Receptive if
+content is
+verifiable and
+consistently
+formatted.
+Authentic
+evidence of
+skills, ATS-
+compliant CV
+structure.
+Trust in the
+authenticity
+and accuracy of
+AI-generated
+content.
+ 
+Stakeholder 
+MajorValue 
+ 
+Attitudes 
+Constraints 
+Major interests
+
+
+=====PAGE 37=====
+27
+4.3.3 Project Priorities
+Table 4.2 Project Priorities of KAEL.
+KAEL is a desktop app created with Flutter, which means that as a user, you will need to
+install it on your device (Windows/macOS/Linux).
+4.4 Operating Environment 
+KAEL is a Flutter-based desktop application installed on the user's device, requiring an internet
+connection to access AI processing and backend services. The following describes the client,
+server, and supporting infrastructure requirements for the operating environment.
+Dimension
+Driver
+Constraint
+Degree of freedom
+Schedule
+Delivered within the final
+year project timeline
+(semester deadline)
+Features
+Deliver the full Phase 1
+pipeline: data collection, AI
+processing, case study
+generation, portfolio
+builder, ATS CV builder
+Phase 2–4 features
+(Academic
+Workspace,
+Ecosystem
+Integration,
+Personal AI
+Assistant) may be
+deferred to future
+work
+Quality
+Reliable, accurate AI-
+generated case studies and
+ATS-compliant CV output
+Good end-to-end
+pipeline performance
+required
+90–95% of user-
+acceptance tests
+must pass for
+Release 1.0
+Staff
+Single member to
+execute all design,
+development, and AI-
+integration tasks
+Cost
+Cost of AI/LLM API
+usage, secure
+database, and cloud
+hosting
+
+
+=====PAGE 38=====
+28
+The application must have an active internet connection at runtime to
+communicate with the backend server and LLM API to process the AI.
+The minimum requirement is Windows 10 or later, with approximately 200MB free disk
+space.
+No browser is needed — it is not accessed via the web, but instead as a native installed
+program. 
+Server-Side / Backend Requirements
+A backend application server (such as Node.js or Python-based) to manage authentication,
+file uploads, and control the flow of the AI processing pipeline.
+Integration with a Large Language Model (LLM) API for information extraction, skill
+identification, summarisation, and case-study generation.A relational or document
+database (PostgreSQL or MongoDB) to store user profiles, structured case-study data,
+and portfolio metadata. Secure cloud storage for raw uploaded files such as PDFs,
+images, and screenshots.
+A cloud hosting environment (AWS, Azure, or Google Cloud Platform) supplying the
+compute, storage, and networking required by the application and database.
+Security and Compliance Considerations
+All data transmitted between the client and server is encrypted (HTTPS/TLS). Sensitive personal
+and academic information is stored encrypted at rest. Role-based access control ensures only the
+owning user and, where explicitly permitted, authorised recruiters or institutions can access a
+specific portfolio or CV.
+This operating environment reflects the constraints highlighted in Table 4.2 — most notably the
+need for a secure database and cost-effective cloud hosting within a single- developer project
+while remaining aligned with the scalability requirements of the wider multi-phase KAEL
+roadmap.
+
+
+=====PAGE 39=====
+CHAPTER 5: SYSTEM DESIGN
+5.2 UI/UX Design
+KAEL's interface adopts a dark theme and a minimalist style that uses a semi-permanent
+navigation sidebar located on the left-hand side of the screen, providing users with consistent
+access to its core modules while they are using it. Onboarding is designed to be guided and
+progressive with a step-by-step approach while a flexible canvas-based environment will be
+provided for project and portfolio management going forward. The interface has the following
+main sections:
+Landing & Authentication: This is the first place a user will interact with the application,
+such as the landing page and sign-up/login screens.
+5.1 Brief Description
+KAEL (Smart Portfolio Builder and Academic eLibrary) is a desktop application built with Flutter
+that takes a student's raw academic data and creates structured and professional assets that are
+ready for use in the world of careers. It is a realization of the scope of the KAEL roadmap, which
+was developed using an Agile Scrum process over four sprints. Onboarding gathers personal,
+educational and professional information and saves it in Firebase Firestore, which is then used by
+the Gemini API to create a professional biography. Users then upload all the raw academic
+content (notes, assignments, certificates, PDFs, images, screenshots etc) to Firebase Storage
+and add metadata to Firestore. This information is used, along with the user's information, to
+create a structured case study and to update the user skills and role, which is passed on to the
+Gemini API. The approved case studies are grouped in publishable portfolios that have a
+shareable URL and QR code. A Job Match module also parses the job descriptions and creates a
+personalized and ATS-friendly CV. The system is designed in the client-server model as the
+desktop side of the system is implemented using Flutter, and the server side is implemented
+using authentication, Gemini API calls, Firestore for data, and Firebase Storage for files. The
+interface, ER diagram, DFDs, activity diagram, class diagram, sequence diagram and architecture
+are described in detail in sections 5.2- 5.8.
+29
+
+
+=====PAGE 40=====
+30
+Figure 5.1 KAEL landing page
+Onboarding: A multi-step guided flow which helps to capture the identity, background, skills and
+interests of the user to create their initial profile.
+Project Catalog & Case Study Generator: Workspace for uploading the data for
+projects and viewing the AI-generated case studies.
+Profile Management (CV Builder): A special page to edit the personal information, skills,
+education and experience included in the CV.
+Portfolio Builder: A tailor-made, publishable view which creates a shareable portfolio of
+approved case studies, available with style, colour and image customization.
+Job Match & CV Generation: A module that analyses job description against user's profile and
+produces a custom, ATS-friendly CV.
+1. Landing Page
+
+
+=====PAGE 41=====
+2. Sign Up
+31
+Figure 5.2 Sign-Up Screen
+3. Onboarding & Visual Identity Curation
+Figure 5.3 Creative-Academic Identity Setup
+
+
+=====PAGE 42=====
+32
+Figure 5.4 Profile Photo Upload
+Figure 5.5 Educational Background Form
+
+
+=====PAGE 43=====
+4. Profile Creation
+33
+Figure 5.6 Skills & Interests Selection
+Figure 5.7 Project Catalogue workspace
+
+
+=====PAGE 44=====
+34
+Figure 5.8 Profile Editor (Dark Theme)
+Figure 5.9 Profile Editor (Light Theme)
+
+
+=====PAGE 45=====
+5. Case Study Generator
+35
+Figure 5.10 Project Data Upload
+Figure 5.11 AI Case Study Processing
+
+
+=====PAGE 46=====
+6. CV Generator
+36
+Figure 5.13 Skills section for CV
+Figure 5.12 Generated Case Study View
+
+
+=====PAGE 47=====
+37
+Figure 5.14 Job Match Analysis
+Figure 5.15 Final ATS CV Preview
+
+
+=====PAGE 48=====
+7. Portfolio Generator
+38
+Figure 5.16 Generated Portfolio View(template sample)
+Figure 5.17 Editable Templates
+
+
+=====PAGE 49=====
+39
+Figure 5.19 Customized Portfolio
+Figure 5.18 Portfolio Colour Customization
+
+
+=====PAGE 50=====
+5.4 DFD Diagram
+Level 0
+5.3 ER Diagram for KAEL
+40
+Figure 5.20 Entity-Relationship Diagram of KAEL
+Figure 5.21 DFD Level 0 - KAEL System Context
+
+
+=====PAGE 51=====
+Level 1
+41
+Figure 5.22 DFD Level 1 - Onboarding, Case Study, Portfolio & Job Match 
+Processes
+
+
+=====PAGE 52=====
+Level 2
+42
+Figure 5.23 DFD Level 2 - Decomposition of Case Study Creation Process
+
+
+=====PAGE 53=====
+5.5 Activity Diagram KAEL
+43
+Figure 5.24 Authentication & Onboarding (Activity Diagram)
+
+
+=====PAGE 54=====
+44
+Figure 5.25 Case Study Creation (Activity Diagram)
+
+
+=====PAGE 55=====
+45
+Figure 5.26 Portfolio Generation & Publishing
+
+
+=====PAGE 56=====
+46
+Figure 5.27 Job Match & Tailored CV Generation
+
+
+=====PAGE 57=====
+5.6 Class Diagram
+5.7 Software Architectural Design
+47
+Figure 5.28 Class Diagram of KAEL
+Figure 5.29 Software Architectural Design
+
+
+=====PAGE 58=====
+5.8 Sequence Diagram
+48
+Figure 5.30 Sequence Diagram of KAEL
+
+
+=====PAGE 59=====
+CHAPTER 6: DEVELOPMENT
+6.1 Selection of Tools & Technology
+Dedicated client-side workstation environments were synced to cloud-based hardware layers
+for the compilation, engineering and localized rendering of the KAEL ecosystem. The following
+is a minimum local system configuration to support the execution of concurrent threads in the
+environment and compilation workloads on multiple platforms:
+6.1.1 Hardware
+Central Processing Unit (CPU): At least 4 physical cores — Intel Core i5 / AMD Ryzen 5
+processor with clock speed optimizations to support heavy development tools and
+active mobile device emulators.
+Random Access Memory (RAM): 8G to 16G DDR4 RAM – provides high speed and
+structural stability as the application framework is being compiled during the hot-
+reload process.
+Solid-State Storage (SSD): At least 256 GB NVMe SSD storage for faster read/write
+cycle processing speeds for asset caching, dependency fetching and index
+compilation.
+Testing Hardware: Verification on multi-architecture was done by running different
+screen-aspect configurations on the various physical Android devices and using a
+combination of standard x86 and ARM-based browsers to ensure uniformity.
+The cloud infrastructure tier is fully managed and distributed hardware infrastructure servers
+managed by Google. A cluster of these servers also hosts dedicated tensor processing units
+(TPUs) to enable the low latency calls to the application's cognitive inference modules.
+6.1.2 Software
+KAEL's software framework was chosen for its high performance, asynch data binding, and
+broad platform cross-compatibility. The software stack integrated is defined by the following
+environments:
+49
+
+
+=====PAGE 60=====
+Operating System: A command-line orchestration tool that helps define the foundational
+development environment for command-line code versioning engines running in the
+Windows 10/11 64-bit environment.
+Integrated Development Environments (IDEs): Visual Studio Code (VS Code) and
+Android Studio with support for having official Dart, Flutter, and Firebase runtime
+extensions which can support continuous syntactic validation and debugging.
+Frontend Framework: Flutter Software Development Kit (SDK). It is an object oriented
+programming language-enabled framework that generates an optimized rendering path for
+the Android, iOS and Web platforms from a single codebase.
+Backend: Firebase Ecosystem (Firebase Architecture)
+Firebase Authentication: Safely tracks, verifies, and handles user onboarding sessions and
+logins with cryptographic key.
+Cloud Firestore: A distributed, high throughput NoSQL document database that is used to
+store highly responsive collections of structured metadata records, user profile nodes, and
+layout configurations.
+Firebase Storage: An isolated storage locker for raw, unstructured academic artifacts
+uploaded by the client, which are stored, encrypted, and archived.
+Firebase Cloud Functions: Serverless Node.js and TypeScript runtime triggers are an
+isolated middleware layer to securely process complex logic and run loops of cognitive API
+communication.
+Google Gemini Multimodal APIs: Deployed for semantic text analysis, parsing
+unstructured streams of documents, automating skill mappings and structured payload
+tokens.
+Imagen API: Used to convert textual prompt vectors to customized visual elements,
+such as thematic banners in a specific portfolio and digital character 
+assets.
+Version Control: Git version control engine and integration with GitHub repositories for
+remote repository management and automating the commit tracking.
+50
+
+
+=====PAGE 61=====
+CHAPTER 7: SOFTWARE TESTING
+7.2 Testing Process
+The overall testing process:
+7.1 Software Testing
+Software testing is the process of examining a system in a methodical way to ensure that it
+performs as expected, satisfies its requirements, and is reliable under realistic circumstances.
+Testing is especially significant for KAEL for a number of reasons related to the characteristics of
+the system.
+Firstly, KAEL's value proposition relies on the accuracy and trustworthiness of AI-generated
+content — the case study, biography, or CV that misrepresents a user's abilities or fabricates
+information would be a serious problem for the platform, and it's not just a matter of
+aesthetics, as it would serve no useful purpose. Second, the system is comprised of several
+independent services (Firebase Authentication, Cloud Firestore, Firebase Storage, and the
+Gemini API) that are communicating via HTTPS; if any one of these service integration points
+fails or is inconsistent, then user data may be corrupted, or the entire end-to-end system may
+end up broken, with the user never realizing what happened. Third, since KAEL is the product
+of a team of only one developer and a set academic timeframe (Table 4.2), there was no
+dedicated QA team to identify regressions — meaning that structured and repeatable testing
+throughout each sprint (not just at the end of the development period) was crucial for finding
+defects early, when they are cheapest to fix. Lastly, the final CV output is to be ATS compliant 
+and to the recruiter, formatting and data-integrity issues that might be suitable for an internal
+tool were treated as high priority defects, due to the direct impact on a user's job 
+or internship opportunity.
+Testing was embedded into the Agile Scrum flow described in Chapter 3, rather than treated as
+a final stage after development. Each of the four sprints ended with a Sprint Review where the
+new increment was manually exercised, with defects recorded and prioritized at the Sprint
+Retrospective for resolution in the next sprint.
+51
+Unit testing: Individual functions and UI elements (e.g., form validation, upload type checks)
+tested as they were built, to catch simple logic errors early.
+
+
+=====PAGE 62=====
+Black box testing has been used as the main testing technique for KAEL — the system was tested
+with respect to its inputs and outputs only and its code structure was not taken into
+consideration. The application of this method was especially suitable for KAEL in two ways. First,
+several of the most important behaviours of the system itself (case study generation, bio
+generation, job match scoring) are also generated by the Gemini API itself, which, from the point
+of view of the application, is a black box because the correctness of the behaviours can only be
+judged by the quality of what it spits out on a given input, not by looking at the internal logic which
+the application is not responsible for controlling. Second, black box testing directly validates the
+system against user facing requirements (e.g. uploading a PDF and profile data should create a
+structured case study with all of the required sections), making it an obvious fit for verifying user
+acceptance criteria set in Sprint Planning.
+These are the black box techniques that were used:
+Equivalence partitioning: Break down the domain of the input into valid and invalid subsets
+of input (e.g. supported file types: PDF/PNG/JPG and unsupported file types: other) and test
+one sample input from each subset instead of testing all possible inputs.
+52
+Integration testing: Conducted mostly in Sprint 4, verifying data passed correctly
+between modules (e.g., a file in Firebase Storage correctly referenced in its Firestore
+project record, and data sent to the Gemini API received and persisted correctly).
+Functional (black box) testing: The primary technique used throughout the project,
+ensuring each feature produced the expected output for a given input, without reference
+to internal implementation.
+Usability testing: Informal testing with sample users performing realistic tasks (registering,
+uploading a project, generating a CV), per the project priority in Table 4.2 requiring 90–95%
+of user-acceptance tests to pass for Release 1.0.
+Regression checks: After each bug fix or sprint's changes, previously verified features were
+manually re-checked to ensure new functionality didn't break existing behavior.
+7.3 Black Box Testing
+
+
+=====PAGE 63=====
+53
+Boundary value analysis: Test edge cases (for example, minimum number of project data
+points that need to be inputted before case study generation is permitted, or
+empty/maximum length input fields when signing up).
+Error guessing: By knowing the most common errors in file submission and AI integration
+systems, for example, empty forms, corrupted files, or network connection dropouts during
+the generation process, error guessing enables the system to anticipate mistakes.
+The table below documents representative test cases covering the core functional
+modules of KAEL.
+Table 7.1 Test cases for KAEL.
+Expected 
+ID 
+Module 
+Description 
+Input 
+Status
+Output
+Account
+created; user
+redirected to
+onboarding
+Error message; 
+sign-up blocked
+User 
+authenticated; 
+redirected to 
+dashboard
+Name, valid
+email,
+password
+Email already
+registered
+Registered 
+email + 
+correct 
+password 
+Registered 
+email + 
+wrong 
+password
+Personal, 
+education, 
+and skills data
+TC-
+01
+Authenticati
+on
+Sign up with
+valid details
+Pass
+TC-
+02
+Authenticati
+on
+Sign up with
+existing email
+Pass
+TC-
+03
+Authenticati
+on
+Login with valid
+credentials
+Pass
+Login with
+incorrect
+credentials
+TC-
+04
+Authenticati
+on
+Error message;
+access denied
+Pass
+Profile stored in
+Firestore; 
+bio
+generated
+Validation 
+error; user 
+prompted to 
+complete field
+TC-
+05
+Complete all
+onboarding steps
+Onboarding
+Pass
+Attempt to
+proceed with
+missing data
+TC-
+06
+Missing
+required field
+Onboarding
+Pass
+7.4 Test
+Cases
+
+
+=====PAGE 64=====
+ID
+TC-
+07
+TC-
+08
+TC-
+09
+TC-
+10
+TC-
+11
+TC-
+12
+TC-
+13
+TC-
+14
+TC-
+15
+TC-
+16
+TC-
+17
+Portfolio
+Portfolio
+Portfolio
+Module
+AI Bio
+Generation
+AI Bio
+Generation
+Project
+Upload
+Project
+Upload
+Project
+Upload
+Case Study
+Generation
+Case Study
+Generation
+Case Study
+Generation
+Description
+Generate bio
+from profile data
+Regenerate bio
+after review
+Upload 
+supported file 
+types
+Upload 
+unsupported file 
+type
+Attempt case 
+study generation 
+with no files
+Generate case
+study
+Regenerate
+unsatisfactory
+case study
+Approve case
+study
+Generate
+portfolio with
+template
+Publish portfolio
+Attempt to
+publish with no
+case studies
+54
+Expected 
+Input
+Output
+Gemini API
+returns a
+generated
+biography
+New bio 
+generated
+Files stored in 
+Firebase 
+Storage
+Upload rejected 
+with error 
+message
+System prompts 
+user to upload a 
+file first
+Structured case
+study produced
+Valid profile
+data
+User selects
+"Regenerate" 
+PDF, PNG,
+JPG files
+.exe file
+No files
+uploaded
+Uploaded
+files + profile
+data
+User selects
+"Regenerate"
+Updated case
+study generated
+Case study
+stored; profile
+updated
+User selects
+"Save"
+Selected
+template + 
+Portfolio 
+approved case assembled
+studies
+User selects 
+"Publish"
+Public URL and
+QR code
+generated
+Publish option
+disabled
+No case
+studies exist
+Pass
+Pass
+Pass
+Pass
+Pass
+Pass
+Pass
+Pass
+Pass
+Pass
+Pass
+Status
+
+
+=====PAGE 65=====
+ID
+TC-
+18
+TC-
+19
+TC-
+20
+Module
+Job Match
+Job Match
+CV Export
+Description
+Analyze job
+description
+Generate tailored
+CV
+Export final CV
+55
+Input
+Pasted job
+description
+Job match
+analysis result
+User selects
+"Export CV"
+Expected 
+Output
+Suitability
+percentage
+displayed
+ATS-optimized 
+CV generated
+Downloadable, 
+correctly 
+formatted PDF
+Status
+Pass
+Pass
+Pass
+
+
+=====PAGE 66=====
+CHAPTER 8: IMPLEMENTATION AND TRAINING
+8.1 Implementation
+The implementation phase of the KAEL ecosystem is the transition stage from
+conceptual modules to an active state of production of the KAEL project. This was done
+in a modular way, layer after layer of the systems were implemented in order to
+maintain the integrity of data tracking:
+56
+Backend Environment Setup: This was to prepare the workspace for the Google
+Firebase project. In this workspace, Firebase Authentication was setup to handle user
+sessions safely, Cloud Firestore collection schemas were created to store relational
+JSON metadata and the Firebase Storage bucket directories were instantiated to
+contain raw user media payloads.
+API Integration Layer Execution: Node.js serverless scripts were written and deployed as
+the Firebase Cloud Functions. These routines serve as the safe and secure access points for
+the Google Cloud AI services. They consume raw document streams from storage, compile
+payloads with optimized behavioral system prompts and call the appropriate secure
+asynchronous REST APIs to the Google Gemini / Imagen API endpoints.
+Frontend Interface Construction: Flutter SDK's were used to build the user interface layer.
+To create state orchestration workflows, clean architecture patterns (e.g., Provider or BLoC)
+were adopted and the asynchronous state changes were mapped directly to the UI layer.
+This configuration makes it possible to have file upload progress bars, live markdown
+previews, and dynamic theme changes to work smoothly in mobile and web clients.
+Operational End-to-End Pipeline Binding: The last step was to connect the client
+application with the cloud functions directly. This full binding can be used by a user to
+drop an unstructured document, activate an automated semantic extraction pipeline,
+and immediately receive updates to that document's Firestore metadata in JSON
+format, and render a web portfolio page with interactive features that can be hosted,
+and have it generate an ATS-friendly CV.
+
+
+=====PAGE 67=====
+8.2 Project Overview (Key Features only)
+The selective capabilities delivered in the deployed KAEL ecosystem are limited to the
+maximization of automation, data fidelity and creative control for the academic user:
+57
+Multimodal 'Cell' Ingestion: A modular drop-terminal that can be used to ingest
+unstructured academic inputs from a number of media extensions (PDFs, DOCX files, raw
+project screenshots, audio elements and video clips) to form a permanent, secure cloud
+archive.
+Automated Semantic Extraction: Direct real-time deep analysis of Google Gemini API to
+clean and process messy project information and instantly produce detailed text summaries,
+case studies, technical or soft skill mapping and dynamic filter tags.
+One-Click Intelligent Portfolio Building: Automated web template engine that
+instantly combines onboarding profile states with extracted project data and renders a
+clean and customizable page for the portfolio with no copywriting needed.
+Generative Asset Synthesis: Direct integration with the Imagen API, users can generate high-
+quality and thematic project background banners and shape their digital identity with professional
+AI-generated headshots or custom character models.
+Recruiter-Ready ATS CV Engine: The document compiler designed specifically for ATS that can
+convert form data and AI-mapped skill sets into a monochrome CV format that passes through the
+automated applicants.
+Expected Outcome
+Successfully implemented KAEL is a high performing, responsive across-platform environment
+that spans between the messy hard drive and professional network. The anticipated structural
+outcome is that students will no longer have to do manual engineering of web structure and
+resuming copy. Users get a universal link to their portfolio canvas on the web, which is live and
+easily accessible, with an ATS-friendly, perfectly formatted CV document preformatted for
+competitive corporate evaluations.
+
+
+=====PAGE 68=====
+8.3 Training
+With an AI-powered, highly automated platform like KAEL, it is essential to have a well-defined
+and structured onboarding process to ensure that users can navigate the system smoothly and
+maximize documentation benefits. The onboarding process for highly automated, AI-powered
+platforms such as KAEL must be clear and structured to ensure users can interact with the
+system efficiently and maximize the benefits of documentation.
+Required Skillset
+Basic Digital Literacy: Familiarity with standard operating systems, directory navigation,
+and file system execution (such as dragging, dropping, or selecting items within local hard
+drives).
+Core Professional Self-Awareness: A knowledge and understanding of one's educational
+journey, basic contact details and high-level career goals for the onboarding introduction
+fields.
+Artifact Assessment: The ability to critique AI case studies or skill maps when they are
+localized or specific to certain contexts or industries, ensuring that the localized detail is
+within the project's scope.
+User Training Protocol
+A structured three-layer approach to training and navigation is embedded within the application
+ecosystem for a faster uptake of users and for ensuring high fidelity output:
+Context-Aware Interactive Walkthroughs:
+ The Flutter frontend automatically steps through a tutorial that guides the user through the visual
+elements when the user logs in for the first time. This interactive guide is designed to show users
+the navigation panel and how to upload a file to "The Cells," while also not overwhelming them
+with the customizer.
+Inline Reference Documentation and Tooltips: Specialized info markers and baseline
+definition sections are inserted throughout the workspace interface, but without
+interrupting the user's work. Clear descriptions of system terms, like what a "Cell"
+represents or how the ATS CV engine handles text markers in the workflow, do not confuse
+users when they use the system in a real workflow.
+58
+
+
+=====PAGE 69=====
+59
+Comprehensive Validation and Review States: After every AI analysis 
+pipeline run, it requires users to perform a manual validation process. A clean interface for the
+user to view, edit or expand the generated summaries and tag lists, helping to ensure effective
+interactions between the user and the artificial intelligence modules.
+
+
+=====PAGE 70=====
+CONCLUSION
+60
+KAEL bridges the gap between academics and careers by converting student work into industry
+accepted career ready products. The platform leverages the Google Gemini API and a secure
+Firebase back-end to handle domain detection and case study compilation automatically, and
+adds new features such as CV updates every second and external freelance link extraction
+(Fiverr/Upwork). KAEL brings together a consolidated, collaborative ecosystem that empowers
+Students to overcome the restrictive ATS filter, Recruiters to find data-driven talent-fit scores,
+and Academic Authorities to audit coursework milestones to build a dynamic, verified talent
+pipeline for the modern workforce, replacing static and fragmented portfolio building.
+
+
+=====PAGE 71=====
+REFERENCES
+61
+1.Google. "Gemini API Overview and Model Capabilities." Google AI for Developers.
+Accessed: Jul. 14, 2026. [Online]. Available: https://ai.google.dev/gemini-api/docs
+2.Firebase. "Cloud Firestore Fundamentals and Serverless Security Architectures." Google
+Firebase 
+Documentation. 
+Accessed: 
+Jul. 
+14, 
+2026. 
+[Online]. 
+Available:
+https://firebase.google.com/docs/firestore
+3.M. L. Bernard and J. T. Corporate, "Evaluating the Efficacy of Academic Portfolio Systems in
+Higher Education Assessment," Journal of Educational Technology Systems, vol. 51, no. 3,
+pp. 312–328, Mar. 2023.
+4.S. Mittal, N. Parihar, and A. Kumar, "Information Extraction from Unstructured Candidate
+Profiles using Large Language Models," International Journal of Computer Applications, vol.
+185, no. 22, pp. 14–19, May 2025.
+5."From Text to Talent: A Pipeline for Extracting Insights from Candidate Profiles," arXiv
+preprint arXiv:2503.17438, 2025.
+6.R. J. Sunico, S. Pachchigar, V. Kumar, and I. Song, "Interactive Profile and Portfolio Building
+Application based on LLMs," in Proceedings of the International Conference on Computing,
+Communication, and Intelligent Systems (ICCCIS), 2023, pp. 486–492.
+
+
+=====PAGE 72=====
+FINAL YEAR PROJECT UNDERTAKING FORM
+(NFC IET, Multan)
+__________________________________________________
+External Examiner
+62
+We hereby affirm that the originality and authenticity of the Final Year Project to be undertaken
+will be upheld. The report and/or the system that we submit after the Final Year Project will be
+the result of our investigations and efforts.
+We understand that cheating and plagiarism constitute a serious violation of the 
+university regulations, which will not only result in a failing grade for the Final Year 
+Project but subject us to further disciplinary actions.
+Discipline: BSCS
+Year of study: 2022-2026
+Area of study: Computer Science
+____________________________
+Dr Naeem Aslam
+Head, Department of Computer Science

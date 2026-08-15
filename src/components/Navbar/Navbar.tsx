@@ -39,7 +39,7 @@ export function Navbar({ isHome, onNavigateHome }: NavbarProps) {
       <motion.a
         href="/"
         className={styles.brand}
-        aria-label="MIRVÉ — Home"
+        aria-label="MIRVÉ Home"
         initial="rest"
         whileHover="hover"
         onClick={handleBrandClick}
