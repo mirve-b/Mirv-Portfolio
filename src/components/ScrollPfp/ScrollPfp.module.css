@@ -1,12 +1,8 @@
 .root {
-  position: fixed;
-  bottom: 0;
-  left: calc(
-    max((100vw - min(100vw, var(--container-max))) / 2, 0px) +
-      min(100vw, var(--container-max)) * 0.345
-  );
-  /* Sit under the contact form so the figure slides out from behind it */
-  z-index: 1;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  z-index: 0;
   transform: translateX(-58%);
   pointer-events: none;
 }
@@ -73,9 +69,8 @@
 @media (max-width: 768px) {
   .rootMobile {
     left: auto;
-    right: var(--container-padding);
+    right: 0;
     transform: none;
-    z-index: 1;
   }
 
   .rootMobile .pfp {
@@ -84,17 +79,20 @@
 
   .rootMobile .bubble {
     left: auto;
-    right: 0;
-    bottom: calc(100% + 0.5rem);
+    right: calc(100% + 0.35rem);
+    bottom: 55%;
     padding: 0.5rem 0.75rem;
-    max-width: min(9.5rem, calc(100vw - (var(--container-padding) * 2) - 1rem));
+    max-width: min(9.5rem, calc(100vw - (var(--container-padding) * 2) - 7rem));
     font-size: var(--text-xs);
     transform: none;
   }
 
   .rootMobile .bubble::after {
-    left: auto;
-    right: 1.25rem;
-    transform: rotate(45deg) translateY(-5px);
+    top: 50%;
+    left: 100%;
+    right: auto;
+    border-right: 1px solid rgba(224, 44, 107, 0.4);
+    border-bottom: 1px solid rgba(224, 44, 107, 0.4);
+    transform: translateY(-50%) rotate(-45deg) translateX(-5px);
   }
 }

@@ -81,16 +81,31 @@
 .formCol {
   position: relative;
   z-index: 2;
-  isolation: isolate;
   min-width: 0;
   margin-right: clamp(1.25rem, 4vw, 3rem);
+  overflow: visible;
   background: var(--color-bg);
 }
 
 .form {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow: visible;
+  background: var(--color-bg);
+}
+
+.nameInputWrap {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.nameInputWrap .input {
+  position: relative;
+  z-index: 2;
 }
 
 .honeypot {
@@ -103,6 +118,8 @@
 }
 
 .field {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -212,10 +229,10 @@
   .formCol {
     position: relative;
     z-index: 2;
-    isolation: isolate;
     margin-inline: calc(-1 * var(--container-padding));
     padding-inline: var(--container-padding);
     padding-top: 0.125rem;
+    overflow: visible;
     background: var(--color-bg);
   }
 
@@ -223,13 +240,21 @@
   .formCol .field,
   .formCol .input,
   .formCol .textarea,
-  .formCol .formFeedback {
+  .formCol .formFeedback,
+  .formCol .submit {
     background: var(--color-bg);
   }
 
   .formCol .input:focus,
   .formCol .textarea:focus {
     background: var(--color-bg);
+  }
+
+  .formCol .field,
+  .formCol .submit,
+  .formCol .formFeedback {
+    position: relative;
+    z-index: 2;
   }
 
   .heading {

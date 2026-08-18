@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type RefObject } from 'react'
+import { useState, type FormEvent, type ReactNode, type RefObject } from 'react'
 import { motion } from 'framer-motion'
 import { WEB3FORMS_ACCESS_KEY } from './constants'
 import styles from './Footer.module.css'
@@ -9,9 +9,11 @@ const springBounce = { type: 'spring' as const, stiffness: 420, damping: 14 }
 
 type ContactFormProps = {
   nameInputRef?: RefObject<HTMLInputElement | null>
+  /** Renders just above the name input (slides out from behind the form). */
+  scrollPfp?: ReactNode
 }
 
-export function ContactForm({ nameInputRef }: ContactFormProps) {
+export function ContactForm({ nameInputRef, scrollPfp }: ContactFormProps) {
   const [status, setStatus] = useState<FormStatus>('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -70,27 +72,24 @@ export function ContactForm({ nameInputRef }: ContactFormProps) {
         aria-hidden="true"
       />
 
-      <motion.div
-        className={styles.field}
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-40px' }}
-        transition={{ ...springBounce, delay: 0.05 }}
-      >
+      <div className={styles.field}>
         <label htmlFor="contact-name" className={styles.label}>
           Name
         </label>
-        <input
-          ref={nameInputRef}
-          id="contact-name"
-          name="name"
-          type="text"
-          required
-          autoComplete="name"
-          className={styles.input}
-          placeholder="Your name"
-        />
-      </motion.div>
+        <div className={styles.nameInputWrap}>
+          {scrollPfp}
+          <input
+            ref={nameInputRef}
+            id="contact-name"
+            name="name"
+            type="text"
+            required
+            autoComplete="name"
+            className={styles.input}
+            placeholder="Your name"
+          />
+        </div>
+      </div>
 
       <motion.div
         className={styles.field}

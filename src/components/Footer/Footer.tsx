@@ -76,13 +76,15 @@ export function Footer({
           viewport={{ once: true, margin: '-60px' }}
           transition={{ ...springBounce, delay: 0.1 }}
         >
-          <ContactForm />
+          <ContactForm
+            scrollPfp={
+              scrollPfpEnabled ? (
+                <ScrollPfp key={scrollPfpKey} zoneRef={footerRef} />
+              ) : null
+            }
+          />
         </motion.div>
       </div>
-
-      {scrollPfpEnabled ? (
-        <ScrollPfp key={scrollPfpKey} zoneRef={footerRef} />
-      ) : null}
 
       <motion.p
         className={styles.copyright}
