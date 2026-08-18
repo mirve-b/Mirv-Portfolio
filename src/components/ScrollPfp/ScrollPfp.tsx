@@ -7,10 +7,20 @@ import styles from './ScrollPfp.module.css'
 const slideSpring = { type: 'spring' as const, stiffness: 360, damping: 24 }
 const bubbleSpring = { type: 'spring' as const, stiffness: 480, damping: 14 }
 const MIN_SCROLL_TO_REVEAL_PX = 80
-const SCROLL_UP_HIDE_PX = 40
+/** Hide when less than this fraction of the footer remains visible while scrolling up. */
+const FOOTER_EXIT_RATIO = 0.5
 
 type ScrollPfpProps = {
   zoneRef: RefObject<HTMLElement | null>
+}
+
+function footerVisibleRatio(zone: HTMLElement) {
+  const rect = zone.getBoundingClientRect()
+  if (rect.height <= 0) return 0
+
+  const vh = window.innerHeight
+  const visible = Math.min(rect.bottom, vh) - Math.max(rect.top, 0)
+  return Math.max(0, Math.min(1, visible / rect.height))
 }
 
 function footerInView(zone: HTMLElement, mobile: boolean) {
@@ -18,7 +28,6 @@ function footerInView(zone: HTMLElement, mobile: boolean) {
   const vh = window.innerHeight
 
   if (mobile) {
-    // Show while the top of the footer is meaningfully on screen.
     return rect.top < vh * 0.85 && rect.top > vh * -0.15
   }
 
@@ -60,8 +69,8 @@ function FigureContent({ revealed, showBubble }: FigureContentProps) {
 
 export function ScrollPfp({ zoneRef }: ScrollPfpProps) {
   const lastScrollY = useRef(0)
-  const scrollUpAccum = useRef(0)
   const revealedRef = useRef(false)
+  const lockedUntilScrollDown = useRef(false)
   const isMobile = useIsMobile()
   const [revealed, setRevealed] = useState(false)
   const [showBubble, setShowBubble] = useState(false)
@@ -69,13 +78,12 @@ export function ScrollPfp({ zoneRef }: ScrollPfpProps) {
   const hide = useCallback(() => {
     if (!revealedRef.current) return
     revealedRef.current = false
-    scrollUpAccum.current = 0
     setShowBubble(false)
     setRevealed(false)
   }, [])
 
   const reveal = useCallback(() => {
-    scrollUpAccum.current = 0
+    if (lockedUntilScrollDown.current) return
     if (revealedRef.current) return
     revealedRef.current = true
     setRevealed(true)
@@ -95,23 +103,28 @@ export function ScrollPfp({ zoneRef }: ScrollPfpProps) {
       const zoneEl = zoneRef.current
       if (!zoneEl) return
 
-      if (!canShow(zoneEl, isMobile)) {
-        hide()
-        lastScrollY.current = window.scrollY
-        return
-      }
-
       const currentY = window.scrollY
-      const delta = lastScrollY.current - currentY
+      const delta = currentY - lastScrollY.current
+      const scrollingDown = delta > 1
+      const scrollingUp = delta < -1
+      const ratio = footerVisibleRatio(zoneEl)
 
-      if (delta > 1) {
-        scrollUpAccum.current += delta
-        if (scrollUpAccum.current >= SCROLL_UP_HIDE_PX) {
+      if (scrollingUp) {
+        // Leave the footer (≥50% scrolled out of view) → hide and stay down
+        // until the user scrolls down again.
+        if (revealedRef.current && ratio < FOOTER_EXIT_RATIO) {
+          lockedUntilScrollDown.current = true
           hide()
         }
-      } else {
-        scrollUpAccum.current = 0
-        reveal()
+      } else if (scrollingDown) {
+        lockedUntilScrollDown.current = false
+        if (canShow(zoneEl, isMobile)) {
+          reveal()
+        } else {
+          hide()
+        }
+      } else if (!canShow(zoneEl, isMobile)) {
+        hide()
       }
 
       lastScrollY.current = currentY
@@ -119,15 +132,18 @@ export function ScrollPfp({ zoneRef }: ScrollPfpProps) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && canShow(zone, isMobile)) {
-          reveal()
+        if (!entry.isIntersecting) {
+          hide()
           return
         }
-        hide()
+
+        // Don't bounce back up while locked from a scroll-up exit.
+        if (lockedUntilScrollDown.current) return
+        if (canShow(zone, isMobile)) reveal()
       },
       isMobile
-        ? { threshold: [0, 0.08], rootMargin: '0px 0px -8% 0px' }
-        : { threshold: [0.12, 0.22], rootMargin: '0px 0px -28% 0px' },
+        ? { threshold: [0, 0.08, 0.5], rootMargin: '0px 0px -8% 0px' }
+        : { threshold: [0, 0.12, 0.5], rootMargin: '0px 0px -28% 0px' },
     )
 
     observer.observe(zone)

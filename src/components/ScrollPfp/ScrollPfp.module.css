@@ -5,8 +5,8 @@
     max((100vw - min(100vw, var(--container-max))) / 2, 0px) +
       min(100vw, var(--container-max)) * 0.345
   );
-  /* Under the form so it slides out from / back behind the fields */
-  z-index: 1;
+  /* Desktop: sit above the form fields */
+  z-index: 50;
   transform: translateX(-58%);
   pointer-events: none;
 }
