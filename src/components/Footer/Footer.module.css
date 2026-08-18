@@ -83,29 +83,33 @@
   z-index: 2;
   min-width: 0;
   margin-right: clamp(1.25rem, 4vw, 3rem);
-  overflow: visible;
   background: var(--color-bg);
 }
 
 .form {
   position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  overflow: visible;
-  background: var(--color-bg);
 }
 
-.nameInputWrap {
-  position: relative;
+/* Mobile PFP sits behind this plate; plate covers it while sliding down */
+.mobilePfpRail {
+  position: absolute;
+  inset: 0;
   z-index: 1;
+  pointer-events: none;
   overflow: visible;
 }
 
-.nameInputWrap .input {
+/* Opaque mask so the PFP can't show through while sliding behind the fields */
+.formShell {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-bg);
 }
 
 .honeypot {
@@ -123,6 +127,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  background: var(--color-bg);
 }
 
 .label {
@@ -229,10 +234,15 @@
   .formCol {
     position: relative;
     z-index: 2;
+    isolation: isolate;
     margin-inline: calc(-1 * var(--container-padding));
     padding-inline: var(--container-padding);
     padding-top: 0.125rem;
-    overflow: visible;
+    background: var(--color-bg);
+  }
+
+  .formShell {
+    isolation: isolate;
     background: var(--color-bg);
   }
 

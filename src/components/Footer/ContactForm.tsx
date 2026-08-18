@@ -9,7 +9,7 @@ const springBounce = { type: 'spring' as const, stiffness: 420, damping: 14 }
 
 type ContactFormProps = {
   nameInputRef?: RefObject<HTMLInputElement | null>
-  /** Renders just above the name input (slides out from behind the form). */
+  /** Mobile only: sits just above the name input. */
   scrollPfp?: ReactNode
 }
 
@@ -72,12 +72,20 @@ export function ContactForm({ nameInputRef, scrollPfp }: ContactFormProps) {
         aria-hidden="true"
       />
 
-      <div className={styles.field}>
-        <label htmlFor="contact-name" className={styles.label}>
-          Name
-        </label>
-        <div className={styles.nameInputWrap}>
-          {scrollPfp}
+      {/* Behind the shell so slide-down stays covered by the black form plate */}
+      {scrollPfp ? <div className={styles.mobilePfpRail}>{scrollPfp}</div> : null}
+
+      <div className={styles.formShell}>
+        <motion.div
+          className={styles.field}
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ ...springBounce, delay: 0.05 }}
+        >
+          <label htmlFor="contact-name" className={styles.label}>
+            Name
+          </label>
           <input
             ref={nameInputRef}
             id="contact-name"
@@ -88,84 +96,84 @@ export function ContactForm({ nameInputRef, scrollPfp }: ContactFormProps) {
             className={styles.input}
             placeholder="Your name"
           />
-        </div>
+        </motion.div>
+
+        <motion.div
+          className={styles.field}
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ ...springBounce, delay: 0.1 }}
+        >
+          <label htmlFor="contact-email" className={styles.label}>
+            Email
+          </label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            className={styles.input}
+            placeholder="you@email.com"
+          />
+        </motion.div>
+
+        <motion.div
+          className={styles.field}
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ ...springBounce, delay: 0.15 }}
+        >
+          <label htmlFor="contact-message" className={styles.label}>
+            Message
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            required
+            rows={4}
+            className={styles.textarea}
+            placeholder="Tell me about your project…"
+          />
+        </motion.div>
+
+        <motion.button
+          type="submit"
+          className={styles.submit}
+          disabled={status === 'sending'}
+          whileHover={{ scale: 1.04, y: -2 }}
+          whileTap={{ scale: 0.96 }}
+          transition={springBounce}
+        >
+          {status === 'sending' ? 'Sending…' : 'Send message'}
+        </motion.button>
+
+        {status === 'success' && (
+          <motion.p
+            className={styles.formFeedback}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={springBounce}
+            role="status"
+          >
+            Message sent. I&apos;ll get back to you soon.
+          </motion.p>
+        )}
+
+        {status === 'error' && (
+          <motion.p
+            className={`${styles.formFeedback} ${styles.formError}`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={springBounce}
+            role="alert"
+          >
+            {errorMessage}
+          </motion.p>
+        )}
       </div>
-
-      <motion.div
-        className={styles.field}
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-40px' }}
-        transition={{ ...springBounce, delay: 0.1 }}
-      >
-        <label htmlFor="contact-email" className={styles.label}>
-          Email
-        </label>
-        <input
-          id="contact-email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          className={styles.input}
-          placeholder="you@email.com"
-        />
-      </motion.div>
-
-      <motion.div
-        className={styles.field}
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-40px' }}
-        transition={{ ...springBounce, delay: 0.15 }}
-      >
-        <label htmlFor="contact-message" className={styles.label}>
-          Message
-        </label>
-        <textarea
-          id="contact-message"
-          name="message"
-          required
-          rows={4}
-          className={styles.textarea}
-          placeholder="Tell me about your project…"
-        />
-      </motion.div>
-
-      <motion.button
-        type="submit"
-        className={styles.submit}
-        disabled={status === 'sending'}
-        whileHover={{ scale: 1.04, y: -2 }}
-        whileTap={{ scale: 0.96 }}
-        transition={springBounce}
-      >
-        {status === 'sending' ? 'Sending…' : 'Send message'}
-      </motion.button>
-
-      {status === 'success' && (
-        <motion.p
-          className={styles.formFeedback}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={springBounce}
-          role="status"
-        >
-          Message sent. I&apos;ll get back to you soon.
-        </motion.p>
-      )}
-
-      {status === 'error' && (
-        <motion.p
-          className={`${styles.formFeedback} ${styles.formError}`}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={springBounce}
-          role="alert"
-        >
-          {errorMessage}
-        </motion.p>
-      )}
     </form>
   )
 }

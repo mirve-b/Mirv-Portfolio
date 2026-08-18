@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ScrollPfp } from '../ScrollPfp'
 import { staggerContainer } from '../../lib/motion'
+import { useIsMobile } from '../../lib/useIsMobile'
 import { ContactForm } from './ContactForm'
 import { CONTACT_EMAIL, SOCIAL_LINKS } from './constants'
 import { EmailIcon, SocialIcon } from './SocialIcons'
@@ -18,6 +19,11 @@ export function Footer({
   scrollPfpKey?: string
 }) {
   const footerRef = useRef<HTMLElement>(null)
+  const isMobile = useIsMobile()
+  const showPfp = scrollPfpEnabled
+  const pfp = showPfp ? (
+    <ScrollPfp key={`${scrollPfpKey}-${isMobile ? 'm' : 'd'}`} zoneRef={footerRef} />
+  ) : null
 
   return (
     <footer ref={footerRef} className={styles.footer} aria-labelledby="footer-heading">
@@ -76,15 +82,12 @@ export function Footer({
           viewport={{ once: true, margin: '-60px' }}
           transition={{ ...springBounce, delay: 0.1 }}
         >
-          <ContactForm
-            scrollPfp={
-              scrollPfpEnabled ? (
-                <ScrollPfp key={scrollPfpKey} zoneRef={footerRef} />
-              ) : null
-            }
-          />
+          <ContactForm scrollPfp={isMobile ? pfp : null} />
         </motion.div>
       </div>
+
+      {/* Desktop: fixed slide-out beside socials / from behind the form */}
+      {!isMobile ? pfp : null}
 
       <motion.p
         className={styles.copyright}
