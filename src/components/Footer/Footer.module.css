@@ -79,8 +79,12 @@
 /* ── Form ── */
 
 .formCol {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
   min-width: 0;
   margin-right: clamp(1.25rem, 4vw, 3rem);
+  background: var(--color-bg);
 }
 
 .form {
