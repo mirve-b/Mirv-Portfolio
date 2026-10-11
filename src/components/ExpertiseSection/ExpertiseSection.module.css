@@ -75,14 +75,8 @@
   flex-direction: column;
   gap: clamp(1.25rem, 3vw, 2rem);
   width: 100%;
-  max-height: min(calc(100dvh - 14rem), 56rem);
-  overflow-y: auto;
-  overflow-x: hidden;
   padding-top: clamp(0.75rem, 2vw, 1.25rem);
   padding-inline: 3px;
-  padding-right: calc(0.25rem + 3px);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(224, 44, 107, 0.45) transparent;
 }
 
 .devSuiteCard {
@@ -673,8 +667,6 @@
   }
 
   .devColumn {
-    max-height: none;
-    overflow-y: visible;
     padding-inline: 3px;
   }
 
