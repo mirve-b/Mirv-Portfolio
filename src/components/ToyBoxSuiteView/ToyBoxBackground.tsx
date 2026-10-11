@@ -113,7 +113,7 @@ function buildStars(count: number, seed: number, mobile = false): StarSpec[] {
 
 function buildDots(count: number, seed: number): DotSpec[] {
   const rand = mulberry32(seed + 29)
-  const sizes = [2, 2.5, 3, 3.5, 4.5, 6, 8, 10]
+  const sizes = [1.5, 1.75, 2]
   return placePoints(count, seed, 5.2).map((point, index) => ({
     id: index,
     x: point.x,
