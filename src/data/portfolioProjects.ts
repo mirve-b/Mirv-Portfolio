@@ -156,6 +156,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     ctaLabel: 'MABLE',
   },
   {
+    id: 'tethr',
+    category: 'development',
+    title: 'TETHR',
+    subtitle: 'Tethered Together',
+    description:
+      'A premium chat and community platform for creative professionals, artists, architects, designers, and business-minded people who care about aesthetics and privacy. Tethr elevates messaging with a sleek interface and features built for people who want more than just conversation.',
+    detailType: 'dev-suite',
+    externalUrl: 'https://www.behance.net/gallery/244113065/TETHR',
+    ctaLabel: 'TETHR',
+  },
+  {
     id: 'blvck',
     category: 'ui-ux',
     title: 'BLVCK',
