@@ -13,7 +13,7 @@ import sharp from 'sharp'
 
 const execFileAsync = promisify(execFile)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const devDir = path.join(__dirname, '../src/assets/DEV')
+const devDir = path.join(__dirname, '../src/assets/DEV/KAEL')
 const postersDir = path.join(devDir, 'posters')
 
 function posterName(videoFile) {

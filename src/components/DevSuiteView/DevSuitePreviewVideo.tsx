@@ -13,9 +13,11 @@ const SPOTIFY_HANDOFF_MS = 600
 export function DevSuitePreviewVideo({
   src,
   fillCard = false,
+  previewOnly = false,
 }: {
   src: string
   fillCard?: boolean
+  previewOnly?: boolean
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const spotifyHandoffRef = useRef(false)
@@ -63,7 +65,7 @@ export function DevSuitePreviewVideo({
     if (video.paused) void startMutedPreview(video)
   }, [])
 
-  useMuteVideoOnSpotifyPlay(!muted, handleMute, true)
+  useMuteVideoOnSpotifyPlay(!muted, handleMute, !previewOnly)
 
   const handleToggleMute = useCallback(() => {
     const video = videoRef.current
@@ -112,11 +114,13 @@ export function DevSuitePreviewVideo({
           fillCard ? ` ${styles.previewVideoFill}` : ''
         }`}
         loop
+        muted={previewOnly || undefined}
         playsInline
         autoPlay
         preload="auto"
         draggable={false}
       />
+      {previewOnly ? null : (
       <button
         type="button"
         className={styles.previewMuteButton}
@@ -156,6 +160,7 @@ export function DevSuitePreviewVideo({
           )}
         </span>
       </button>
+      )}
     </div>
   )
 }

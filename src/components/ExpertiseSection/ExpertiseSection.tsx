@@ -158,7 +158,11 @@ function DevSuiteMainCard({
     >
       {media?.previewVideoSrc ? (
         <div className={styles.devSuiteMedia}>
-          <DevSuitePreviewVideo src={media.previewVideoSrc} fillCard />
+          <DevSuitePreviewVideo
+            src={media.previewVideoSrc}
+            fillCard
+            previewOnly={media.previewOnly}
+          />
         </div>
       ) : media?.previewImageSrc ? (
         <div className={styles.devSuiteMedia}>

@@ -1,9 +1,10 @@
-import kaelThumbnailVideo from '../assets/DEV/kael_thumbnail.mp4'
-import mablePreview from '../assets/DEV/mable.webp'
+import kaelThumbnailVideo from '../assets/DEV/KAEL/kael_thumbnail.mp4'
+import mableThumbnailVideo from '../assets/DEV/MABLE/thumbnail.mp4'
 
 export type DevSuiteMedia = {
   previewVideoSrc?: string
   previewImageSrc?: string
+  previewOnly?: boolean
 }
 
 const DEV_SUITE_MEDIA: Record<string, DevSuiteMedia> = {
@@ -11,7 +12,8 @@ const DEV_SUITE_MEDIA: Record<string, DevSuiteMedia> = {
     previewVideoSrc: kaelThumbnailVideo,
   },
   mable: {
-    previewImageSrc: mablePreview,
+    previewVideoSrc: mableThumbnailVideo,
+    previewOnly: true,
   },
 }
 
