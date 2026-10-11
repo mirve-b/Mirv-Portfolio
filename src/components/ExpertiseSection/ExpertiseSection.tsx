@@ -160,6 +160,15 @@ function DevSuiteMainCard({
         <div className={styles.devSuiteMedia}>
           <DevSuitePreviewVideo src={media.previewVideoSrc} fillCard />
         </div>
+      ) : media?.previewImageSrc ? (
+        <div className={styles.devSuiteMedia}>
+          <img
+            src={media.previewImageSrc}
+            alt=""
+            className={styles.devSuitePreviewImage}
+            draggable={false}
+          />
+        </div>
       ) : (
         <div className={`${styles.devSuiteMedia} ${styles.devSuiteVideoFallback}`}>
           <MediaLoader />
@@ -187,16 +196,44 @@ function DevSuiteMainCard({
             ))}
           </ul>
         ) : null}
-        <motion.button
-          type="button"
-          className={styles.devSuiteExplore}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-          transition={cardHoverSpring}
-          onClick={() => onOpenProject(project.id)}
-        >
-          Explore
-        </motion.button>
+        {project.externalUrl ? (
+          <motion.a
+            href={project.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.devSuiteExplore}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            transition={cardHoverSpring}
+          >
+            {project.ctaLabel ?? 'Visit'}
+            <svg
+              className={styles.devSuiteExploreIcon}
+              viewBox="0 0 14 14"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 11L11 3M11 3H5.5M11 3V8.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </motion.a>
+        ) : (
+          <motion.button
+            type="button"
+            className={styles.devSuiteExplore}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            transition={cardHoverSpring}
+            onClick={() => onOpenProject(project.id)}
+          >
+            Explore
+          </motion.button>
+        )}
       </div>
     </motion.article>
   )

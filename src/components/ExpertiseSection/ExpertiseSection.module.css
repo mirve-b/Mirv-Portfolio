@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   padding: clamp(0.5rem, 1.25vw, 1rem) var(--container-padding)
-    clamp(1.5rem, 3vw, 2rem);
+    clamp(2.75rem, 5.5vw, 4rem);
   background: var(--color-bg);
 }
 
@@ -108,6 +108,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.45rem;
   align-self: flex-start;
   padding: 0.55rem 1.45rem;
   border-radius: 999px;
@@ -135,6 +136,21 @@
   box-shadow:
     0 0 22px rgba(224, 44, 107, 0.45),
     0 0 40px rgba(224, 44, 107, 0.18);
+}
+
+.devSuiteExploreIcon {
+  width: 0.8rem;
+  height: 0.8rem;
+  flex-shrink: 0;
+}
+
+.devSuitePreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+  display: block;
 }
 
 .devSuiteMedia {
@@ -609,7 +625,7 @@
 @media (max-width: 768px) {
   .section {
     padding-top: var(--navbar-height);
-    padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+    padding-bottom: clamp(2.75rem, 6vw, 3.75rem);
   }
 
   .tabBar {

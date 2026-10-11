@@ -15,6 +15,9 @@ export type PortfolioProjectMeta = {
   thumbnailPosition?: string
   detailType?: ProjectDetailType
   galleryMaxColumns?: number
+  /** Opens this URL instead of an in-site project view. */
+  externalUrl?: string
+  ctaLabel?: string
 }
 
 export type PortfolioProject = PortfolioProjectMeta & {
@@ -142,6 +145,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     detailType: 'video-showcase',
   },
   {
+    id: 'mable',
+    category: 'development',
+    title: 'MABLE STUDIO',
+    subtitle: 'a design x code studio',
+    description:
+      'An independent creative studio exploring the intersection of expressive branding, unconventional web design, and thoughtful development. MABLE builds distinctive digital worlds for brands that dare to be different.',
+    detailType: 'dev-suite',
+    externalUrl: 'https://mable.cc',
+    ctaLabel: 'MABLE',
+  },
+  {
     id: 'blvck',
     category: 'ui-ux',
     title: 'BLVCK',
@@ -203,6 +217,7 @@ export function getProjectMetaById(projectId: string): PortfolioProjectMeta | un
 }
 
 export function isProjectOpenable(project: PortfolioProjectMeta): boolean {
+  if (project.externalUrl) return false
   return (
     project.detailType === 'gallery' ||
     project.detailType === 'dev-suite' ||
