@@ -4,7 +4,9 @@ import { loadProjectThumbnail } from '../../data/projectAssets'
 import type { PortfolioProjectMeta } from '../../data/portfolioProjects'
 import { getArtSuiteProjects } from '../../data/portfolioProjects'
 import cardStyles from '../ExpertiseSection/ExpertiseSection.module.css'
+import { ToyBoxBackground } from './ToyBoxBackground'
 import styles from './ToyBoxSuiteView.module.css'
+
 
 type ToyBoxSuiteViewProps = {
   project: PortfolioProjectMeta
@@ -55,6 +57,7 @@ export function ToyBoxSuiteView({
 
   return (
     <section className={styles.section} aria-label={`${project.title} suite`}>
+      <ToyBoxBackground />
       <div className={styles.header}>
         <button type="button" className={styles.backButton} onClick={handleBack}>
           ← Back

@@ -1,12 +1,16 @@
 .section {
   position: relative;
   width: 100%;
+  min-height: calc(100svh - var(--navbar-height));
   padding: clamp(1.5rem, 4vw, 2.5rem) var(--container-padding)
     clamp(1rem, 2.5vw, 1.5rem);
   background: var(--color-bg);
+  isolation: isolate;
 }
 
 .header {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -63,6 +67,8 @@
 }
 
 .grid {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(1rem, 3vw, 2rem);

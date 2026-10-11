@@ -15,7 +15,6 @@ import {
   type ExpertiseCategory,
 } from '../../lib/pageNavigation'
 import { DevSuitePreviewVideo } from '../DevSuiteView/DevSuitePreviewVideo'
-import { LogoDesigns } from './LogoDesigns'
 import { MediaLoader, ShowcaseVideoCard } from './ShowcaseVideoCard'
 import styles from './ExpertiseSection.module.css'
 
@@ -400,15 +399,6 @@ export function ExpertiseSection({
         ))}
       </div>
     )
-
-    if (category === 'ui-ux') {
-      return (
-        <div className={styles.uiUxStack}>
-          {cards}
-          <LogoDesigns />
-        </div>
-      )
-    }
 
     return cards
   }
