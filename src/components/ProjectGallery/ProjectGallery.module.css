@@ -103,13 +103,15 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: clamp(0.85rem, 1.8vw, 1.25rem);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  max-width: min(100%, 88rem);
+  container-type: inline-size;
 }
 
 .gridPack .item {
   display: flex;
   flex: 0 0 auto;
-  height: clamp(18rem, 46vh, 28rem);
+  height: min(70svh, 42rem, calc((100cqi - 1.5rem) / 2.12));
   width: auto;
   max-width: 100%;
 }

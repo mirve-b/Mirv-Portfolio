@@ -32,6 +32,14 @@ export type PortfolioProject = PortfolioProjectMeta & {
  */
 export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
   {
+    id: 'somewhere-else',
+    category: 'art',
+    title: 'SOMEWHERE ELSE',
+    subtitle: 'NARRATIVE ILLUSTRATIONS',
+    detailType: 'gallery',
+    galleryLayout: 'pack',
+  },
+  {
     id: 'after-hours',
     category: 'art',
     title: 'After Hours',
@@ -44,14 +52,6 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     title: 'Second Skin',
     subtitle: 'Character Concepts',
     detailType: 'gallery',
-  },
-  {
-    id: 'somewhere-else',
-    category: 'art',
-    title: 'SOMEWHERE ELSE',
-    subtitle: 'NARRATIVE ILLUSTRATIONS',
-    detailType: 'gallery',
-    galleryLayout: 'pack',
   },
   {
     id: 'archive',
