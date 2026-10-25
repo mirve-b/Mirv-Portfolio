@@ -6,6 +6,8 @@ const loadThumbnail = () =>
 const loadGallery = () =>
   Promise.all([
     import('../../assets/ART/SOMEWHERE ELSE/1.MP4').then((m) => m.default),
+    import('../../assets/ART/SOMEWHERE ELSE/2.webp').then((m) => m.default),
+    import('../../assets/ART/SOMEWHERE ELSE/3.webp').then((m) => m.default),
   ])
 
 export default createProjectAssetLoader(loadThumbnail, loadGallery)

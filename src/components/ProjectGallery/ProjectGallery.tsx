@@ -169,7 +169,12 @@ function pauseGalleryMedia(root: HTMLElement | null) {
   })
 }
 
-function galleryClassName(maxColumns?: number) {
+function galleryClassName(
+  maxColumns?: number,
+  layout?: PortfolioProject['galleryLayout'],
+) {
+  if (layout === 'pack') return `${styles.grid} ${styles.gridPack}`
+
   return `${styles.grid}${
     maxColumns === 1
       ? ` ${styles.gridColumn}`
@@ -183,13 +188,15 @@ function GalleryMediaGrid({
   projectId,
   items,
   maxColumns,
+  layout,
 }: {
   projectId: string
   items: string[]
   maxColumns?: number
+  layout?: PortfolioProject['galleryLayout']
 }) {
   return (
-    <div className={galleryClassName(maxColumns)}>
+    <div className={galleryClassName(maxColumns, layout)}>
       {items.map((src, index) =>
         isVideoAsset(src) ? (
           <GalleryVideoItem
@@ -249,6 +256,7 @@ export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
           projectId={project.id}
           items={project.gallery}
           maxColumns={project.galleryMaxColumns}
+          layout={project.galleryLayout}
         />
       ) : (
         <p className={styles.empty}>Gallery coming soon.</p>

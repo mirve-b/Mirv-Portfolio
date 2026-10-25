@@ -15,6 +15,8 @@ export type PortfolioProjectMeta = {
   thumbnailPosition?: string
   detailType?: ProjectDetailType
   galleryMaxColumns?: number
+  /** Pack pieces at a shared row height, no crop, wrap when they do not fit. */
+  galleryLayout?: 'pack'
   /** Opens this URL instead of an in-site project view. */
   externalUrl?: string
   ctaLabel?: string
@@ -49,6 +51,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     title: 'SOMEWHERE ELSE',
     subtitle: 'NARRATIVE ILLUSTRATIONS',
     detailType: 'gallery',
+    galleryLayout: 'pack',
   },
   {
     id: 'archive',
