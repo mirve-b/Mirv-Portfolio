@@ -100,18 +100,19 @@
 
 .gridPack {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: flex-start;
-  justify-content: flex-start;
-  gap: clamp(1rem, 2vw, 1.5rem);
-  max-width: min(100%, 88rem);
+  justify-content: center;
+  gap: clamp(0.85rem, 1.6vw, 1.25rem);
+  width: 100%;
+  max-width: 100%;
   container-type: inline-size;
 }
 
 .gridPack .item {
   display: flex;
   flex: 0 0 auto;
-  height: min(70svh, 42rem, calc((100cqi - 1.5rem) / 2.12));
+  height: min(58svh, 34rem, calc((100cqi - 2.5rem) / 2.92));
   width: auto;
   max-width: 100%;
 }
@@ -146,6 +147,10 @@
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
   line-height: 0;
+}
+
+.itemOpenable {
+  cursor: pointer;
 }
 
 .image {
@@ -245,9 +250,82 @@
   color: var(--color-grey-200);
 }
 
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: lightboxIn 220ms var(--ease-smooth);
+}
+
+.lightboxCard {
+  position: relative;
+  max-width: min(92vw, 78rem);
+  max-height: 88svh;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #050505;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+}
+
+.lightboxMedia {
+  display: block;
+  max-width: min(92vw, 78rem);
+  max-height: 88svh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+.lightboxClose {
+  position: absolute;
+  top: clamp(0.85rem, 2vw, 1.25rem);
+  right: clamp(0.85rem, 2vw, 1.25rem);
+  z-index: 1;
+  width: 2.35rem;
+  height: 2.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-white);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--color-white);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lightboxClose:hover {
+  border-color: var(--color-accent);
+  background: rgba(224, 44, 107, 0.18);
+}
+
+@keyframes lightboxIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 768px) {
   .section {
     padding-top: calc(var(--navbar-height) + 1.5rem);
+  }
+
+  .gridPack {
+    flex-wrap: wrap;
   }
 
   .gridPack .item {
@@ -262,6 +340,12 @@
   .gridPack .videoWrapPreview {
     width: 100%;
     height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox {
+    animation: none;
   }
 }
 

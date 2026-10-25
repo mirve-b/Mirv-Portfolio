@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { PortfolioProject } from '../../data/portfolioProjects'
 import { isVideoAsset, startMutedPreview } from '../../lib/mediaUtils'
 import {
@@ -18,12 +19,14 @@ type GalleryVideoItemProps = {
   muteOnSpotifyPlay?: boolean
   /** Full-width muted loop — no crop, no mute control (e.g. UI/UX prototypes). */
   previewOnly?: boolean
+  onOpen?: (src: string) => void
 }
 
 function GalleryVideoItem({
   src,
   muteOnSpotifyPlay = false,
   previewOnly = false,
+  onOpen,
 }: GalleryVideoItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const spotifyHandoffRef = useRef(false)
@@ -100,7 +103,23 @@ function GalleryVideoItem({
   }, [])
 
   return (
-    <figure className={styles.item}>
+    <figure
+      className={`${styles.item}${onOpen ? ` ${styles.itemOpenable}` : ''}`}
+      onClick={onOpen ? () => onOpen(src) : undefined}
+      onKeyDown={
+        onOpen
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onOpen(src)
+              }
+            }
+          : undefined
+      }
+      role={onOpen ? 'button' : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      aria-label={onOpen ? 'View artwork' : undefined}
+    >
       <div
         className={`${styles.videoWrap}${
           previewOnly ? ` ${styles.videoWrapPreview}` : ''
@@ -124,7 +143,14 @@ function GalleryVideoItem({
             type="button"
             className={styles.videoControlButton}
             aria-label={isUnmuted ? 'Mute video' : 'Unmute video'}
-            onClick={isUnmuted ? handleMute : handleUnmute}
+            onClick={(event) => {
+              event.stopPropagation()
+              if (isUnmuted) {
+                handleMute()
+                return
+              }
+              handleUnmute()
+            }}
           >
             <span className={styles.videoControlIcon} aria-hidden="true">
               {isUnmuted ? (
@@ -184,16 +210,72 @@ function galleryClassName(
   }`
 }
 
+function ArtworkLightbox({ src, onClose }: { src: string; onClose: () => void }) {
+  const video = isVideoAsset(src)
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
+
+  return createPortal(
+    <div className={styles.lightbox} onClick={onClose} role="presentation">
+      <button
+        type="button"
+        className={styles.lightboxClose}
+        aria-label="Close artwork"
+        onClick={onClose}
+      >
+        ×
+      </button>
+      <div
+        className={styles.lightboxCard}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Artwork"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {video ? (
+          <video
+            src={src}
+            className={styles.lightboxMedia}
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls={false}
+          />
+        ) : (
+          <img src={src} alt="" className={styles.lightboxMedia} draggable={false} />
+        )}
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
 function GalleryMediaGrid({
   projectId,
   items,
   maxColumns,
   layout,
+  onOpenArtwork,
 }: {
   projectId: string
   items: string[]
   maxColumns?: number
   layout?: PortfolioProject['galleryLayout']
+  onOpenArtwork?: (src: string) => void
 }) {
   return (
     <div className={galleryClassName(maxColumns, layout)}>
@@ -208,9 +290,27 @@ function GalleryMediaGrid({
               projectId === 'somewhere-else' ||
               projectId === 'molly'
             }
+            onOpen={onOpenArtwork}
           />
         ) : (
-          <figure key={`${projectId}-${index}`} className={styles.item}>
+          <figure
+            key={`${projectId}-${index}`}
+            className={`${styles.item}${onOpenArtwork ? ` ${styles.itemOpenable}` : ''}`}
+            onClick={onOpenArtwork ? () => onOpenArtwork(src) : undefined}
+            onKeyDown={
+              onOpenArtwork
+                ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      onOpenArtwork(src)
+                    }
+                  }
+                : undefined
+            }
+            role={onOpenArtwork ? 'button' : undefined}
+            tabIndex={onOpenArtwork ? 0 : undefined}
+            aria-label={onOpenArtwork ? 'View artwork' : undefined}
+          >
             <img
               src={src}
               alt=""
@@ -229,11 +329,21 @@ function GalleryMediaGrid({
 
 export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
   const sectionRef = useRef<HTMLElement>(null)
+  const [openArtwork, setOpenArtwork] = useState<string | null>(null)
+  const canOpenArtwork = project.category === 'art'
 
   const handleBack = useCallback(() => {
     pauseGalleryMedia(sectionRef.current)
     onBack()
   }, [onBack])
+
+  const handleOpenArtwork = useCallback((src: string) => {
+    setOpenArtwork(src)
+  }, [])
+
+  const handleCloseArtwork = useCallback(() => {
+    setOpenArtwork(null)
+  }, [])
 
   return (
     <section
@@ -257,10 +367,15 @@ export function ProjectGallery({ project, onBack }: ProjectGalleryProps) {
           items={project.gallery}
           maxColumns={project.galleryMaxColumns}
           layout={project.galleryLayout}
+          onOpenArtwork={canOpenArtwork ? handleOpenArtwork : undefined}
         />
       ) : (
         <p className={styles.empty}>Gallery coming soon.</p>
       )}
+
+      {openArtwork ? (
+        <ArtworkLightbox src={openArtwork} onClose={handleCloseArtwork} />
+      ) : null}
     </section>
   )
 }
