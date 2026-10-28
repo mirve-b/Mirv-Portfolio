@@ -155,7 +155,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     title: 'MABLE STUDIO',
     subtitle: 'a design x code studio',
     description:
-      'An independent creative studio exploring the intersection of expressive branding, unconventional web design, and thoughtful development. MABLE builds distinctive digital worlds for brands that dare to be different.',
+      'An independent creative studio exploring the intersection of expressive branding, unconventional web design and development. MABLE builds distinctive digital worlds for businesses that dare to be different.',
     detailType: 'dev-suite',
     externalUrl: 'https://mable.cc',
     ctaLabel: 'MABLE',
