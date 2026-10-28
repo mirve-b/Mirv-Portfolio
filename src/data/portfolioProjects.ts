@@ -7,6 +7,7 @@ export type PortfolioProjectMeta = {
   id: string
   category: ExpertiseCategory
   title: string
+  titleMark?: string
   subtitle: string
   description?: string
   techStack?: string[]
@@ -96,6 +97,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     id: 'kael',
     category: 'development',
     title: 'KAEL',
+    titleMark: 'TOP 3 · CAPSTONE PROJECT',
     subtitle: 'AI career toolkit',
     description:
       'An AI-powered suite for profiles, portfolios, ATS resumes, case studies, and job-matched applications, built end to end as a cohesive product experience.',

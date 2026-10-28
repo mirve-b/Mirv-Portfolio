@@ -178,7 +178,17 @@ function DevSuiteMainCard({
         </div>
       )}
       <div className={styles.devSuiteCopy}>
-        <h3 className={styles.cardTitle}>{project.title}</h3>
+        <h3 className={styles.cardTitle}>
+          {project.title}
+          {project.titleMark ? (
+            <>
+              <span className={styles.titleSep} aria-hidden="true">
+                |
+              </span>
+              <span className={styles.titleMark}>{project.titleMark}</span>
+            </>
+          ) : null}
+        </h3>
         <p className={styles.cardSubtitle}>{project.subtitle}</p>
         {project.description ? (
           <p className={styles.devSuiteDescription}>{project.description}</p>

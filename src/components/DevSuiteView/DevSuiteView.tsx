@@ -92,7 +92,17 @@ export function DevSuiteView({ project, onBack }: DevSuiteViewProps) {
           ← Back
         </button>
         <div className={styles.titles}>
-          <h1 className={styles.title}>{project.title}</h1>
+          <h1 className={styles.title}>
+            {project.title}
+            {project.titleMark ? (
+              <>
+                <span className={styles.titleSep} aria-hidden="true">
+                  |
+                </span>
+                <span className={styles.titleMark}>{project.titleMark}</span>
+              </>
+            ) : null}
+          </h1>
           <p className={styles.subtitle}>{project.subtitle}</p>
           {project.description ? (
             <p className={styles.description}>{project.description}</p>
