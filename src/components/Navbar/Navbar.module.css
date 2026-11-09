@@ -42,7 +42,7 @@
 .name {
   font-family: var(--font-body);
   font-size: var(--text-lg);
-  font-weight: 200;
+  font-weight: 300;
   letter-spacing: 0.06em;
   line-height: 1;
   color: var(--color-white);

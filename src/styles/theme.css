@@ -4,10 +4,10 @@
   --color-accent: #e02c6b;
   --color-beige: #d4c4b0;
   --color-white: #ffffff;
-  --color-grey-100: rgba(255, 255, 255, 0.85);
-  --color-grey-200: rgba(255, 255, 255, 0.55);
-  --color-grey-300: rgba(255, 255, 255, 0.35);
-  --color-grey-400: rgba(255, 255, 255, 0.18);
+  --color-grey-100: rgba(255, 255, 255, 0.96);
+  --color-grey-200: rgba(255, 255, 255, 0.8);
+  --color-grey-300: rgba(255, 255, 255, 0.58);
+  --color-grey-400: rgba(255, 255, 255, 0.32);
   --color-border: rgba(255, 255, 255, 0.12);
   --color-border-strong: rgba(255, 255, 255, 0.22);
   --color-surface-glass: rgba(0, 0, 0, 0.55);
@@ -17,12 +17,12 @@
   --font-display: 'Alumni Sans Pinstripe', sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 
-  --text-xs: clamp(0.5625rem, 0.5rem + 0.2vw, 0.625rem);
-  --text-sm: clamp(0.6875rem, 0.62rem + 0.2vw, 0.75rem);
-  --text-base: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
-  --text-lg: clamp(1rem, 0.9rem + 0.35vw, 1.125rem);
-  --text-xl: clamp(1.5rem, 1.25rem + 1vw, 2rem);
-  --text-tagline-divider: 20px;
+  --text-xs: clamp(0.6875rem, 0.625rem + 0.25vw, 0.75rem);
+  --text-sm: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  --text-base: clamp(0.9375rem, 0.88rem + 0.3vw, 1.0625rem);
+  --text-lg: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+  --text-xl: clamp(1.625rem, 1.4rem + 1vw, 2.125rem);
+  --text-tagline-divider: 22px;
   --text-hero-mirve: clamp(6rem, 13vw, 12rem);
   --text-hero-portfolio: calc(var(--text-hero-mirve) * 0.3);
 
@@ -65,7 +65,7 @@
     --navbar-brand-left: 1.25rem;
     --text-hero-mirve: clamp(3rem, 15vw, 4.75rem);
     --text-hero-portfolio: calc(var(--text-hero-mirve) * 0.34);
-    --text-tagline-divider: 16px;
+    --text-tagline-divider: 18px;
     --blur-glass: 0px;
   }
 }

@@ -37,9 +37,9 @@
 .subtext {
   max-width: 20rem;
   font-size: var(--text-sm);
-  font-weight: 200;
+  font-weight: 300;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .socialList {
@@ -132,10 +132,10 @@
 
 .label {
   font-size: var(--text-xs);
-  font-weight: 200;
+  font-weight: 300;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .input,
@@ -144,7 +144,7 @@
   padding: 0.75rem 1rem;
   font-family: var(--font-body);
   font-size: var(--text-sm);
-  font-weight: 200;
+  font-weight: 300;
   color: var(--color-white);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--color-border);
@@ -198,7 +198,7 @@
 
 .formFeedback {
   font-size: var(--text-sm);
-  font-weight: 200;
+  font-weight: 300;
   color: var(--color-grey-100);
 }
 
@@ -215,7 +215,7 @@
   padding-bottom: clamp(1rem, 2vw, 1.25rem);
   text-align: right;
   font-size: var(--text-xs);
-  font-weight: 200;
+  font-weight: 300;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.48);
 }

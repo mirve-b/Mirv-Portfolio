@@ -23,8 +23,8 @@
 
 .word {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 2vw, 1rem);
-  font-weight: 200;
+  font-size: clamp(1.0625rem, 2vw, 1.125rem);
+  font-weight: 300;
   line-height: 1;
   letter-spacing: 0.1em;
   color: var(--color-accent);

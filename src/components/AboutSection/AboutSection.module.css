@@ -59,8 +59,8 @@
 
 .heading {
   font-family: var(--font-body);
-  font-size: clamp(0.875rem, 0.8rem + 0.3vw, 1rem);
-  font-weight: 300;
+  font-size: clamp(1rem, 0.92rem + 0.3vw, 1.125rem);
+  font-weight: 400;
   letter-spacing: var(--tracking-wide);
   line-height: 1;
   color: var(--color-accent);
@@ -70,8 +70,8 @@
 
 .subheading {
   font-family: var(--font-body);
-  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.9375rem);
-  font-weight: 200;
+  font-size: clamp(0.9375rem, 0.88rem + 0.25vw, 1.0625rem);
+  font-weight: 300;
   letter-spacing: 0.04em;
   line-height: 1.45;
   color: var(--color-white);
@@ -80,8 +80,8 @@
 
 .body {
   font-family: var(--font-body);
-  font-size: clamp(0.6875rem, 0.62rem + 0.25vw, 0.8125rem);
-  font-weight: 200;
+  font-size: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
+  font-weight: 300;
   letter-spacing: 0.02em;
   line-height: 1.65;
   color: var(--color-grey-100);
