@@ -25,6 +25,24 @@ const HTML_ACTIVE_CLASS = 'custom-pointer-active'
 
 let particleId = 0
 
+const HEART_PATH =
+  'M12 21.2C11.6 21.2 11.2 21 10.9 20.8C6.6 17.5 2 13.7 2 8.9C2 5.9 4.3 3.5 7.2 3.5C9.1 3.5 10.9 4.5 12 6.1C13.1 4.5 14.9 3.5 16.8 3.5C19.7 3.5 22 5.9 22 8.9C22 13.7 17.4 17.5 13.1 20.8C12.8 21 12.4 21.2 12 21.2Z'
+
+/** Minimal white heart with a thin black outline — reads on dark and light. */
+function HeartCursor() {
+  return (
+    <svg className={styles.cursorBody} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d={HEART_PATH}
+        fill="#ffffff"
+        stroke="#000000"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function CustomPointer() {
   const cursorRef = useRef<HTMLDivElement>(null)
   const [enabled, setEnabled] = useState(false)
@@ -82,25 +100,55 @@ export function CustomPointer() {
       const cursor = cursorRef.current
       if (!cursor) return
       cursor.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`
+      cursor.removeAttribute('data-away')
     }
 
     const onMove = (event: MouseEvent) => {
       moveCursor(event.clientX, event.clientY)
     }
 
+    // Cross-origin iframes (the Spotify player) swallow mouse events, so the
+    // dot would freeze at the edge. Hide it there and let the native cursor show.
+    const onOver = (event: MouseEvent) => {
+      if (event.target instanceof HTMLIFrameElement) {
+        cursorRef.current?.setAttribute('data-away', '')
+      }
+    }
+
     const onDown = (event: MouseEvent) => {
       moveCursor(event.clientX, event.clientY)
+      cursorRef.current?.setAttribute('data-pressed', '')
       window.requestAnimationFrame(() => {
         spawnClickSpark(event.clientX, event.clientY)
       })
     }
 
+    const onUp = () => {
+      cursorRef.current?.removeAttribute('data-pressed')
+    }
+
+    const onLeaveWindow = () => {
+      cursorRef.current?.setAttribute('data-away', '')
+    }
+
+    const onEnterWindow = () => {
+      cursorRef.current?.removeAttribute('data-away')
+    }
+
     window.addEventListener('mousemove', onMove, { passive: true })
+    window.addEventListener('mouseover', onOver, { passive: true })
     window.addEventListener('mousedown', onDown)
+    window.addEventListener('mouseup', onUp)
+    document.documentElement.addEventListener('mouseleave', onLeaveWindow)
+    document.documentElement.addEventListener('mouseenter', onEnterWindow)
 
     return () => {
       window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseover', onOver)
       window.removeEventListener('mousedown', onDown)
+      window.removeEventListener('mouseup', onUp)
+      document.documentElement.removeEventListener('mouseleave', onLeaveWindow)
+      document.documentElement.removeEventListener('mouseenter', onEnterWindow)
       document.documentElement.classList.remove(HTML_ACTIVE_CLASS)
     }
   }, [enabled, spawnClickSpark])
@@ -126,7 +174,9 @@ export function CustomPointer() {
           onAnimationEnd={() => removeParticle(particle.id)}
         />
       ))}
-      <div ref={cursorRef} className={styles.cursor} />
+      <div ref={cursorRef} className={styles.cursor}>
+        <HeartCursor />
+      </div>
     </div>
   )
 }

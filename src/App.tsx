@@ -20,6 +20,8 @@ import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
 import { IntroSplash } from './components/IntroSplash'
 import { NameMarquee } from './components/NameMarquee'
+import { CURTAIN_COVER_S, CURTAIN_HOLD_MS, PageCurtain, type CurtainPhase } from './components/PageCurtain'
+import { ScrollProgress } from './components/ScrollProgress'
 import { Navbar } from './components/Navbar'
 import { TaglineDivider } from './components/TaglineDivider'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
@@ -218,6 +220,51 @@ function App() {
     [applyRoute],
   )
 
+  const [curtainPhase, setCurtainPhase] = useState<CurtainPhase>('idle')
+  const [curtainRun, setCurtainRun] = useState(0)
+  const curtainBusy = useRef(false)
+  const curtainPending = useRef<(() => void) | null>(null)
+  const curtainFallback = useRef(0)
+
+  const flushCurtain = useCallback(() => {
+    window.clearTimeout(curtainFallback.current)
+    const run = curtainPending.current
+    if (!run) return
+    curtainPending.current = null
+    run()
+    // Hold the black frame a beat so the wordmark registers, then part the bars.
+    window.setTimeout(() => setCurtainPhase('reveal'), CURTAIN_HOLD_MS)
+    // Same safety net for the reveal, so the overlay can never trap clicks.
+    curtainFallback.current = window.setTimeout(() => {
+      curtainBusy.current = false
+      setCurtainPhase('idle')
+    }, 1600 + CURTAIN_HOLD_MS)
+  }, [])
+
+  /**
+   * Sweep the curtain over the page, run the navigation while it's covered,
+   * then sweep it away. Falls back to running immediately for reduced motion.
+   */
+  const withCurtain = useCallback((run: () => void) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      run()
+      return
+    }
+    if (curtainBusy.current) return
+    curtainBusy.current = true
+    curtainPending.current = run
+    setCurtainRun((n) => n + 1)
+    setCurtainPhase('cover')
+    // Safety net in case the cover animation never reports completion.
+    curtainFallback.current = window.setTimeout(flushCurtain, CURTAIN_COVER_S * 1000 + 900)
+  }, [flushCurtain])
+
+  const handleCurtainDone = useCallback(() => {
+    window.clearTimeout(curtainFallback.current)
+    curtainBusy.current = false
+    setCurtainPhase('idle')
+  }, [])
+
   const handleIntroReveal = useCallback(() => {
     markIntroSeen()
     setShowContent(true)
@@ -234,14 +281,16 @@ function App() {
 
   const navigateToExpertise = useCallback(
     (category: ExpertiseCategory) => {
-      beginAnimatedNavigation(1)
-      setTabDirection(1)
-      setExpertiseEntrancePending(true)
-      expertiseEntrancePendingRef.current = true
+      withCurtain(() => {
+        beginAnimatedNavigation(1)
+        setTabDirection(1)
+        setExpertiseEntrancePending(true)
+        expertiseEntrancePendingRef.current = true
 
-      navigate({ type: 'expertise', category })
+        navigate({ type: 'expertise', category })
+      })
     },
-    [beginAnimatedNavigation, navigate],
+    [beginAnimatedNavigation, navigate, withCurtain],
   )
 
   const navigateHome = useCallback(() => {
@@ -250,11 +299,13 @@ function App() {
       return
     }
 
-    setTransitionDirection(-1)
-    setTransitionInstant(true)
+    withCurtain(() => {
+      setTransitionDirection(-1)
+      setTransitionInstant(true)
 
-    navigate({ type: 'home' })
-  }, [navigate])
+      navigate({ type: 'home' })
+    })
+  }, [navigate, withCurtain])
 
   const handleCategoryChange = useCallback(
     (category: ExpertiseCategory) => {
@@ -269,7 +320,7 @@ function App() {
 
   const openedSuiteChildRef = useRef(false)
 
-  const openProject = useCallback(
+  const openProjectNow = useCallback(
     (projectId: string) => {
       const project = getProjectMetaById(projectId)
       if (!project || !isProjectOpenable(project)) return
@@ -302,13 +353,27 @@ function App() {
     [beginAnimatedNavigation, navigate],
   )
 
-  const backToExpertise = useCallback((_category: ExpertiseCategory) => {
-    setTransitionInstant(true)
+  const openProject = useCallback(
+    (projectId: string) => {
+      const project = getProjectMetaById(projectId)
+      if (!project || !isProjectOpenable(project)) return
+      withCurtain(() => openProjectNow(projectId))
+    },
+    [openProjectNow, withCurtain],
+  )
 
-    window.history.back()
-  }, [])
+  const backToExpertise = useCallback(
+    (_category: ExpertiseCategory) => {
+      withCurtain(() => {
+        setTransitionInstant(true)
 
-  const backFromProject = useCallback(
+        window.history.back()
+      })
+    },
+    [withCurtain],
+  )
+
+  const backFromProjectNow = useCallback(
     (projectId: string) => {
       const project = getProjectMetaById(projectId)
       if (!project) return
@@ -344,6 +409,13 @@ function App() {
       window.history.back()
     },
     [beginAnimatedNavigation, replaceRoute],
+  )
+
+  const backFromProject = useCallback(
+    (projectId: string) => {
+      withCurtain(() => backFromProjectNow(projectId))
+    },
+    [backFromProjectNow, withCurtain],
   )
 
   const activeProjectMeta =
@@ -428,6 +500,13 @@ function App() {
   return (
     <div className={styles.app}>
       <CustomPointer />
+      {showContent ? <ScrollProgress /> : null}
+      <PageCurtain
+        phase={curtainPhase}
+        runId={curtainRun}
+        onCovered={flushCurtain}
+        onRevealComplete={handleCurtainDone}
+      />
       {showContent ? (
         <>
           <EntryPfp active={showContent && isHome} />

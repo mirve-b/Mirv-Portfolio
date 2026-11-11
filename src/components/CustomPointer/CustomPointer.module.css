@@ -11,18 +11,28 @@
   top: 0;
   left: 0;
   z-index: 2;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+  width: 20px;
+  height: 20px;
   pointer-events: none;
-  background: color-mix(in srgb, var(--color-accent) 38%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 0.7px solid var(--color-accent);
-  box-shadow:
-    0 0 3px 1px color-mix(in srgb, var(--color-accent) 35%, transparent),
-    0 0 8px 2px color-mix(in srgb, var(--color-accent) 12%, transparent);
   will-change: transform;
+  transition: opacity 0.15s linear;
+}
+
+.cursor[data-away] {
+  opacity: 0;
+}
+
+.cursorBody {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: transform 0.08s ease-out;
+}
+
+.cursor[data-pressed] .cursorBody {
+  transform: scale(0.78);
 }
 
 .star,
@@ -41,7 +51,7 @@
 }
 
 .star {
-  background: var(--color-accent);
+  background: var(--color-white);
   clip-path: polygon(
     50% 0%,
     61% 35%,
@@ -54,8 +64,8 @@
     2% 35%,
     39% 35%
   );
-  filter: drop-shadow(0 0 4px var(--color-accent))
-    drop-shadow(0 0 10px color-mix(in srgb, var(--color-accent) 75%, transparent));
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.7))
+    drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
 }
 
 .dot {

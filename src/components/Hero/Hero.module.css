@@ -12,6 +12,18 @@
   overflow: hidden;
 }
 
+/* Desktop: fill the first screen so the tagline sits right at the fold
+   (never shorter than the original 16:7 frame). */
+@media (min-width: 769px) {
+  .imageWrap {
+    aspect-ratio: auto;
+    height: max(
+      calc(100vw * 7 / 16),
+      calc(100svh - var(--navbar-height) - var(--hero-tagline-height, 3.75rem))
+    );
+  }
+}
+
 .image {
   width: 100%;
   height: 100%;
@@ -102,4 +114,10 @@
     font-weight: 500;
     letter-spacing: 0.08em;
   }
+}
+
+/* Parallax: let the video breathe past its frame without exposing edges */
+.image {
+  transform-origin: 50% 50%;
+  will-change: transform;
 }

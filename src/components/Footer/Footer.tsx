@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ScrollPfp } from '../ScrollPfp'
+import { SplitText } from '../SplitText'
 import { staggerContainer } from '../../lib/motion'
 import { useIsMobile } from '../../lib/useIsMobile'
 import { ContactForm } from './ContactForm'
@@ -35,9 +36,14 @@ export function Footer({
           whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}
         >
-          <motion.h2 id="footer-heading" className={styles.heading} variants={springItem}>
-            Let&apos;s connect
-          </motion.h2>
+          <SplitText
+            as="h2"
+            id="footer-heading"
+            text="Let's connect"
+            className={styles.heading}
+            inView
+            stagger={0.05}
+          />
 
           <motion.p className={styles.subtext} variants={springItem}>
             Open to collaborations, freelance work, and creative projects.

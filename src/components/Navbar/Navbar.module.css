@@ -15,9 +15,8 @@
   align-items: center;
   justify-content: flex-end;
   height: 100%;
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 0 var(--container-padding);
+  /* mirror the brand's fixed left inset so both ends stay balanced on wide screens */
+  padding: 0 var(--navbar-brand-left);
 }
 
 /* ── Brand — fixed left anchor ── */

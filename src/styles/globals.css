@@ -88,3 +88,8 @@ html.custom-pointer-active,
 html.custom-pointer-active * {
   cursor: none !important;
 }
+
+/* Embedded players (Spotify) draw their own cursor; never blank it out */
+html.custom-pointer-active iframe {
+  cursor: auto !important;
+}

@@ -19,6 +19,7 @@ import {
   slideFromLeft,
   staggerContainer,
 } from '../../lib/motion'
+import { SplitText } from '../SplitText'
 import { SkillsPanel } from './SkillsPanel'
 import styles from './AboutSection.module.css'
 
@@ -389,9 +390,14 @@ export function AboutSection({
           animate="visible"
         >
           <div className={styles.aboutContent}>
-            <h2 id="about-heading" className={styles.heading}>
-              About Me
-            </h2>
+            <SplitText
+              as="h2"
+              id="about-heading"
+              text="About Me"
+              className={styles.heading}
+              delay={0.25}
+              stagger={0.04}
+            />
             <p className={styles.subheading}>
               Equal parts pixels, logic, and sketchbooks
             </p>

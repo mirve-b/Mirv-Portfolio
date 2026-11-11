@@ -40,8 +40,8 @@
   --bp-mobile: 768px;
 
   /* Hero title anchors — desktop only (% of hero image) */
-  --hero-title-left: 6%;
-  --hero-title-right: 8%;
+  --hero-title-left: 7%;
+  --hero-title-right: 7%;
   --hero-title-y: 50%;
 
   /* Motion */

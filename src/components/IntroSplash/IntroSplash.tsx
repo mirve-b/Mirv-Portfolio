@@ -3,8 +3,11 @@ import { motion } from 'framer-motion'
 import styles from './IntroSplash.module.css'
 
 const DISPLAY_FONT = '400 1em "Alumni Sans Pinstripe"'
-const FADE_IN_MS = 1000
-const LOGO_HOLD_MS = 3000
+const WORD = 'MIRVÉ'
+const TYPE_START_MS = 450
+const TYPE_STEP_MS = 170
+const FADE_IN_MS = TYPE_START_MS + WORD.length * TYPE_STEP_MS
+const LOGO_HOLD_MS = 1900
 const FADE_OUT_MS = 2000
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -28,22 +31,25 @@ const splashVariants = {
 }
 
 const logoVariants = {
-  hidden: { opacity: 0, scale: 0.97 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: FADE_IN_MS / 1000, ease: EASE },
-  },
+  visible: { opacity: 1, filter: 'blur(0px)' },
   fadeOut: {
     opacity: 0,
-    scale: 1,
+    filter: 'blur(6px)',
     transition: { duration: (FADE_OUT_MS * 0.55) / 1000, ease: EASE },
   },
+}
+
+/** Each key "strikes": pops in a touch large and blurred, then settles crisp. */
+const keyStrike = {
+  initial: { opacity: 0, scale: 1.3, filter: 'blur(5px)' },
+  animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
+  transition: { type: 'spring' as const, stiffness: 700, damping: 26, mass: 0.6 },
 }
 
 export function IntroSplash({ onReveal, onExitComplete }: IntroSplashProps) {
   const [fontReady, setFontReady] = useState(false)
   const [phase, setPhase] = useState<SplashPhase>('idle')
+  const [typed, setTyped] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -72,6 +78,17 @@ export function IntroSplash({ onReveal, onExitComplete }: IntroSplashProps) {
 
     setPhase('fadeIn')
 
+    let typeTimer = 0
+    const startTimer = window.setTimeout(() => {
+      setTyped(1)
+      typeTimer = window.setInterval(() => {
+        setTyped((n) => {
+          if (n + 1 >= WORD.length) window.clearInterval(typeTimer)
+          return Math.min(n + 1, WORD.length)
+        })
+      }, TYPE_STEP_MS)
+    }, TYPE_START_MS)
+
     const holdTimer = window.setTimeout(() => {
       setPhase('hold')
     }, FADE_IN_MS)
@@ -82,13 +99,15 @@ export function IntroSplash({ onReveal, onExitComplete }: IntroSplashProps) {
     }, FADE_IN_MS + LOGO_HOLD_MS)
 
     return () => {
+      window.clearTimeout(startTimer)
+      window.clearInterval(typeTimer)
       window.clearTimeout(holdTimer)
       window.clearTimeout(fadeOutTimer)
     }
   }, [fontReady, onReveal])
 
-  const logoState =
-    phase === 'idle' ? 'hidden' : phase === 'fadeOut' ? 'fadeOut' : 'visible'
+  const typing = phase !== 'idle' && typed < WORD.length
+  const letters = Array.from(WORD)
   const splashState = phase === 'fadeOut' ? 'fadeOut' : 'visible'
 
   return (
@@ -104,10 +123,25 @@ export function IntroSplash({ onReveal, onExitComplete }: IntroSplashProps) {
       <motion.h1
         className={styles.logo}
         variants={logoVariants}
-        initial="hidden"
-        animate={logoState}
+        initial="visible"
+        animate={phase === 'fadeOut' ? 'fadeOut' : 'visible'}
       >
-        MIRVÉ
+        <span className={styles.srOnly}>{WORD}</span>
+        <span className={styles.letters} aria-hidden="true">
+          {letters.slice(0, typed).map((char, index) => (
+            <motion.span key={index} className={styles.letter} {...keyStrike}>
+              {char}
+            </motion.span>
+          ))}
+          {phase !== 'idle' ? (
+            <span className={styles.caret} data-typing={typing ? '' : undefined} />
+          ) : null}
+          {letters.slice(typed).map((char, index) => (
+            <span key={`ghost-${index}`} className={styles.ghost}>
+              {char}
+            </span>
+          ))}
+        </span>
       </motion.h1>
     </motion.div>
   )

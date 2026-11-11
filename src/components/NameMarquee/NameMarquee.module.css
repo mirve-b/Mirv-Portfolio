@@ -10,7 +10,6 @@
   display: flex;
   width: max-content;
   will-change: transform;
-  animation: marquee 48s linear infinite;
 }
 
 .content {
@@ -30,25 +29,15 @@
   color: var(--color-accent);
   text-transform: uppercase;
   white-space: nowrap;
+  transition:
+    color 0.3s var(--ease-smooth),
+    text-shadow 0.3s var(--ease-smooth);
 }
 
-@keyframes marquee {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-@media (max-width: 768px) {
-  .track {
-    animation-duration: 64s;
+@media (hover: hover) {
+  .word:hover {
+    color: var(--color-white);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 80%, transparent);
   }
 }
 
-@media (prefers-reduced-motion: reduce), (max-width: 768px) and (hover: none) {
-  .track {
-    animation: none;
-  }
-}

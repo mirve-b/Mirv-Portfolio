@@ -1,0 +1,19 @@
+.word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  /* room for descenders/accents so the mask doesn't crop glyphs */
+  padding-block: 0.35em 0.15em;
+  margin-block: -0.35em -0.15em;
+  vertical-align: top;
+}
+
+.char {
+  display: inline-block;
+  transform-origin: 0% 100%;
+  will-change: transform, opacity, filter;
+}

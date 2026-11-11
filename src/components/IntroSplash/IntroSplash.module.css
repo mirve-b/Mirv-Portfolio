@@ -21,3 +21,70 @@
   font-synthesis: none;
   text-rendering: geometricPrecision;
 }
+
+.letters {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.letter {
+  display: inline-block;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  will-change: transform, opacity, filter;
+}
+
+/* Untyped letters hold their space so the word types out in its final spot */
+.ghost {
+  visibility: hidden;
+}
+
+/* Terminal-style caret: zero-width anchor so it never nudges the letters */
+.caret {
+  position: relative;
+  display: inline-block;
+  width: 0;
+  height: 0.78em;
+  align-self: center;
+}
+
+.caret::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.08em;
+  width: max(2px, 0.025em);
+  background: var(--color-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 70%, transparent);
+  animation: caretBlink 0.9s steps(1, end) infinite;
+}
+
+.caret[data-typing]::after {
+  animation: none;
+}
+
+@keyframes caretBlink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret::after {
+    animation: none;
+  }
+}
