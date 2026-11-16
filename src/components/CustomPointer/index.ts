@@ -1,1 +1,0 @@
-export { CustomPointer } from './CustomPointer'

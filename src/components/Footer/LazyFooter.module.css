@@ -1,0 +1,5 @@
+/* roughly the footer's height, so the page doesn't jump when the real one arrives */
+.placeholder {
+  min-height: 70vh;
+  min-height: 70svh;
+}

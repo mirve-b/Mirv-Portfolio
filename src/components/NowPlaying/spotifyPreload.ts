@@ -15,6 +15,7 @@ function injectScript() {
   document.head.appendChild(script)
 }
 
+/** Phones and touch devices retry mounting the player a little faster. */
 export function prefersFastSpotifyWarmup(): boolean {
   if (typeof window === 'undefined') return false
 
@@ -51,11 +52,6 @@ export function preloadSpotifyIframeApi(): Promise<void> {
 
 export function scheduleSpotifyWarmup(work: () => void, delayMs = 1200): () => void {
   if (typeof window === 'undefined') return () => {}
-
-  if (prefersFastSpotifyWarmup()) {
-    const timer = window.setTimeout(work, 120)
-    return () => window.clearTimeout(timer)
-  }
 
   if (typeof window.requestIdleCallback === 'function') {
     const id = window.requestIdleCallback(work, { timeout: delayMs })

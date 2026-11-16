@@ -2,62 +2,36 @@
   position: fixed;
   inset: 0;
   z-index: 9500;
-  pointer-events: all;
-  overflow: hidden;
-}
-
-.bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 50.5%;
-  background: var(--color-bg);
-  will-change: transform;
-}
-
-.top {
-  top: 0;
-}
-
-.bottom {
-  bottom: 0;
-}
-
-.center {
-  position: absolute;
-  inset: 0;
   display: grid;
   place-items: center;
-  pointer-events: none;
-}
-
-.line,
-.mark {
-  grid-area: 1 / 1;
-}
-
-.line {
-  width: min(70vw, 56rem);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.35) 30%,
-    rgba(255, 255, 255, 0.35) 70%,
-    transparent
-  );
-  transform-origin: 50% 50%;
+  background: #000;
+  pointer-events: all;
 }
 
 .mark {
-  padding: 0 1.25rem;
-  font-family: var(--font-body);
-  font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.9375rem);
-  font-weight: 200;
-  line-height: 1;
+  font-family: var(--font-display);
+  font-size: clamp(11px, 0.85vw, 13px);
+  font-weight: 300;
+  letter-spacing: 0.5em;
   /* letter-spacing pads the right edge; offset so the word sits centred */
-  text-indent: 0.32em;
-  color: var(--color-white);
-  background: var(--color-bg);
-  text-transform: uppercase;
+  text-indent: 0.5em;
+  color: var(--color-sand);
+  animation: breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark {
+    animation: none;
+    opacity: 0.7;
+  }
 }

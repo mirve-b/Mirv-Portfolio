@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import {
   motion,
   useAnimationFrame,
+  useInView,
   useMotionValue,
   useScroll,
   useSpring,
@@ -11,47 +12,55 @@ import {
 import { useReducedMotion } from '../../lib/useReducedMotion'
 import styles from './NameMarquee.module.css'
 
-const ITEMS = Array.from({ length: 24 }, () => 'MIRVÉ')
-/** Base drift in % of one content copy per second (≈ the old 48s loop). */
-const BASE_SPEED = 100 / 48
+/** One dot tile, in px. The pattern loops every tile, so the drift wraps seamlessly. */
+const TILE = 26
+/** Idle drift of the dots, px per second. */
+const DOT_SPEED = 18
+/** Idle drift of the name, % of one copy per second. */
+const NAME_SPEED = 100 / 60
+const NAMES = Array.from({ length: 16 }, () => 'MIRVÉ')
 
 /**
- * Infinite name ticker that speeds up, flips direction and leans with scroll
- * velocity, then eases back to its idle drift.
+ * Two strips of tape crossing the page: cream polka dots, and a black one printed with the
+ * name. Both drift in opposite directions, speed up and flip with scroll, then settle back.
  */
 export function NameMarquee() {
   const reduced = useReducedMotion()
-  const offset = useMotionValue(0)
+  const dots = useMotionValue(0)
+  const name = useMotionValue(0)
   const direction = useRef(1)
+  // only animate while the tapes are on screen
+  const sectionRef = useRef<HTMLElement>(null)
+  const inView = useInView(sectionRef, { margin: '200px 0px' })
 
   const { scrollY } = useScroll()
   const scrollVelocity = useVelocity(scrollY)
   const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 })
-  const boost = useTransform(smoothVelocity, [-2000, 0, 2000], [-6, 0, 6], { clamp: false })
-  const skewX = useTransform(smoothVelocity, [-2500, 0, 2500], [12, 0, -12])
+  const boost = useTransform(smoothVelocity, [-2000, 0, 2000], [-8, 0, 8], { clamp: false })
 
   useAnimationFrame((_, delta) => {
-    if (reduced) return
+    if (reduced || !inView) return
     const b = boost.get()
     if (b < -0.01) direction.current = -1
     else if (b > 0.01) direction.current = 1
+    const speed = direction.current * (1 + Math.abs(b)) * (delta / 1000)
 
-    let move = direction.current * BASE_SPEED * (delta / 1000)
-    move += direction.current * Math.abs(b) * BASE_SPEED * (delta / 1000)
-
-    // wrap within one copy's width (the track holds two copies → -50% of track)
-    let next = offset.get() - move
-    if (next <= -100) next += 100
+    dots.set((((dots.get() - speed * DOT_SPEED) % TILE) + TILE) % TILE)
+    // the name runs the other way; the track holds two copies, so wrap at one copy
+    let next = name.get() + speed * NAME_SPEED
     if (next > 0) next -= 100
-    offset.set(next)
+    if (next <= -100) next += 100
+    name.set(next)
   })
 
-  const x = useTransform(offset, (v) => `${v / 2}%`)
+  // the dots drift by moving a layer (transform only: no repaint), wrapping every tile
+  const dotsX = useTransform(dots, (v) => v - TILE)
+  const nameX = useTransform(name, (v) => `${v / 2}%`)
 
-  const renderCopy = (prefix: string) => (
-    <div className={styles.content} aria-hidden="true">
-      {ITEMS.map((word, index) => (
-        <span key={`${prefix}-${index}`} className={styles.word}>
+  const copy = (key: string) => (
+    <div className={styles.copy} key={key}>
+      {NAMES.map((word, i) => (
+        <span key={i} className={styles.word}>
           {word}
         </span>
       ))}
@@ -59,11 +68,16 @@ export function NameMarquee() {
   )
 
   return (
-    <section className={styles.section} aria-hidden="true">
-      <motion.div className={styles.track} style={reduced ? undefined : { x, skewX }}>
-        {renderCopy('a')}
-        {renderCopy('b')}
-      </motion.div>
+    <section ref={sectionRef} className={styles.section} aria-hidden="true">
+      <div className={styles.polka}>
+        <motion.div className={styles.dots} style={reduced ? undefined : { x: dotsX }} />
+      </div>
+      <div className={styles.nameTape}>
+        <motion.div className={styles.track} style={reduced ? undefined : { x: nameX }}>
+          {copy('a')}
+          {copy('b')}
+        </motion.div>
+      </div>
     </section>
   )
 }

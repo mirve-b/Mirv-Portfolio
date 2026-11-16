@@ -29,8 +29,22 @@ export function SpotifyDrawer({
       if (event.key === 'Escape') onClose()
     }
 
+    // a tap anywhere outside the player and its button closes it (taps inside the
+    // Spotify embed land in its iframe, so they never reach here)
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Element | null
+      if (target?.closest('[data-playlist-root]')) return
+      onClose()
+    }
+
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    // wait a tick so the tap that opened the player doesn't close it straight away
+    const timer = window.setTimeout(() => document.addEventListener('pointerdown', onPointerDown, true), 0)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('pointerdown', onPointerDown, true)
+    }
   }, [open, onClose])
 
   return (
@@ -59,6 +73,9 @@ export function SpotifyDrawer({
       >
         <div className={styles.header}>
           <span className={styles.heading}>{PLAYLIST_LABEL}</span>
+          <span className={styles.code} aria-hidden="true">
+            MRV-SND-01
+          </span>
           {open ? (
             <button
               type="button"
@@ -80,17 +97,24 @@ export function SpotifyDrawer({
           ) : null}
         </div>
 
-        {SPOTIFY.webUrl ? (
-          <a
-            href={SPOTIFY.webUrl}
-            className={styles.spotifyLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            tabIndex={open ? 0 : -1}
-          >
-            Open in Spotify
-          </a>
-        ) : null}
+        <div className={styles.footer}>
+          {SPOTIFY.webUrl ? (
+            <a
+              href={SPOTIFY.webUrl}
+              className={styles.spotifyLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              tabIndex={open ? 0 : -1}
+            >
+              Open in Spotify <span aria-hidden="true">↗</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          <span className={styles.footerNote} aria-hidden="true">
+            Esc to close
+          </span>
+        </div>
       </aside>
     </>
   )

@@ -3,7 +3,7 @@
   width: 100%;
   padding: clamp(1.5rem, 4vw, 2.5rem) var(--container-padding)
     clamp(1rem, 2.5vw, 1.5rem);
-  background: var(--color-bg);
+  background: transparent;
 }
 
 .header {
@@ -14,27 +14,23 @@
   margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
 }
 
+/* a quiet text link, no pill */
 .backButton {
-  padding: 0.55rem 1.1rem;
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
+  padding: 0.4rem 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.75vw, 11px);
   font-weight: 400;
-  letter-spacing: var(--tracking-wide);
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: var(--color-white);
-  border: 1px solid var(--color-white);
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
-  transition:
-    color var(--duration-fast) var(--ease-smooth),
-    border-color var(--duration-fast) var(--ease-smooth),
-    background var(--duration-fast) var(--ease-smooth);
+  color: rgba(230, 216, 198, 0.6);
+  border: 0;
+  background: none;
+  transition: color 0.3s ease;
 }
 
-.backButton:hover {
-  color: var(--color-white);
-  border-color: var(--color-accent);
-  background: rgba(224, 44, 107, 0.14);
+.backButton:hover,
+.backButton:focus-visible {
+  color: var(--color-sand);
 }
 
 .titles {
@@ -45,22 +41,25 @@
 
 .title {
   margin: 0;
-  font-family: var(--font-body);
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  font-weight: 400;
-  letter-spacing: 0.1em;
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 1.8rem + 4.2vw, 6rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: var(--color-sand);
 }
 
 .subtitle {
   margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(230, 216, 198, 0.16);
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.75vw, 11px);
   font-weight: 300;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: var(--color-grey-200);
+  color: rgba(230, 216, 198, 0.6);
 }
 
 .grid {
@@ -140,13 +139,27 @@
   object-position: center;
 }
 
+/* no frames: just the work, edge to edge */
 .item {
   margin: 0;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   line-height: 0;
+}
+
+.item .image,
+.item .video {
+  transition:
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s ease;
+}
+
+.itemOpenable:hover .image,
+.itemOpenable:focus-visible .image {
+  transform: scale(1.025);
 }
 
 .itemOpenable {
@@ -231,7 +244,7 @@
 
 .videoControlButton:hover .videoControlIcon,
 .videoControlButton:focus-visible .videoControlIcon {
-  border-color: rgba(224, 44, 107, 0.55);
+  border-color: rgba(217, 210, 199, 0.55);
   background: rgba(0, 0, 0, 0.82);
   color: var(--color-beige);
 }
@@ -258,7 +271,7 @@
   align-items: center;
   justify-content: center;
   padding: clamp(1rem, 4vw, 2.5rem);
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   animation: lightboxIn 220ms var(--ease-smooth);
@@ -268,11 +281,8 @@
   position: relative;
   max-width: min(92vw, 78rem);
   max-height: 88svh;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 12px;
   overflow: hidden;
-  background: #050505;
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+  background: transparent;
 }
 
 .lightboxMedia {
@@ -306,7 +316,7 @@
 
 .lightboxClose:hover {
   border-color: var(--color-accent);
-  background: rgba(224, 44, 107, 0.18);
+  background: rgba(217, 210, 199, 0.18);
 }
 
 @keyframes lightboxIn {

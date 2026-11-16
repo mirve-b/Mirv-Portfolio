@@ -1,68 +1,39 @@
-import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { loadCategoryThumbnails } from '../../data/projectAssets'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { loadCategoryThumbnails, loadProjectAssets } from '../../data/projectAssets'
 import { getDevSuiteMedia } from '../../data/devSuites'
 import {
+  getArtSuiteProjects,
   getCategoryGridProjects,
   getDevTabProjects,
-  isProjectOpenable,
-  isVideoShowcase,
   type PortfolioProjectMeta,
 } from '../../data/portfolioProjects'
 import { startMutedPreview } from '../../lib/mediaUtils'
-import {
-  EXPERTISE_TABS,
-  type ExpertiseCategory,
-} from '../../lib/pageNavigation'
+import { useReducedMotion } from '../../lib/useReducedMotion'
+import type { ExpertiseCategory } from '../../lib/pageNavigation'
 import { DevSuitePreviewVideo } from '../DevSuiteView/DevSuitePreviewVideo'
-import { MediaLoader, ShowcaseVideoCard } from './ShowcaseVideoCard'
-import styles from './ExpertiseSection.module.css'
+import { MediaLoader } from './ShowcaseVideoCard'
+import styles from './WorkPages.module.css'
 
-const cardSpring = {
-  type: 'spring' as const,
-  stiffness: 340,
-  damping: 26,
-  mass: 0.85,
-}
-
-const cardHoverSpring = {
-  type: 'spring' as const,
-  stiffness: 380,
-  damping: 28,
-  mass: 0.9,
-}
-
-const tabPanelSpring = {
-  type: 'spring' as const,
-  stiffness: 260,
-  damping: 30,
-  mass: 0.9,
-}
-
-const tabIndicatorSpring = {
-  type: 'spring' as const,
-  stiffness: 480,
-  damping: 36,
-}
+const EASE = [0.16, 1, 0.3, 1] as const
 
 type ExpertiseSectionProps = {
   category: ExpertiseCategory
-  onCategoryChange: (category: ExpertiseCategory) => void
   onOpenProject: (projectId: string) => void
-  tabDirection: number
   hideCards?: boolean
+}
+
+const PAGE_TITLES: Record<ExpertiseCategory, { bold: string; light: string; label: string }> = {
+  art: { bold: 'ART', light: 'WORK', label: 'Collections' },
+  development: { bold: 'DEVELOP', light: 'MENT', label: 'Products & builds' },
+  'ui-ux': { bold: 'DESIGN', light: 'UI/UX', label: 'Interfaces' },
 }
 
 const thumbnailCache = new Map<ExpertiseCategory, Record<string, string>>()
 
 function useCategoryThumbnails(category: ExpertiseCategory) {
-  const [thumbnails, setThumbnails] = useState<Record<string, string>>(
-    () => thumbnailCache.get(category) ?? {},
-  )
-  const [loading, setLoading] = useState(
-    () => !thumbnailCache.has(category),
-  )
-  const requestId = useRef(0)
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>(() => thumbnailCache.get(category) ?? {})
+  const [loading, setLoading] = useState(() => !thumbnailCache.has(category))
 
   useEffect(() => {
     const cached = thumbnailCache.get(category)
@@ -71,408 +42,444 @@ function useCategoryThumbnails(category: ExpertiseCategory) {
       setLoading(false)
       return
     }
-
-    const currentRequest = ++requestId.current
+    let cancelled = false
     setLoading(true)
-
     loadCategoryThumbnails(category)
       .then((next) => {
-        if (requestId.current !== currentRequest) return
+        if (cancelled) return
         thumbnailCache.set(category, next)
         setThumbnails(next)
       })
-      .catch(() => {
-        if (requestId.current !== currentRequest) return
-      })
+      .catch(() => {})
       .finally(() => {
-        if (requestId.current !== currentRequest) return
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       })
+    return () => {
+      cancelled = true
+    }
   }, [category])
 
   return { thumbnails, loading }
 }
 
-function CardVideo({ src }: { src: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-
+function LoopVideo({ src, className }: { src: string; className: string }) {
+  const ref = useRef<HTMLVideoElement>(null)
   useEffect(() => {
-    const video = videoRef.current
+    const video = ref.current
     if (!video) return
-
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          void startMutedPreview(video)
-          return
-        }
-        video.pause()
-      },
+      ([entry]) => (entry.isIntersecting ? void startMutedPreview(video) : video.pause()),
       { threshold: 0.15 },
     )
-
     observer.observe(video)
     return () => observer.disconnect()
   }, [src])
+  return <video ref={ref} src={src} className={className} loop muted playsInline preload="none" draggable={false} />
+}
 
+/** "Explore" with an arrow in a thin circle that fills on hover. A link when it leaves the site. */
+function ExploreButton({ label = 'Explore', href, onClick }: { label?: string; href?: string; onClick?: () => void }) {
+  const inner = (
+    <>
+      <span>{label}</span>
+      <span className={styles.exploreArrow} aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.4">
+          {href ? <path d="M7 17L17 7M9 7h8v8" /> : <path d="M5 12h14M13 6l6 6-6 6" />}
+        </svg>
+      </span>
+    </>
+  )
+  return href ? (
+    <a className={styles.explore} href={href} target="_blank" rel="noopener noreferrer">
+      {inner}
+    </a>
+  ) : (
+    <button type="button" className={styles.explore} onClick={onClick}>
+      {inner}
+    </button>
+  )
+}
+
+/** The page's opening: a big two-weight title and a quiet label with the count. */
+function PageHeader({ category, count }: { category: ExpertiseCategory; count: number }) {
+  const { bold, light, label } = PAGE_TITLES[category]
   return (
-    <video
-      ref={videoRef}
+    <header className={styles.header}>
+      <motion.h1
+        className={styles.title}
+        initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 1.1, ease: EASE }}
+      >
+        <span className={styles.bold}>{bold}</span>
+        <span className={styles.light}>{light}</span>
+      </motion.h1>
+      <motion.p
+        className={styles.headerMeta}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.35 }}
+      >
+        <span>{label}</span>
+        <span>{String(count).padStart(2, '0')}</span>
+      </motion.p>
+    </header>
+  )
+}
+
+/* ---------------- Art: grid sheets ---------------- */
+
+const isVideoSrc = (src: string) => /\.(mp4|mov|webm)(\?|$)/i.test(src)
+
+/** A few pieces from a collection (a suite borrows from its children), for the sheet's side cells. */
+function useCollectionPieces(project: PortfolioProjectMeta) {
+  const [pieces, setPieces] = useState<string[]>([])
+  useEffect(() => {
+    let cancelled = false
+    const ids = project.detailType === 'art-suite' ? getArtSuiteProjects(project.id).map((p) => p.id) : [project.id]
+    Promise.all(ids.map((id) => loadProjectAssets(id).then((a) => a.gallery).catch(() => [] as string[])))
+      .then((lists) => {
+        if (!cancelled) setPieces(lists.flat())
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [project])
+  return pieces
+}
+
+/** Picture or film, filling its cell. */
+function Media({ src, className, position }: { src?: string; className: string; position?: string }) {
+  if (!src) return null
+  if (isVideoSrc(src)) return <LoopVideo src={src} className={className} />
+  return (
+    <img
       src={src}
-      className={styles.cardVideo}
-      loop
-      muted
-      playsInline
-      preload="none"
+      alt=""
+      className={className}
+      style={position ? { objectPosition: position } : undefined}
       draggable={false}
+      loading="lazy"
+      decoding="async"
     />
   )
 }
 
-function DevSuiteMainCard({
-  project,
-  index,
-  motionEnabled,
-  onOpenProject,
-}: {
-  project: PortfolioProjectMeta
-  index: number
-  motionEnabled: boolean
-  onOpenProject: (projectId: string) => void
-}) {
-  const [shouldEntrance] = useState(motionEnabled)
-  const media = getDevSuiteMedia(project.id)
-  const entranceDelay = Math.min(index * 0.07, 0.28)
-
+/** A decorative barcode, drawn from the collection's name so each one is its own. */
+function Barcode({ seed }: { seed: string }) {
+  const bars: { x: number; w: number }[] = []
+  let x = 0
+  for (let i = 0; x < 120; i++) {
+    const c = seed.charCodeAt(i % seed.length) + i * 7
+    const w = (c % 3) + 1
+    if (i % 2 === 0) bars.push({ x, w })
+    x += w + ((c >> 2) % 2) + 1
+  }
   return (
-    <motion.article
-      className={styles.devSuiteCard}
-      initial={shouldEntrance ? { opacity: 0, y: 18, scale: 0.985 } : false}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={
-        shouldEntrance
-          ? { ...cardSpring, delay: entranceDelay }
-          : { duration: 0 }
-      }
-    >
-      {media?.previewVideoSrc ? (
-        <div className={styles.devSuiteMedia}>
-          <DevSuitePreviewVideo
-            src={media.previewVideoSrc}
-            fillCard
-            previewOnly={media.previewOnly}
-          />
-        </div>
-      ) : media?.previewImageSrc ? (
-        <div className={styles.devSuiteMedia}>
-          <img
-            src={media.previewImageSrc}
-            alt=""
-            className={styles.devSuitePreviewImage}
-            draggable={false}
-          />
-        </div>
-      ) : (
-        <div className={`${styles.devSuiteMedia} ${styles.devSuiteVideoFallback}`}>
-          <MediaLoader />
-        </div>
-      )}
-      <div className={styles.devSuiteCopy}>
-        <h3 className={styles.cardTitle}>
-          {project.title}
-          {project.titleMark ? (
-            <>
-              <span className={styles.titleSep} aria-hidden="true">
-                |
-              </span>
-              <span className={styles.titleMark}>{project.titleMark}</span>
-            </>
-          ) : null}
-        </h3>
-        <p className={styles.cardSubtitle}>{project.subtitle}</p>
-        {project.description ? (
-          <p className={styles.devSuiteDescription}>{project.description}</p>
-        ) : null}
-        {project.techStack && project.techStack.length > 0 ? (
-          <ul className={styles.devSuiteTechStack} aria-label="Tech stack">
-            {project.techStack.map((item) => (
-              <li key={item}>
-                <motion.span
-                  className={styles.devSuiteTechChip}
-                  whileHover={{ scale: 1.08, y: -3 }}
-                  whileTap={{ scale: 0.96 }}
-                  transition={cardHoverSpring}
-                >
-                  {item}
-                </motion.span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {project.externalUrl ? (
-          <motion.a
-            href={project.externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.devSuiteExplore}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            transition={cardHoverSpring}
-          >
-            {project.ctaLabel ?? 'Visit'}
-            <svg
-              className={styles.devSuiteExploreIcon}
-              viewBox="0 0 14 14"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M3 11L11 3M11 3H5.5M11 3V8.5"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </motion.a>
-        ) : (
-          <motion.button
-            type="button"
-            className={styles.devSuiteExplore}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            transition={cardHoverSpring}
-            onClick={() => onOpenProject(project.id)}
-          >
-            Explore
-          </motion.button>
-        )}
-      </div>
-    </motion.article>
+    <svg className={styles.barcode} viewBox="0 0 120 34" preserveAspectRatio="none" aria-hidden="true">
+      {bars.map((b, i) => (
+        <rect key={i} x={b.x} y={0} width={b.w} height={34} />
+      ))}
+    </svg>
   )
 }
 
-function ProjectCard({
+/** Hairline that draws itself across when it scrolls into view. */
+function Rule({ className }: { className: string }) {
+  const reduced = useReducedMotion()
+  return (
+    <motion.span
+      className={className}
+      aria-hidden="true"
+      initial={reduced ? false : { scaleX: 0 }}
+      whileInView={{ scaleX: 1 }}
+      viewport={{ once: true, margin: '-5% 0px' }}
+      transition={{ duration: 1.4, ease: EASE }}
+    />
+  )
+}
+
+const pad = (n: number) => String(n).padStart(2, '0')
+
+/**
+ * One collection as a spec sheet on a hairline grid: a header strip, the name set huge across
+ * the full width, then cells for the details, the cover, and two pieces from inside. Everything
+ * rides the page scroll: the name slides sideways, the pictures drift at their own speeds, and
+ * the timecode runs while the sheet passes.
+ */
+function ArtSheet({
   project,
   thumbnail,
-  thumbnailsLoading,
   index,
-  onOpenProject,
-  motionEnabled,
+  total,
+  onOpen,
 }: {
   project: PortfolioProjectMeta
   thumbnail?: string
-  thumbnailsLoading: boolean
   index: number
-  onOpenProject: (projectId: string) => void
-  motionEnabled: boolean
+  total: number
+  onOpen: () => void
 }) {
-  const [shouldEntrance] = useState(motionEnabled)
-  const isClickable = isProjectOpenable(project)
-  const isShowcase = isVideoShowcase(project)
-  const isVideo = project.thumbnailType === 'video' && Boolean(thumbnail) && !isShowcase
-  const expectsMedia =
-    project.thumbnailType === 'video' || isShowcase || Boolean(thumbnail)
-  const mediaPending = thumbnailsLoading || (expectsMedia && !thumbnail)
+  const ref = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
+  const pieces = useCollectionPieces(project)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const p = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.35 })
+  const r = <T,>(from: T, to: T): [T, T] => (reduced ? [from, from] : [from, to])
 
-  const entranceDelay = Math.min(index * 0.055, 0.3)
-  const cardMotion = {
-    initial: shouldEntrance ? { opacity: 0, y: 16, scale: 0.97 } : false,
-    animate: { opacity: 1, y: 0, scale: 1 },
-    transition: shouldEntrance
-      ? {
-          ...cardSpring,
-          delay: entranceDelay,
-          opacity: { ...cardSpring, delay: entranceDelay },
-        }
-      : { duration: 0 },
-    whileHover: isClickable
-      ? {
-          y: -10,
-          scale: 1.04,
-          zIndex: 2,
-          transition: cardHoverSpring,
-        }
-      : undefined,
-    whileTap: isClickable ? { scale: 0.98, transition: cardHoverSpring } : undefined,
-  }
+  const flip = index % 2 === 1
+  const nameX = useTransform(p, [0, 1], flip ? r('-14%', '4%') : r('4%', '-14%'))
+  const coverY = useTransform(p, [0, 1], r('-9%', '9%'))
+  const pieceAY = useTransform(p, [0, 1], r('14%', '-14%'))
+  const pieceBY = useTransform(p, [0, 1], r('-6%', '12%'))
+  const timecode = useTransform(p, (v) => {
+    const t = Math.round(v * 5400) + index * 731
+    return `${pad(Math.floor(t / 3600) % 24)}:${pad(Math.floor(t / 60) % 60)}:${pad(t % 60)}`
+  })
 
-  const content = (
-    <>
-      <div
-        className={`${styles.cardImageWrap}${
-          isShowcase ? ` ${styles.cardImageWrapShowcase}` : ''
-        }`}
-      >
-        {isShowcase && thumbnail ? (
-          <ShowcaseVideoCard poster={thumbnail} projectId={project.id} />
-        ) : isVideo && thumbnail ? (
-          <CardVideo src={thumbnail} />
-        ) : thumbnail ? (
-          <img
-            src={thumbnail}
-            alt=""
-            className={styles.cardImage}
-            style={
-              project.thumbnailPosition
-                ? { objectPosition: project.thumbnailPosition }
-                : undefined
-            }
-            draggable={false}
-            loading="lazy"
-            decoding="async"
-          />
-        ) : mediaPending ? (
-          <MediaLoader />
-        ) : null}
+  const n = pad(index + 1)
+  const name = project.title.toUpperCase()
+  const code = `MRV-${name.replace(/[^A-Z]/g, '').slice(0, 3)}-${n}`
+  const a = pieces[0] ?? thumbnail
+  const b = pieces[1] ?? pieces[0] ?? thumbnail
+
+  return (
+    <section ref={ref} className={styles.sheet} data-flip={flip ? '' : undefined} aria-labelledby={`art-${project.id}`}>
+      <Rule className={styles.sheetRule} />
+
+      <header className={styles.sheetHead}>
+        <span className={styles.cross} aria-hidden="true" />
+        <span>Art / Collection {n}</span>
+        <span className={styles.sheetHeadMid}>MIRVÉ — Art department</span>
+        <span>{code}</span>
+        <span className={styles.cross} aria-hidden="true" />
+      </header>
+
+      <div className={styles.sheetNameRow}>
+        <motion.h2 id={`art-${project.id}`} className={styles.sheetName} style={{ x: nameX }}>
+          {name}
+          <sup>({n})</sup>
+        </motion.h2>
       </div>
-      <h3 className={styles.cardTitle}>{project.title}</h3>
-      <p className={styles.cardSubtitle}>{project.subtitle}</p>
-    </>
-  )
 
-  if (isClickable) {
-    return (
-      <motion.button
-        type="button"
-        className={styles.card}
-        {...cardMotion}
-        onClick={() => onOpenProject(project.id)}
-      >
-        {content}
-      </motion.button>
-    )
-  }
+      <div className={styles.sheetGrid}>
+        <div className={`${styles.cell} ${styles.cellMeta}`}>
+          <p className={styles.metaBig}>{n}</p>
+          <div className={styles.metaBlock}>
+            <p className={styles.metaTitle}>{project.title}</p>
+            <p className={styles.metaSub}>{project.subtitle}</p>
+          </div>
+          <div className={styles.metaSpec}>
+            <span>Index</span>
+            <span>
+              {n} / {pad(total)}
+            </span>
+            <span>Code</span>
+            <span>{code}</span>
+          </div>
+          <Barcode seed={name} />
+          <ExploreButton onClick={onOpen} />
+        </div>
+
+        <button type="button" className={`${styles.cell} ${styles.cellCover}`} onClick={onOpen} aria-label={`Open ${project.title}`}>
+          <span className={styles.corner} data-pos="tl" aria-hidden="true" />
+          <span className={styles.corner} data-pos="tr" aria-hidden="true" />
+          <span className={styles.corner} data-pos="bl" aria-hidden="true" />
+          <span className={styles.corner} data-pos="br" aria-hidden="true" />
+          <motion.div className={styles.parallax} style={{ y: coverY }}>
+            {thumbnail ? (
+              <Media src={thumbnail} className={styles.fill} position={project.thumbnailPosition} />
+            ) : (
+              <MediaLoader />
+            )}
+          </motion.div>
+        </button>
+
+        <div className={`${styles.cell} ${styles.cellPieceA}`}>
+          <motion.span className={styles.timecode} aria-hidden="true">
+            {timecode}
+          </motion.span>
+          <div className={styles.pieceFrame}>
+            <motion.div className={styles.parallax} style={{ y: pieceAY }}>
+              <Media src={a} className={styles.fill} />
+            </motion.div>
+          </div>
+        </div>
+
+        <div className={`${styles.cell} ${styles.cellPieceB}`}>
+          <div className={styles.pieceFrame}>
+            <motion.div className={styles.parallax} style={{ y: pieceBY }}>
+              <Media src={b} className={styles.fill} />
+            </motion.div>
+          </div>
+        </div>
+
+        <div className={`${styles.cell} ${styles.cellNote}`}>
+          <span className={styles.cross} aria-hidden="true" />
+          <p>
+            {project.subtitle}
+            <br />
+            <span>Mirvé · {new Date().getFullYear()}</span>
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ---------------- Development & Design: simple grid sheets ---------------- */
+
+/**
+ * One project as a quieter cousin of the Art sheets: a hairline that draws across, a small spec
+ * strip, then two cells on the grid: the preview (with corner brackets) and the details.
+ * Every other project mirrors, so the page has a rhythm.
+ */
+function WorkRow({
+  project,
+  media,
+  index,
+  section,
+  onOpen,
+}: {
+  project: PortfolioProjectMeta
+  media: ReactNode
+  index: number
+  /** "Development" or "Design", for the spec strip */
+  section: string
+  onOpen: () => void
+}) {
+  const reduced = useReducedMotion()
+  const n = pad(index + 1)
+  const code = `MRV-${section.slice(0, 3).toUpperCase()}-${n}`
+  const flip = index % 2 === 1
 
   return (
     <motion.article
-      className={`${styles.card} ${styles.cardStatic}${
-        isShowcase ? ` ${styles.cardShowcase}` : ''
-      }`}
-      {...cardMotion}
+      className={styles.entry}
+      data-flip={flip ? '' : undefined}
+      aria-labelledby={`work-${project.id}`}
+      initial={reduced ? false : { opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-8% 0px' }}
+      transition={{ duration: 1, ease: EASE }}
     >
-      {content}
+      <Rule className={styles.sheetRule} />
+
+      <header className={styles.sheetHead}>
+        <span className={styles.cross} aria-hidden="true" />
+        <span>
+          {section} / Project {n}
+        </span>
+        <span className={styles.sheetHeadMid}>{project.subtitle}</span>
+        <span>{code}</span>
+        <span className={styles.cross} aria-hidden="true" />
+      </header>
+
+      <div className={styles.entryGrid}>
+        <div className={`${styles.cell} ${styles.entryMedia}`}>
+          <span className={styles.corner} data-pos="tl" aria-hidden="true" />
+          <span className={styles.corner} data-pos="tr" aria-hidden="true" />
+          <span className={styles.corner} data-pos="bl" aria-hidden="true" />
+          <span className={styles.corner} data-pos="br" aria-hidden="true" />
+          <motion.div
+            className={styles.entryMediaInner}
+            initial={reduced ? false : { clipPath: 'inset(0 0 100% 0)' }}
+            whileInView={{ clipPath: 'inset(0 0 0% 0)' }}
+            viewport={{ once: true, margin: '-8% 0px' }}
+            transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1], delay: 0.1 }}
+          >
+            {media}
+          </motion.div>
+        </div>
+
+        <div className={`${styles.cell} ${styles.entryInfo}`}>
+          <p className={styles.metaBig}>{n}</p>
+          <div>
+            <h2 id={`work-${project.id}`} className={styles.rowTitle}>
+              {project.title}
+            </h2>
+            {project.titleMark ? <p className={styles.rowMark}>{project.titleMark}</p> : null}
+            <p className={styles.rowSubtitle}>{project.subtitle}</p>
+            {project.description ? <p className={styles.rowDescription}>{project.description}</p> : null}
+            {project.techStack?.length ? (
+              <ul className={styles.rowStack} aria-label="Tech stack">
+                {project.techStack.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+          <ExploreButton
+            label={project.externalUrl ? (project.ctaLabel ?? 'Visit') : 'Explore'}
+            href={project.externalUrl}
+            onClick={project.externalUrl ? undefined : onOpen}
+          />
+        </div>
+      </div>
     </motion.article>
   )
 }
 
-export function ExpertiseSection({
-  category,
-  onCategoryChange,
-  onOpenProject,
-  tabDirection,
-  hideCards = false,
-}: ExpertiseSectionProps) {
-  const projects = getCategoryGridProjects(category)
-  const { thumbnails, loading: thumbnailsLoading } = useCategoryThumbnails(category)
+function DevMedia({ project }: { project: PortfolioProjectMeta }) {
+  const media = getDevSuiteMedia(project.id)
+  if (media?.previewVideoSrc) return <DevSuitePreviewVideo src={media.previewVideoSrc} fillCard previewOnly={media.previewOnly} />
+  if (media?.previewImageSrc) return <img src={media.previewImageSrc} alt="" className={styles.rowImage} draggable={false} />
+  return <MediaLoader />
+}
 
-  useEffect(() => {
-    if (category === 'development') return
-    if (thumbnailCache.has('development')) return
+export function ExpertiseSection({ category, onOpenProject, hideCards = false }: ExpertiseSectionProps) {
+  const isDev = category === 'development'
+  const projects = isDev ? getDevTabProjects() : getCategoryGridProjects(category)
+  const { thumbnails, loading } = useCategoryThumbnails(category)
 
-    loadCategoryThumbnails('development').then((next) => {
-      thumbnailCache.set('development', next)
-    })
-  }, [category])
+  return (
+    <section className={styles.page} aria-label={`${PAGE_TITLES[category].bold} portfolio`}>
+      <PageHeader category={category} count={projects.length} />
 
-  const renderCards = (motionEnabled: boolean) => {
-    if (category === 'development') {
-      const devSuites = getDevTabProjects()
-
-      return (
-        <div className={styles.devColumn}>
-          {devSuites.map((project, index) => (
-            <DevSuiteMainCard
+      {hideCards ? null : category === 'art' ? (
+        <div className={styles.sheets}>
+          {projects.map((project, index) => (
+            <ArtSheet
               key={project.id}
               project={project}
+              thumbnail={thumbnails[project.id]}
               index={index}
-              motionEnabled={motionEnabled}
-              onOpenProject={onOpenProject}
+              total={projects.length}
+              onOpen={() => onOpenProject(project.id)}
             />
           ))}
         </div>
-      )
-    }
-
-    const cards = (
-      <div className={styles.grid}>
-        {projects.map((project, index) => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            thumbnail={thumbnails[project.id]}
-            thumbnailsLoading={thumbnailsLoading}
-            index={index}
-            onOpenProject={onOpenProject}
-            motionEnabled={motionEnabled}
-          />
-        ))}
-      </div>
-    )
-
-    return cards
-  }
-
-  const cardsVisible = !hideCards
-
-  return (
-    <section className={styles.section} aria-label="Expertise portfolio">
-      <LayoutGroup id="expertise-tab-bar">
-        <nav className={styles.tabBar} aria-label="Expertise categories">
-          {EXPERTISE_TABS.map(({ id, label }) => {
-            const isActive = category === id
-
-            return (
-              <button
-                key={id}
-                type="button"
-                className={`${styles.tab}${isActive ? ` ${styles.tabActive}` : ''}`}
-                aria-current={isActive ? 'page' : undefined}
-                onClick={() => onCategoryChange(id)}
-              >
-                {isActive ? (
-                  <motion.span
-                    layoutId="expertise-tab-indicator"
-                    className={styles.tabIndicator}
-                    transition={tabIndicatorSpring}
-                    aria-hidden="true"
+      ) : (
+        <div className={styles.rows}>
+          {projects.map((project, index) => (
+            <WorkRow
+              key={project.id}
+              project={project}
+              index={index}
+              section={isDev ? 'Development' : 'Design'}
+              onOpen={() => onOpenProject(project.id)}
+              media={
+                isDev ? (
+                  <DevMedia project={project} />
+                ) : thumbnails[project.id] ? (
+                  <img
+                    src={thumbnails[project.id]}
+                    alt=""
+                    className={styles.rowImage}
+                    style={project.thumbnailPosition ? { objectPosition: project.thumbnailPosition } : undefined}
+                    draggable={false}
+                    loading="lazy"
+                    decoding="async"
                   />
-                ) : null}
-                <span className={styles.tabLabel}>{label}</span>
-              </button>
-            )
-          })}
-        </nav>
-      </LayoutGroup>
-
-      <div
-        className={styles.cardsStage}
-        data-hidden={hideCards || !cardsVisible ? 'true' : undefined}
-      >
-        {cardsVisible ? (
-          <AnimatePresence mode="wait" custom={tabDirection} initial={false}>
-            <motion.div
-              key={category}
-              className={styles.panel}
-              custom={tabDirection}
-              initial={{
-                opacity: 0,
-                y: 14,
-                x: tabDirection > 0 ? 18 : -18,
-              }}
-              animate={{ opacity: 1, y: 0, x: 0 }}
-              exit={{
-                opacity: 0,
-                y: -10,
-                x: tabDirection > 0 ? -14 : 14,
-              }}
-              transition={tabPanelSpring}
-            >
-              {renderCards(true)}
-            </motion.div>
-          </AnimatePresence>
-        ) : null}
-      </div>
+                ) : loading ? (
+                  <MediaLoader />
+                ) : null
+              }
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

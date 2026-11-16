@@ -1,0 +1,33 @@
+/* COLLAGE BLACK PAGE: the black sheet laid behind the folder, running off to the right.
+   Placed inside the folder, so these percentages are of the folder's size. */
+.page {
+  position: absolute;
+  top: -16%;
+  left: 60%;
+  z-index: 0;
+  width: 86%;
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6));
+}
+
+/* intro: it's the first piece down when the collage scrolls into view
+   (the collage sets data-intro="play") */
+[data-intro='play'] .page {
+  animation: dropIn 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0s backwards;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    translate: 14% -22%;
+    rotate: 16deg;
+    scale: 1.08;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-intro] .page {
+    animation: none;
+  }
+}

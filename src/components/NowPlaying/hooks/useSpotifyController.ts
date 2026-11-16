@@ -29,6 +29,21 @@ function readIsPlaying(payload: { data: unknown }): boolean | undefined {
   return undefined
 }
 
+/**
+ * The iFrame API builds the embed without a theme, which gives the coloured player. Switch the
+ * embed to Spotify's gray theme (theme=0), the same as the embed code from Spotify's generator.
+ */
+function applyGrayTheme(playlistUri: string) {
+  const id = playlistUri.split(':').pop()
+  if (!id) return
+  const iframe = document.querySelector<HTMLIFrameElement>(`iframe[src*="${id}"]`)
+  if (!iframe) return
+  const url = new URL(iframe.src)
+  if (url.searchParams.get('theme') === '0') return
+  url.searchParams.set('theme', '0')
+  iframe.src = url.toString()
+}
+
 export function useSpotifyController(
   hostRef: RefObject<HTMLDivElement | null>,
   playlistUri: string,
@@ -54,6 +69,7 @@ export function useSpotifyController(
         },
         (controller) => {
           controllerRef.current = controller
+          applyGrayTheme(playlistUri)
 
           controller.addListener('ready', () => {
             setReady(true)

@@ -8,19 +8,14 @@ import fileFrontImg from '../../assets/Collage/FRONT.webp'
 import paperImg from '../../assets/Collage/paper.webp'
 import pinkPolkaImg from '../../assets/Collage/pink polka.webp'
 import whitePolkaImg from '../../assets/Collage/white polka.webp'
-import flowerImg from '../../assets/Collage/flower2.webp'
-import orchidImg from '../../assets/Collage/orchid1.webp'
 import paperclipImg from '../../assets/Collage/PaperClip.webp'
 import uiUxImg from '../../assets/Notes/ui_ux.webp'
 import { useIsMobile } from '../../lib/useIsMobile'
+import { useReducedMotion } from '../../lib/useReducedMotion'
 import type { ExpertiseCategory } from '../../lib/pageNavigation'
-import {
-  assembleItem,
-  slideFromLeft,
-  staggerContainer,
-} from '../../lib/motion'
-import { SplitText } from '../SplitText'
-import { SkillsPanel } from './SkillsPanel'
+import { assembleItem, staggerContainer } from '../../lib/motion'
+import { CollageBlackPage } from './CollageBlackPage'
+import { CollageOrchid } from './CollageOrchid'
 import styles from './AboutSection.module.css'
 
 const SKILL_LINKS = [
@@ -78,6 +73,24 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
   const collageRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
   const [folderPhase, setFolderPhase] = useState<FolderPhase>('idle')
+  // the pieces wait off-stage until the collage scrolls into view, then lay themselves down
+  const reducedMotion = useReducedMotion()
+  const [intro, setIntro] = useState<'wait' | 'play'>(() => (reducedMotion ? 'play' : 'wait'))
+
+  useEffect(() => {
+    const el = collageRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setIntro('play')
+        observer.disconnect()
+      },
+      { threshold: 0.3 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const openFolder = useCallback(() => {
     setFolderPhase('open')
@@ -165,10 +178,8 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
         }
       : {}
 
-  const tapClass = (baseClass: string) =>
-    isMobile && folderPhase === 'idle'
-      ? `${baseClass} ${styles.mobileTapTarget}`
-      : baseClass
+  const tapTarget = isMobile && folderPhase === 'idle' ? styles.mobileTapTarget : undefined
+  const tapClass = (baseClass: string) => (tapTarget ? `${baseClass} ${tapTarget}` : baseClass)
 
   return (
     <motion.div
@@ -178,6 +189,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
       data-open={folderPhase === 'open' ? '' : undefined}
       data-closing={folderPhase === 'closing' ? '' : undefined}
       data-mobile={isMobile ? '' : undefined}
+      data-intro={intro}
       aria-label="Skills collage. Hover folder front to reveal navigation notes"
       onMouseLeave={isMobile ? undefined : closeFolder}
       onBlur={(event) => {
@@ -223,16 +235,8 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
         ) : null}
       </AnimatePresence>
 
-      <img
-        src={orchidImg}
-        alt=""
-        className={tapClass(styles.orchidTopRight)}
-        aria-hidden="true"
-        draggable={false}
-        loading="lazy"
-        decoding="async"
-        {...mobileTapProps}
-      />
+      {/* COLLAGE ORCHID — its own file: CollageOrchid.tsx */}
+      <CollageOrchid className={tapTarget} {...mobileTapProps} />
 
       {isMobile ? (
         <img
@@ -247,6 +251,9 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
       ) : null}
 
       <div className={styles.folder}>
+        {/* COLLAGE BLACK PAGE — its own file: CollageBlackPage.tsx */}
+        <CollageBlackPage />
+
         <img
           src={fileBackImg}
           alt=""
@@ -328,31 +335,12 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
         {...mobileTapProps}
       />
 
-      <img
-        src={flowerImg}
-        alt=""
-        className={tapClass(styles.flowerLeft)}
-        aria-hidden="true"
-        draggable={false}
-        loading="lazy"
-        decoding="async"
-        {...mobileTapProps}
-      />
 
-      <img
-        src={flowerImg}
-        alt=""
-        className={tapClass(styles.flowerBottomRight)}
-        aria-hidden="true"
-        draggable={false}
-        loading="lazy"
-        decoding="async"
-        {...mobileTapProps}
-      />
     </motion.div>
   )
 }
 
+/** The folder collage, centred on its own (the About text has its own section above). */
 export function AboutSection({
   onSelectCategory,
   isHomeActive = true,
@@ -361,65 +349,15 @@ export function AboutSection({
   isHomeActive?: boolean
 }) {
   return (
-    <section className={styles.section} aria-labelledby="about-heading">
-      <img
-        src={flowerImg}
-        alt=""
-        className={styles.flowerFarLeft}
-        aria-hidden="true"
-        draggable={false}
-        loading="lazy"
-        decoding="async"
-      />
-
-      <img
-        src={orchidImg}
-        alt=""
-        className={styles.orchidFarLeft}
-        aria-hidden="true"
-        draggable={false}
-        loading="lazy"
-        decoding="async"
-      />
-
+    <section className={`${styles.section} ${styles.collageOnly}`} aria-label="Skills collage">
       <div className={styles.container}>
-        <motion.div
-          className={styles.aboutCol}
-          variants={slideFromLeft}
-          initial="hidden"
-          animate="visible"
-        >
-          <div className={styles.aboutContent}>
-            <SplitText
-              as="h2"
-              id="about-heading"
-              text="About Me"
-              className={styles.heading}
-              delay={0.25}
-              stagger={0.04}
-            />
-            <p className={styles.subheading}>
-              Equal parts pixels, logic, and sketchbooks
-            </p>
-            <p className={styles.body}>
-              Product Engineer with a background in illustration. I build
-              user-centered digital products through Flutter, UI/UX, and
-              scalable frontend architecture, from concept to shipped experience.
-            </p>
-            <SkillsPanel />
-          </div>
-        </motion.div>
-
         <motion.div
           className={styles.skillsCol}
           variants={staggerContainer(0.15)}
           initial="hidden"
           animate="visible"
         >
-          <SkillsCollage
-            onSelectCategory={onSelectCategory}
-            isHomeActive={isHomeActive}
-          />
+          <SkillsCollage onSelectCategory={onSelectCategory} isHomeActive={isHomeActive} />
         </motion.div>
       </div>
     </section>

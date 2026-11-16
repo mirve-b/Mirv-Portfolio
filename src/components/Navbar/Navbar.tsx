@@ -1,27 +1,36 @@
-import { useCallback, type MouseEvent } from 'react'
-import { motion } from 'framer-motion'
-import flowerImg from '../../assets/Collage/flower2.webp'
-import orchidImg from '../../assets/Collage/orchid1.webp'
+import { useCallback, useEffect, useState, type MouseEvent } from 'react'
 import { NowPlaying } from '../NowPlaying'
+import type { ExpertiseCategory } from '../../lib/pageNavigation'
 import styles from './Navbar.module.css'
-
-const brandSpring = { type: 'spring' as const, stiffness: 520, damping: 14 }
-
-const textHover = {
-  rest: { scale: 1, y: 0 },
-  hover: {
-    scale: 1.04,
-    y: -2,
-    transition: { ...brandSpring, delay: 0.04 },
-  },
-}
 
 type NavbarProps = {
   isHome: boolean
+  /** The work page being viewed, underlined in the bar. */
+  activeCategory?: ExpertiseCategory
   onNavigateHome: () => void
+  onSelectCategory: (category: ExpertiseCategory) => void
 }
 
-export function Navbar({ isHome, onNavigateHome }: NavbarProps) {
+const LINKS: { label: string; category: ExpertiseCategory }[] = [
+  { label: 'Art', category: 'art' },
+  { label: 'Development', category: 'development' },
+  { label: 'Design', category: 'ui-ux' },
+]
+
+export function Navbar({ isHome, activeCategory, onNavigateHome, onSelectCategory }: NavbarProps) {
+  // the top bar slides in once the hero wordmark has scrolled away (always on, off the home page)
+  const [barShown, setBarShown] = useState(!isHome)
+  useEffect(() => {
+    if (!isHome) {
+      setBarShown(true)
+      return
+    }
+    const update = () => setBarShown(window.scrollY > window.innerHeight * 0.35)
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [isHome])
+
   const handleBrandClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault()
@@ -36,37 +45,30 @@ export function Navbar({ isHome, onNavigateHome }: NavbarProps) {
 
   return (
     <header className={styles.navbar}>
-      <motion.a
-        href="/"
-        className={styles.brand}
-        aria-label="MIRVÉ Home"
-        initial="rest"
-        whileHover="hover"
-        onClick={handleBrandClick}
-      >
-        <motion.div className={styles.brandText} variants={textHover}>
-          <span className={styles.name}>MIRVÉ</span>
-          <span className={styles.tagline}>
-            Product Engineer | Illustrator
-          </span>
-        </motion.div>
-      </motion.a>
-
-      <div className={styles.cornerFlowers} aria-hidden="true">
-        <img
-          src={flowerImg}
-          alt=""
-          className={styles.cornerFlowerBack}
-          draggable={false}
-          decoding="async"
-        />
-        <img
-          src={flowerImg}
-          alt=""
-          className={styles.cornerFlowerFront}
-          draggable={false}
-          decoding="async"
-        />
+      <div className={styles.topBar} data-shown={barShown ? '' : undefined} aria-hidden={!barShown}>
+        <a href="/" className={styles.barBrand} onClick={handleBrandClick} tabIndex={barShown ? 0 : -1}>
+          <span className={styles.barMark}>MIRVÉ</span>
+          <span className={styles.barRule} aria-hidden="true" />
+          <span className={styles.barRole}>Designer × Engineer</span>
+        </a>
+        <nav className={styles.barLinks} aria-label="Work">
+          {LINKS.map((link) => (
+            <button
+              key={link.category}
+              type="button"
+              className={styles.barLink}
+              data-active={activeCategory === link.category ? '' : undefined}
+              aria-current={activeCategory === link.category ? 'page' : undefined}
+              onClick={() => {
+                if (activeCategory === link.category) window.scrollTo({ top: 0, behavior: 'smooth' })
+                else onSelectCategory(link.category)
+              }}
+              tabIndex={barShown ? 0 : -1}
+            >
+              {link.label}
+            </button>
+          ))}
+        </nav>
       </div>
 
       <div className={styles.container}>
@@ -75,14 +77,6 @@ export function Navbar({ isHome, onNavigateHome }: NavbarProps) {
         </div>
       </div>
 
-      <img
-        src={orchidImg}
-        alt=""
-        className={styles.orchid}
-        aria-hidden="true"
-        draggable={false}
-        decoding="async"
-      />
     </header>
   )
 }

@@ -1,0 +1,94 @@
+.section {
+  /* the ABOUT ORCHID's width (it lives in AboutOrchid.tsx) */
+  --orchid-w: clamp(200px, 30vw, 330px);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: start;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(96px, 12vw, 220px) var(--container-padding) clamp(60px, 12vh, 140px);
+}
+
+.heading {
+  grid-column: 1 / span 2;
+  justify-self: center;
+  display: flex;
+  gap: 0.28em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 1.6rem + 4.6vw, 6.5rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--color-sand);
+  white-space: nowrap;
+}
+
+.bold {
+  display: inline-flex;
+  font-weight: 600;
+}
+
+.light {
+  display: inline-flex;
+  font-weight: 200;
+}
+
+/* each letter rises inside its own mask */
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.08em 0 0.04em;
+  margin: -0.08em 0 -0.04em;
+}
+
+.char {
+  display: inline-block;
+  transform-origin: 0 100%;
+  will-change: transform, opacity, filter;
+}
+
+.copy {
+  grid-column: 1 / span 2;
+  display: grid;
+  gap: clamp(16px, 2.4vh, 28px);
+  max-width: 32rem;
+  margin: clamp(28px, 5vh, 56px) 0 0 clamp(0px, 12%, 180px);
+}
+
+.line {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.9375rem);
+  font-weight: 300;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  color: rgba(230, 216, 198, 0.78);
+}
+
+/* below ~1380px the ABOUT ORCHID would run into the words, so it moves underneath them */
+@media (max-width: 1379px) {
+  .section {
+    --orchid-w: clamp(190px, 56vw, 300px);
+    /* room under the words for the orchid (it stands ~1.2 × its width tall once turned) */
+    padding-bottom: calc(var(--orchid-w) * 1.2 + 32px);
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    grid-template-columns: 1fr;
+  }
+
+  .heading {
+    grid-column: 1;
+  }
+
+  .copy {
+    grid-column: 1;
+    margin-left: 0;
+  }
+
+}

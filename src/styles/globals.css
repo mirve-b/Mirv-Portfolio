@@ -34,6 +34,7 @@ body {
   line-height: 1.6;
   color: var(--color-grey-100);
   background-color: var(--color-bg);
+  /* flat black: the work carries the page */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -80,16 +81,7 @@ ol {
 }
 
 ::selection {
-  background: rgba(224, 44, 107, 0.35);
+  background: rgba(217, 210, 199, 0.35);
   color: var(--color-white);
 }
 
-html.custom-pointer-active,
-html.custom-pointer-active * {
-  cursor: none !important;
-}
-
-/* Embedded players (Spotify) draw their own cursor; never blank it out */
-html.custom-pointer-active iframe {
-  cursor: auto !important;
-}

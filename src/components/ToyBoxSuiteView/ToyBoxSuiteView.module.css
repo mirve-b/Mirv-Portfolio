@@ -37,7 +37,7 @@
 
 .backButton:hover {
   border-color: var(--color-accent);
-  background: rgba(224, 44, 107, 0.14);
+  background: rgba(217, 210, 199, 0.14);
 }
 
 .titles {

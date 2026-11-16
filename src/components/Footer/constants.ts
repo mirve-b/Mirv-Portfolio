@@ -1,5 +1,5 @@
 /** Update these with your real links & email */
-export const CONTACT_EMAIL = 'blvckmirve@gmail.com'
+export const CONTACT_EMAIL = 'hey@mirve.dev'
 
 function readEnv(value: string | undefined): string {
   return value?.trim() ?? ''

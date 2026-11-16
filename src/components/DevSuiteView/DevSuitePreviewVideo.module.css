@@ -70,8 +70,8 @@
 }
 
 .previewMuteButton:hover {
-  border-color: rgba(224, 44, 107, 0.65);
-  background: rgba(224, 44, 107, 0.35);
+  border-color: rgba(217, 210, 199, 0.65);
+  background: rgba(217, 210, 199, 0.35);
 }
 
 .previewMuteIcon {

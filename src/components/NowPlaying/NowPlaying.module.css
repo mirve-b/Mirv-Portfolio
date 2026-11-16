@@ -7,12 +7,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0.4375rem 0.875rem 0.4375rem 0.4375rem;
-  border-radius: 999px;
-  border: 1px solid rgba(224, 44, 107, 0.22);
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding: 0.4rem 0.25rem;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
   color: inherit;
   cursor: pointer;
   outline: none;
@@ -21,16 +19,32 @@
     border-color var(--duration-base) var(--ease-smooth);
 }
 
+/* the button's entrance is a plain CSS fade (opacity + the separate translate property), so the
+   browser's compositor runs it smoothly even while the page is still starting up */
+.root {
+  animation: playlistIn 1.2s cubic-bezier(0.45, 0, 0.25, 1) 0.5s backwards;
+}
+
+@keyframes playlistIn {
+  from {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+}
+
 .root:hover,
 .root:focus-visible {
-  border-color: rgba(224, 44, 107, 0.45);
-  box-shadow:
-    0 0 20px rgba(224, 44, 107, 0.2),
-    0 0 36px rgba(224, 44, 107, 0.08);
+  opacity: 0.75;
 }
 
 .root[data-fading] {
-  border-color: rgba(224, 44, 107, 0.28);
+  border-color: rgba(217, 210, 199, 0.28);
 }
 
 .root[data-fading] .labelRow,
@@ -49,47 +63,54 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: auto;
+  height: auto;
+  margin-right: clamp(0.3rem, 0.8vw, 0.9rem);
   flex-shrink: 0;
-  border-radius: 50%;
-  border: 1px solid var(--color-accent);
-  background: rgba(0, 0, 0, 0.45);
-  color: var(--color-beige);
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-sand);
 }
 
 .playIcon svg {
-  width: 0.45rem;
-  height: 0.5rem;
+  width: clamp(0.55rem, 0.9vw, 0.95rem);
+  height: clamp(0.62rem, 1vw, 1.05rem);
   margin-left: 1px;
   opacity: 0.9;
 }
 
+/* the pause glyph keeps the play glyph's box, so nothing nudges when the music starts */
 .playIcon[data-playing] svg {
-  width: 0.55rem;
-  height: 0.55rem;
   margin-left: 0;
 }
 
 .label {
   font-family: var(--font-body);
-  font-size: var(--text-sm);
+  font-size: clamp(12px, 1.35vw, 22px);
   font-weight: 300;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   line-height: 1;
-  color: var(--color-white);
+  text-transform: uppercase;
+  color: var(--color-sand);
   white-space: nowrap;
   padding-right: 0.125rem;
 }
 
 .labelRow {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
   min-width: 0;
 }
 
+/* the playing bars hang off the label's right edge, out of the layout, so the button
+   (and the drawer under it) never changes width when the music starts */
 .waveform {
+  position: absolute;
+  left: calc(100% + 0.5rem);
+  top: 50%;
+  translate: 0 -50%;
   display: flex;
   align-items: flex-end;
   gap: 2px;

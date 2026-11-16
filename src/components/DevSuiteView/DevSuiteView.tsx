@@ -13,37 +13,61 @@ type DevSuiteViewProps = {
   onBack: () => void
 }
 
-function ShowcasePlaceholder() {
+const EASE = [0.16, 1, 0.3, 1] as const
+const pad = (n: number) => String(n).padStart(2, '0')
+
+/** Fills the last cell when there's an odd number of pieces, so the grid stays whole. */
+function NoteCell({ project }: { project: PortfolioProjectMeta }) {
   return (
-    <div className={styles.showcasePlaceholder} aria-hidden="true" />
+    <div className={`${styles.cell} ${styles.noteCell}`} aria-hidden="true">
+      <span className={styles.cross} />
+      <p>
+        {project.title} · {project.subtitle}
+        <br />
+        <span>Mirvé · {new Date().getFullYear()}</span>
+      </p>
+    </div>
   )
 }
 
+/** One feature of the suite: its number, the film, then its name, all in one grid cell. */
 function SuiteShowcaseCard({
   project,
   thumbnail,
   loading,
+  index,
+  total,
 }: {
   project: PortfolioProjectMeta
   thumbnail?: string
   loading: boolean
+  index: number
+  total: number
 }) {
   return (
     <motion.article
-      className={`${styles.showcaseCard} ${styles.cardShowcase}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+      className={`${styles.cell} ${styles.showcaseCell}`}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-8% 0px' }}
+      transition={{ duration: 0.9, ease: EASE, delay: (index % 2) * 0.08 }}
     >
-      <div className={`${styles.cardImageWrap} ${styles.cardImageWrapShowcase}`}>
+      <p className={styles.cellIndex}>
+        {pad(index + 1)} <span>/ {pad(total)}</span>
+      </p>
+      <div className={styles.film}>
+        <span className={styles.corner} data-pos="tl" aria-hidden="true" />
+        <span className={styles.corner} data-pos="tr" aria-hidden="true" />
+        <span className={styles.corner} data-pos="bl" aria-hidden="true" />
+        <span className={styles.corner} data-pos="br" aria-hidden="true" />
         {thumbnail ? (
           <ShowcaseVideoCard poster={thumbnail} projectId={project.id} />
         ) : loading ? (
           <MediaLoader />
         ) : null}
       </div>
-      <h3 className={styles.cardTitle}>{project.title}</h3>
-      <p className={styles.cardSubtitle}>{project.subtitle}</p>
+      <h3 className={styles.cellTitle}>{project.title}</h3>
+      <p className={styles.cellSubtitle}>{project.subtitle}</p>
     </motion.article>
   )
 }
@@ -81,47 +105,59 @@ export function DevSuiteView({ project, onBack }: DevSuiteViewProps) {
     onBack()
   }, [onBack])
 
+  const code = `MRV-${project.title.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase()}`
+
   return (
     <section
       ref={sectionRef}
       className={styles.section}
       aria-label={`${project.title} showcase`}
     >
-      <div className={styles.header}>
-        <button type="button" className={styles.backButton} onClick={handleBack}>
-          ← Back
-        </button>
-        <div className={styles.titles}>
-          <h1 className={styles.title}>
-            {project.title}
-            {project.titleMark ? (
-              <>
-                <span className={styles.titleSep} aria-hidden="true">
-                  |
-                </span>
-                <span className={styles.titleMark}>{project.titleMark}</span>
-              </>
-            ) : null}
-          </h1>
-          <p className={styles.subtitle}>{project.subtitle}</p>
-          {project.description ? (
-            <p className={styles.description}>{project.description}</p>
-          ) : null}
-        </div>
+      <button type="button" className={styles.backButton} onClick={handleBack}>
+        ← Back
+      </button>
+
+      <motion.h1
+        className={styles.title}
+        initial={{ opacity: 0, y: 30, filter: 'blur(8px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 1, ease: EASE }}
+      >
+        {project.title}
+      </motion.h1>
+
+      <motion.span
+        className={styles.rule}
+        aria-hidden="true"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 1.3, ease: EASE, delay: 0.2 }}
+      />
+      <header className={styles.specHead}>
+        <span className={styles.cross} aria-hidden="true" />
+        <span>Development / Suite</span>
+        <span className={styles.specMid}>{project.titleMark ?? project.subtitle}</span>
+        <span>{code}</span>
+        <span className={styles.cross} aria-hidden="true" />
+      </header>
+
+      <div className={styles.intro}>
+        <p className={styles.subtitle}>{project.subtitle}</p>
+        {project.description ? <p className={styles.description}>{project.description}</p> : null}
       </div>
 
       <div className={styles.showcaseGrid}>
-        {showcaseProjects.map((item) => (
+        {showcaseProjects.map((item, index) => (
           <SuiteShowcaseCard
             key={item.id}
             project={item}
             thumbnail={thumbnails[item.id]}
             loading={thumbnailsLoading}
+            index={index}
+            total={showcaseProjects.length}
           />
         ))}
-        {Array.from({ length: placeholderCount }, (_, index) => (
-          <ShowcasePlaceholder key={`placeholder-${index}`} />
-        ))}
+        {placeholderCount ? <NoteCell project={project} /> : null}
       </div>
     </section>
   )

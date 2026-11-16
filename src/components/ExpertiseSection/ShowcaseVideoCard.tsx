@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { loadProjectShowcaseVideo } from '../../data/projectAssets'
-import styles from './ExpertiseSection.module.css'
+import styles from './ShowcaseVideoCard.module.css'
 
 export function MediaLoader({ label = 'Loading preview' }: { label?: string }) {
   return (

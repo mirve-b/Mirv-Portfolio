@@ -1,0 +1,27 @@
+/* ABOUT ORCHID: the orchid branch on the right of the About text.
+
+   Its width is --orchid-w, set on the About section (AboutIntro.module.css), which also uses it
+   to leave room for the orchid on phones. */
+.orchid {
+  /* pinned to the window's right edge, whatever the screen width. The section is centred, so
+     50% − 50vw reaches from its right edge out to the window's. Turned −74°, the stem's tip
+     lands ~0.96 × the width right of centre, so pulling the box in by ~0.39 × the width puts
+     the tip just past the edge. */
+  position: absolute;
+  right: calc(50% - 50vw + var(--orchid-w) * 0.39);
+  top: 36%;
+  width: var(--orchid-w);
+  height: auto;
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+}
+
+/* below ~1380px (tablets, small laptops, phones) it would run into the words, so it sits
+   under them instead, its stem still meeting the right edge */
+@media (max-width: 1379px) {
+  .orchid {
+    top: auto;
+    bottom: calc(24px - var(--orchid-w) * 0.56);
+  }
+}

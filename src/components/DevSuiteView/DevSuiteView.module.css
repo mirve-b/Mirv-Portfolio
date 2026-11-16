@@ -1,253 +1,272 @@
+/* A dev suite (e.g. KAEL) as a spec sheet: a huge title, a spec strip, the brief, then each
+   feature film in a cell on a hairline grid. Same language as the Art / Development pages. */
+
 .section {
+  --line: rgba(230, 216, 198, 0.16);
+  --dim: rgba(230, 216, 198, 0.55);
+  --gutter: clamp(16px, 3.5vw, 64px);
   position: relative;
   width: 100%;
-  padding: clamp(1.5rem, 4vw, 2.5rem) var(--container-padding)
-    clamp(1rem, 2.5vw, 1.5rem);
-  background: var(--color-bg);
+  max-width: calc(1840px + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: clamp(20px, 4vh, 40px) var(--gutter) clamp(80px, 12vh, 140px);
+  color: var(--color-sand);
 }
 
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.875rem;
-  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
-}
-
+/* a quiet text link, no pill */
 .backButton {
-  padding: 0.55rem 1.1rem;
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
+  padding: 0.4rem 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.75vw, 11px);
   font-weight: 400;
-  letter-spacing: var(--tracking-wide);
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: var(--color-white);
-  border: 1px solid var(--color-white);
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
-  transition:
-    color var(--duration-fast) var(--ease-smooth),
-    border-color var(--duration-fast) var(--ease-smooth),
-    background var(--duration-fast) var(--ease-smooth);
+  color: rgba(230, 216, 198, 0.6);
+  background: none;
+  border: 0;
+  transition: color 0.3s ease;
 }
 
-.backButton:hover {
-  border-color: var(--color-accent);
-  background: rgba(224, 44, 107, 0.14);
-}
-
-.titles {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  max-width: 42rem;
+.backButton:hover,
+.backButton:focus-visible {
+  color: var(--color-sand);
 }
 
 .title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.45rem 0.6rem;
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  font-weight: 400;
-  letter-spacing: 0.1em;
+  margin: clamp(12px, 2vh, 24px) 0 clamp(10px, 1.6vh, 20px);
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 2rem + 9vw, 12rem);
+  font-weight: 600;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: var(--color-sand);
 }
 
-.titleSep {
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.38);
+.rule {
+  display: block;
+  height: 1px;
+  background: var(--line);
+  transform-origin: left;
 }
 
-.titleMark {
-  font-size: clamp(0.7rem, 1.4vw, 0.85rem);
-  font-weight: 300;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.88);
+/* spec strip: crosshairs, labels and a code */
+.specHead {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  padding: 14px 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.7vw, 11px);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.specHead > span:nth-child(4) {
+  justify-self: end;
+}
+
+.specMid {
+  color: var(--color-sand);
+}
+
+.cross {
+  position: relative;
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+}
+
+.cross::before,
+.cross::after {
+  content: '';
+  position: absolute;
+  background: var(--color-sand);
+}
+
+.cross::before {
+  left: 5px;
+  top: 0;
+  width: 1px;
+  height: 11px;
+}
+
+.cross::after {
+  left: 0;
+  top: 5px;
+  width: 11px;
+  height: 1px;
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: clamp(16px, 4vw, 64px);
+  padding: clamp(18px, 3vh, 32px) 0 clamp(28px, 5vh, 56px);
 }
 
 .subtitle {
   margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
+  font-family: var(--font-display);
+  font-size: clamp(12px, 1vw, 15px);
   font-weight: 300;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-grey-200);
+  color: var(--color-sand);
 }
 
 .description {
-  margin: 0.35rem 0 0;
+  max-width: 42rem;
+  margin: 0;
   font-family: var(--font-body);
-  font-size: var(--text-sm);
+  font-size: clamp(0.875rem, 0.8rem + 0.25vw, 1.0625rem);
   font-weight: 300;
-  line-height: 1.65;
-  letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.88);
-  text-transform: none;
+  line-height: 1.7;
+  color: rgba(230, 216, 198, 0.72);
 }
 
-.scrollColumn {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.25rem, 3vw, 2rem);
-  width: 100%;
-}
-
+/* the cells: a 1px gap over the line colour draws the grid */
 .showcaseGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.25rem, 3vw, 2rem);
-  width: 100%;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
 }
 
-.showcasePlaceholder {
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.35);
-  pointer-events: none;
-  min-height: clamp(16rem, 28vw, 22rem);
+.cell {
+  position: relative;
+  min-width: 0;
+  background: var(--color-bg);
 }
 
-.showcaseCard {
+.showcaseCell {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
-  padding: clamp(0.875rem, 2vw, 1.125rem);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.35);
-  width: 100%;
-  max-width: none;
+  gap: 12px;
+  padding: clamp(16px, 1.8vw, 28px);
 }
 
-.cardShowcase {
-  cursor: default;
-  align-items: stretch;
-}
-
-.cardShowcase .cardImageWrap {
-  aspect-ratio: unset;
-  height: auto;
-  line-height: 0;
-}
-
-.cardShowcase .cardTitle {
-  line-height: 1.3;
-  text-align: center;
-}
-
-.cardShowcase .cardSubtitle {
-  margin-top: -0.35rem;
-  text-align: center;
-}
-
-.cardImageWrap {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.cardImageWrapShowcase {
-  line-height: 0;
-}
-
-.cardTitle {
+.cellIndex {
   margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-white);
-  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.72vw, 11px);
+  letter-spacing: 0.22em;
+  color: var(--color-sand);
 }
 
-.cardSubtitle {
-  margin: -0.35rem 0 0;
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  font-weight: 300;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-grey-200);
-  text-align: center;
+.cellIndex span {
+  color: rgba(230, 216, 198, 0.4);
 }
 
-.previewVideoWrap {
+/* the film sits in the cell like a print, with corner brackets */
+.film {
   position: relative;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.03);
+  padding: clamp(10px, 1.2vw, 18px);
   line-height: 0;
 }
 
-.previewVideo {
-  width: 100%;
-  height: auto;
-  display: block;
-  background: rgba(0, 0, 0, 0.35);
+.cellTitle {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 1.2vw, 19px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-sand);
 }
 
-.previewLoaderSlot {
+.cellSubtitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.noteCell {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(16px, 1.8vw, 28px);
+}
+
+.noteCell p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.72vw, 11px);
+  line-height: 1.7;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-sand);
+}
+
+.noteCell p span {
+  color: var(--dim);
+}
+
+.corner {
   position: absolute;
-  inset: 0;
   z-index: 2;
+  width: 12px;
+  height: 12px;
+  border: 0 solid var(--color-sand);
+  pointer-events: none;
 }
 
-.previewMuteButton {
-  position: absolute;
-  right: 0.65rem;
-  bottom: 0.65rem;
-  z-index: 3;
-  width: 2.25rem;
-  height: 2.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: var(--color-white);
-  cursor: pointer;
-  transition:
-    background var(--duration-fast) var(--ease-smooth),
-    border-color var(--duration-fast) var(--ease-smooth);
+.corner[data-pos='tl'] {
+  top: 0;
+  left: 0;
+  border-top-width: 1px;
+  border-left-width: 1px;
 }
 
-.previewMuteButton:hover {
-  border-color: rgba(224, 44, 107, 0.65);
-  background: rgba(224, 44, 107, 0.35);
+.corner[data-pos='tr'] {
+  top: 0;
+  right: 0;
+  border-top-width: 1px;
+  border-right-width: 1px;
 }
 
-.previewMuteIcon {
-  display: flex;
-  width: 0.85rem;
+.corner[data-pos='bl'] {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
 }
 
-.previewMuteIcon svg {
-  width: 100%;
-  height: auto;
+.corner[data-pos='br'] {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
 }
 
 @media (max-width: 768px) {
-  .showcaseGrid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
+  .specHead {
+    grid-template-columns: auto 1fr auto;
   }
 
-  .showcasePlaceholder {
+  .specMid,
+  .specHead > .cross:last-child {
     display: none;
   }
 
-  .cardShowcase .cardImageWrap {
-    aspect-ratio: 16 / 9;
+  .intro {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .showcaseGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .noteCell {
+    display: none;
   }
 }

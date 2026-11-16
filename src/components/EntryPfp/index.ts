@@ -1,1 +1,0 @@
-export { EntryPfp } from './EntryPfp'

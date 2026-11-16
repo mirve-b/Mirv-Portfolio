@@ -16,79 +16,6 @@
   padding-inline: var(--container-padding);
 }
 
-/* ── Section edge florals ── */
-
-.flowerFarLeft {
-  position: absolute;
-  left: clamp(-0.5rem, -4.5vw, -1.75rem);
-  top: clamp(18%, 24vw, 28%);
-  z-index: 0;
-  width: clamp(3.25rem, 7vw, 5.25rem);
-  height: auto;
-  transform: rotate(8deg);
-  pointer-events: none;
-}
-
-.orchidFarLeft {
-  position: absolute;
-  left: clamp(-2rem, -8vw, -3rem);
-  top: 55%;
-  z-index: 0;
-  width: clamp(7rem, 14vw, 13rem);
-  height: auto;
-  opacity: 0.95;
-  transform: translateY(-42%) rotate(210deg);
-  pointer-events: none;
-}
-
-/* ── About column ── */
-
-.aboutCol {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  align-self: center;
-  padding-top: clamp(4rem, 8vw, 6.5rem);
-}
-
-.aboutContent {
-  width: 100%;
-  max-width: 100%;
-  padding-left: clamp(2rem, 5vw, 4rem);
-}
-
-.heading {
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 0.92rem + 0.3vw, 1.125rem);
-  font-weight: 200;
-  letter-spacing: var(--tracking-wide);
-  line-height: 1;
-  color: var(--color-accent);
-  text-transform: uppercase;
-  margin: 0 0 0.875rem;
-}
-
-.subheading {
-  font-family: var(--font-body);
-  font-size: clamp(0.9375rem, 0.88rem + 0.25vw, 1.0625rem);
-  font-weight: 200;
-  letter-spacing: 0.04em;
-  line-height: 1.45;
-  color: var(--color-white);
-  margin: 0 0 1.25rem;
-}
-
-.body {
-  font-family: var(--font-body);
-  font-size: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
-  font-weight: 200;
-  letter-spacing: 0.02em;
-  line-height: 1.65;
-  color: var(--color-grey-100);
-  margin: 0;
-}
-
-/* ── Skills collage ── */
 
 .skillsCol {
   position: relative;
@@ -228,7 +155,7 @@
 
 .collage[data-open] .noteLink:hover::after,
 .collage[data-open] .noteLink:focus-visible::after {
-  border-color: var(--color-accent);
+  border-color: #e02c6b;
 }
 
 .collage[data-open] .noteArt:hover,
@@ -247,38 +174,39 @@
 }
 
 .noteArt {
-  top: 11%;
-  left: 15%;
+  top: 18%;
+  left: 23%;
+  width: 39;
   transform: translate3d(0, 2.5rem, 0) rotate(-8deg) scale(0.88);
 }
 
 .noteUiUx {
-  top: 8%;
+  top: 15%;
   left: 61%;
-  width: 29%;
+  width: 39%;
   max-width: 9rem;
   transform: translate3d(-50%, 2.5rem, 0) scale(0.88);
 }
 
 .noteDev {
-  top: 8%;
+  top: 16%;
   left: 76%;
   right: auto;
   transform: translate3d(0, 2.5rem, 0) rotate(8deg) scale(0.88);
 }
 
 .collage[data-open] .noteArt {
-  transform: translate3d(0, -2.75rem, 0) rotate(-12deg) scale(1);
+  transform: translate3d(0, -3rem, 0) rotate(-12deg) scale(1);
   transition-delay: 0ms;
 }
 
 .collage[data-open] .noteUiUx {
-  transform: translate3d(-50%, -2.75rem, 0) scale(1);
+  transform: translate3d(-50%, -3.75rem, 0) scale(1);
   transition-delay: 50ms;
 }
 
 .collage[data-open] .noteDev {
-  transform: translate3d(0, -2.75rem, 0) rotate(12deg) scale(1);
+  transform: translate3d(0, -3.75rem, 0) rotate(12deg) scale(1);
   transition-delay: 100ms;
 }
 
@@ -328,10 +256,10 @@
 
 .fileFront {
   position: absolute;
-  top: 15%;
-  left: 11.4%;
+  top: 20%;
+  left: 21.5%;
   z-index: 3;
-  width: 100%;
+  width: 88.5%;
   height: auto;
   cursor: pointer;
 }
@@ -347,7 +275,7 @@
   bottom: 49%;
   right: 10%;
   z-index: 7;
-  width: clamp(4rem, 8vw, 5rem);
+  width: clamp(4rem, 10vw, 5rem);
   height: auto;
   transform: rotate(0deg);
 }
@@ -363,7 +291,7 @@
 .deco {
   position: absolute;
   left:-10%;
-  bottom: -18%;
+  bottom: -35%;
   z-index: 5;
   width: 75%;
   height: auto;
@@ -377,61 +305,8 @@
   transform: rotate(-30deg);
 }
 
-/* ── Orchid cluster — top-right behind file ── */
-
-.orchidTopRight {
-  position: absolute;
-  top: 30%;
-  right: -27%;
-  z-index: 1;
-  width: clamp(5.5rem, 14vw, 9rem);
-  height: auto;
-  transform: rotate(190deg);
-  pointer-events: none;
-}
-
-.collage[data-open] .orchidTopRight {
-  top: 40%;
-  right: -30%;
-  width: clamp(5.5rem, 14vw, 9rem);
-  transform: rotate(190deg);
-}
-
-/* ── flower2 accents ── */
-
-.flowerLeft {
-  position: absolute;
-  top: 34%;
-  left: 0%;
-  z-index: 3;
-  width: clamp(4rem, 10vw, 7rem);
-  height: auto;
-  transform: rotate(280deg);
-  pointer-events: none;
-}
-
-.flowerBottomRight {
-  position: absolute;
-  bottom: -30%;
-  right: 23%;
-  z-index: 3;
-  width: clamp(4rem, 8vw, 7rem);
-  height: auto;
-  transform: rotate(180deg) scaleX(-1);
-  pointer-events: none;
-}
-
-.collage[data-open] .flowerLeft {
-  left: -10%;
-  top: 50%;
-  transform: rotate(250deg);
-}
-
-.collage[data-open] .flowerBottomRight {
-  right: 2%;
-  bottom: -40%;
-  transform: rotate(180deg) scaleX(-1);
-}
+/* the COLLAGE ORCHID and COLLAGE BLACK PAGE have their own files:
+   CollageOrchid.tsx / .module.css and CollageBlackPage.tsx / .module.css */
 
 /* ── Mobile ── */
 
@@ -444,34 +319,9 @@
     padding-inline: var(--container-padding);
   }
 
-  .aboutCol {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: clamp(1.75rem, 6vw, 2.75rem);
-  }
-
   .container {
     grid-template-columns: 1fr;
     gap: clamp(1.25rem, 4vw, 1.75rem);
-  }
-
-  .aboutContent {
-    max-width: none;
-    padding-left: 0;
-    text-align: center;
-  }
-
-  .heading,
-  .subheading,
-  .body {
-    text-align: center;
-  }
-
-  .orchidFarLeft {
-    top: clamp(24%, 28vw, 30%);
-    width: clamp(5.5rem, 16vw, 7rem);
-    transform: rotate(210deg);
   }
 
   .skillsCol {
@@ -540,10 +390,6 @@
     left: 72%;
   }
 
-  .flowerLeft {
-    left: 4%;
-  }
-
   .deco {
     left: 6%;
     width: 66%;
@@ -551,10 +397,6 @@
 
   .paperclip {
     right: 6%;
-  }
-
-  .orchidTopRight {
-    right: -10%;
   }
 
   .collage[data-open] .noteArt {
@@ -591,26 +433,10 @@
     transform: rotate(-16deg);
   }
 
-  .collage[data-open] .flowerLeft {
-    left: 2%;
-    top: 48%;
-    transform: rotate(265deg);
-  }
-
-  .collage[data-open] .flowerBottomRight {
-    right: 6%;
-    bottom: -34%;
-  }
-
   .collage[data-open] .paperclip {
     bottom: 12%;
     right: 0;
     transform: rotate(16deg);
-  }
-
-  .collage[data-open] .orchidTopRight {
-    right: -8%;
-    top: 36%;
   }
 
   .noteLink {
@@ -675,12 +501,6 @@
     z-index: -1;
   }
 
-  .collage[data-mobile] .orchidTopRight,
-  .collage[data-mobile] .flowerLeft,
-  .collage[data-mobile] .flowerBottomRight {
-    pointer-events: auto;
-  }
-
   .collageBubbleTap {
     top: 54%;
     left: 50%;
@@ -707,7 +527,7 @@
   width: max-content;
   border: 1px solid rgba(224, 44, 107, 0.55);
   border-radius: 1rem;
-  background: var(--color-accent);
+  background: #e02c6b;
   box-shadow: 0 8px 22px rgba(224, 44, 107, 0.32);
   font-family: var(--font-body);
   font-size: var(--text-xs);
@@ -728,13 +548,14 @@
   width: 10px;
   height: 10px;
   border: none;
-  background: var(--color-accent);
+  background: #e02c6b;
   transform: translateX(-50%) rotate(45deg) translateY(-5px);
 }
 
+/* floats just above the folder tab, never on top of it */
 .collageBubbleTap {
-  top: 52%;
-  left: 52%;
+  top: 31%;
+  left: 43%;
 }
 
 .collageBubblePick {
@@ -788,5 +609,102 @@
 
   50% {
     transform: rotate(2deg) scale(1.03);
+  }
+}
+
+/* home page: the collage on its own, centred (the about text has its own section above) */
+.collageOnly .container {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  padding-block: clamp(2rem, 6vh, 4rem);
+}
+
+.collageOnly .skillsCol {
+  width: min(100%, 40rem);
+  margin-top: 0;
+  padding-right: 0;
+}
+
+/* ---------- black & white collage (new art) ---------- */
+
+/* the hint bubble in the folder tab's charcoal */
+.collageBubble {
+  border-color: rgba(230, 216, 198, 0.25) !important;
+  background: #4a4943 !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5) !important;
+  color: var(--color-sand) !important;
+}
+
+.collageBubble::after {
+  background: #4a4943 !important;
+}
+
+/* ── Intro: the collage lays itself down, piece by piece ──
+   Animates the individual translate/rotate/scale properties so it never fights the
+   transform transitions the folder uses on hover. */
+
+.collage[data-intro='wait'] > *,
+.collage[data-intro='wait'] .folder > * {
+  opacity: 0;
+}
+
+.collage[data-intro='play'] .fileBack {
+  animation: introRise 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s backwards;
+}
+
+.collage[data-intro='play'] .paperPages,
+.collage[data-intro='play'] .skillNotes {
+  animation: introFade 0.6s ease 0.6s backwards;
+}
+
+.collage[data-intro='play'] .fileFront {
+  animation: introRise 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s backwards;
+}
+
+.collage[data-intro='play'] .deco {
+  animation: introSlide 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s backwards;
+}
+
+.collage[data-intro='play'] .paperclip {
+  animation: introClip 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.15s backwards;
+}
+
+.collage[data-intro='play'] .collageBubbleAnchor {
+  animation: introFade 0.5s ease 1.6s backwards;
+}
+
+@keyframes introRise {
+  from {
+    opacity: 0;
+    translate: 0 28%;
+  }
+}
+
+@keyframes introSlide {
+  from {
+    opacity: 0;
+    translate: -26% 8%;
+    rotate: -9deg;
+  }
+}
+
+@keyframes introClip {
+  from {
+    opacity: 0;
+    translate: 0 -140%;
+    rotate: -28deg;
+  }
+}
+
+@keyframes introFade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collage[data-intro] > *,
+  .collage[data-intro] .folder > * {
+    animation: none !important;
   }
 }

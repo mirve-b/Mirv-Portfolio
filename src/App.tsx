@@ -12,25 +12,22 @@ import {
   isProjectOpenable,
   type PortfolioProject,
 } from './data/portfolioProjects'
-import { CustomPointer } from './components/CustomPointer'
-import { EntryPfp } from './components/EntryPfp'
 import { AboutSection } from './components/AboutSection'
 import { ExpertiseSection } from './components/ExpertiseSection'
-import { Footer } from './components/Footer'
+import { LazyFooter } from './components/Footer/LazyFooter'
 import { Hero } from './components/Hero'
 import { IntroSplash } from './components/IntroSplash'
 import { NameMarquee } from './components/NameMarquee'
 import { CURTAIN_COVER_S, CURTAIN_HOLD_MS, PageCurtain, type CurtainPhase } from './components/PageCurtain'
-import { ScrollProgress } from './components/ScrollProgress'
 import { Navbar } from './components/Navbar'
-import { TaglineDivider } from './components/TaglineDivider'
+import { AboutIntro } from './components/AboutIntro'
+import { FounderSection } from './components/FounderSection'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
 import { pageSlideTween } from './lib/motion'
 import { preloadSpotifyIframeApi } from './components/NowPlaying/spotifyPreload'
 import {
   type AppRoute,
   type ExpertiseCategory,
-  expertiseTabDirection,
   getInitialRoute,
   pathToRoute,
   readRouteFromHistoryState,
@@ -81,7 +78,6 @@ function App() {
   const [transitionInstant, setTransitionInstant] = useState(false)
   const [expertiseEntrancePending, setExpertiseEntrancePending] = useState(false)
   const expertiseEntrancePendingRef = useRef(false)
-  const [tabDirection, setTabDirection] = useState(1)
   const routeRef = useRef(route)
   const projectLoadRequest = useRef(0)
   const projectCache = useRef<Map<string, PortfolioProject>>(new Map())
@@ -142,14 +138,6 @@ function App() {
       setExpertiseEntrancePending(false)
       expertiseEntrancePendingRef.current = false
       setTransitionDirection(routeDepth(next) >= routeDepth(previous) ? 1 : -1)
-
-      if (
-        previous.type === 'expertise' &&
-        next.type === 'expertise' &&
-        previous.category !== next.category
-      ) {
-        setTabDirection(expertiseTabDirection(previous.category, next.category))
-      }
 
       setRoute(next)
     }
@@ -283,7 +271,6 @@ function App() {
     (category: ExpertiseCategory) => {
       withCurtain(() => {
         beginAnimatedNavigation(1)
-        setTabDirection(1)
         setExpertiseEntrancePending(true)
         expertiseEntrancePendingRef.current = true
 
@@ -306,17 +293,6 @@ function App() {
       navigate({ type: 'home' })
     })
   }, [navigate, withCurtain])
-
-  const handleCategoryChange = useCallback(
-    (category: ExpertiseCategory) => {
-      if (route.type !== 'expertise') return
-      setTabDirection(expertiseTabDirection(route.category, category))
-      setTransitionInstant(true)
-
-      replaceRoute({ type: 'expertise', category })
-    },
-    [replaceRoute, route],
-  )
 
   const openedSuiteChildRef = useRef(false)
 
@@ -492,15 +468,13 @@ function App() {
     route.type === 'home'
       ? 'home'
       : route.type === 'expertise'
-        ? 'expertise'
+        ? `expertise-${route.category}`
         : `project-${route.projectId}`
 
   const analyticsPath = routeToPath(route)
 
   return (
     <div className={styles.app}>
-      <CustomPointer />
-      {showContent ? <ScrollProgress /> : null}
       <PageCurtain
         phase={curtainPhase}
         runId={curtainRun}
@@ -509,10 +483,14 @@ function App() {
       />
       {showContent ? (
         <>
-          <EntryPfp active={showContent && isHome} />
           <main className={styles.main}>
             <div className={styles.heroWrap}>
-              <Navbar isHome={isHome} onNavigateHome={navigateHome} />
+              <Navbar
+                isHome={isHome}
+                activeCategory={route.type === 'expertise' ? route.category : undefined}
+                onNavigateHome={navigateHome}
+                onSelectCategory={navigateToExpertise}
+              />
 
               <div className={styles.viewStage}>
                 <AnimatePresence
@@ -540,7 +518,8 @@ function App() {
                     {route.type === 'home' ? (
                       <>
                         <Hero active />
-                        <TaglineDivider />
+                        <AboutIntro />
+                        <FounderSection />
                         <AboutSection
                           onSelectCategory={navigateToExpertise}
                           isHomeActive
@@ -551,9 +530,7 @@ function App() {
                     {route.type === 'expertise' ? (
                       <ExpertiseSection
                         category={route.category}
-                        onCategoryChange={handleCategoryChange}
                         onOpenProject={openProject}
-                        tabDirection={tabDirection}
                         hideCards={expertiseEntrancePending}
                       />
                     ) : null}
@@ -602,7 +579,7 @@ function App() {
               aria-hidden={isProject}
             >
               <NameMarquee />
-              <Footer
+              <LazyFooter
                 scrollPfpEnabled={!isProject}
                 scrollPfpKey={isHome ? 'home' : 'expertise'}
               />

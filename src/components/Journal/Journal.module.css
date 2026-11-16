@@ -1,0 +1,473 @@
+/* ---------- stage ---------- */
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 52%, rgb(59 42 35 / 0.45), transparent 70%),
+    var(--grain),
+    var(--color-bg);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  user-select: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px clamp(16px, 4vw, 48px);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.homeLink {
+  color: var(--color-grey-200);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.homeLink:hover {
+  color: var(--color-accent);
+}
+
+.headerTitle {
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: 0.3em;
+}
+
+.headerCount {
+  min-width: 7em;
+  text-align: right;
+  color: var(--color-grey-300);
+}
+
+/* ---------- the book ---------- */
+
+.scene {
+  display: grid;
+  place-items: center;
+  perspective: 2400px;
+  perspective-origin: 50% 40%;
+}
+
+.book {
+  position: relative;
+  width: calc(var(--page-w) * 2);
+  height: var(--page-h);
+  transform-style: preserve-3d;
+  transition: transform var(--turn-ms) cubic-bezier(0.645, 0.045, 0.355, 1);
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.book:active {
+  cursor: grabbing;
+}
+
+/* a leaf sits on the right half and turns on the spine (its left edge) */
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--page-w);
+  height: var(--page-h);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform var(--turn-ms) cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.leaf.isFlipped {
+  transform: rotateY(-180deg);
+}
+
+/* a slight lift while turning, so the page arcs instead of swinging flat */
+.leaf.isTurning {
+  animation: leaf-lift var(--turn-ms) cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+@keyframes leaf-lift {
+  50% {
+    translate: 0 0 40px;
+  }
+}
+
+.front,
+.back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+/* shading that sweeps across a page as it turns */
+.front::after,
+.back::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity calc(var(--turn-ms) / 2) ease;
+}
+
+.front::after {
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.35), transparent 60%);
+}
+
+.back::after {
+  background: linear-gradient(270deg, rgb(0 0 0 / 0.35), transparent 60%);
+}
+
+.isTurning .front::after,
+.isTurning .back::after {
+  opacity: 1;
+}
+
+/* ---------- faces ---------- */
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.paper {
+  background:
+    radial-gradient(circle at 20% 15%, rgb(255 255 255 / 0.5), transparent 40%),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgb(150 120 110 / 0.09) 27px 28px),
+    #f4eee4;
+  color: #2a2326;
+}
+
+/* the gutter shadow toward the spine, and a hint of stacked page edges on the outside */
+.paperRight {
+  border-radius: 0 6px 6px 0;
+  box-shadow:
+    inset 18px 0 22px -14px rgb(0 0 0 / 0.35),
+    2px 0 0 #e4dccf,
+    4px 0 0 #d9d0c2;
+}
+
+.paperLeft {
+  border-radius: 6px 0 0 6px;
+  box-shadow:
+    inset -18px 0 22px -14px rgb(0 0 0 / 0.35),
+    -2px 0 0 #e4dccf,
+    -4px 0 0 #d9d0c2;
+}
+
+.pageNo {
+  position: absolute;
+  bottom: 14px;
+  font-family: var(--font-display);
+  font-size: clamp(11px, calc(var(--page-w) * 0.05), 18px);
+  color: rgb(42 35 38 / 0.45);
+}
+
+.paperRight .pageNo {
+  right: 22px;
+}
+
+.paperLeft .pageNo {
+  left: 22px;
+}
+
+/* ---------- cover ---------- */
+
+.cover {
+  display: grid;
+  place-items: center;
+  border-radius: 4px 10px 10px 4px;
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.06), transparent 50%),
+    var(--grain),
+    linear-gradient(160deg, var(--color-leather-hi), var(--color-leather) 55%, var(--color-leather-lo));
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    inset 10px 0 18px -10px rgb(0 0 0 / 0.9),
+    0 30px 60px -20px rgb(0 0 0 / 0.9);
+  color: var(--color-white);
+}
+
+.backCover {
+  border-radius: 10px 4px 4px 10px;
+}
+
+/* the elastic band */
+.coverBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 14%;
+  width: 10px;
+  background: var(--grain), linear-gradient(90deg, #1a1210, #3b2a23 45%, #120c0b);
+  box-shadow: -2px 0 4px rgb(0 0 0 / 0.5);
+}
+
+.backCover .coverBand {
+  right: auto;
+  left: 14%;
+}
+
+.coverTitle {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.coverKicker {
+  font-size: clamp(6px, calc(var(--page-w) * 0.03), 11px);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-grey-300);
+}
+
+.coverName {
+  font-family: var(--font-display);
+  background: var(--chrome);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-size: calc(var(--page-w) * 0.26);
+  line-height: 0.9;
+  letter-spacing: 0.08em;
+  color: transparent;
+}
+
+.coverSub {
+  font-size: clamp(7px, calc(var(--page-w) * 0.035), 13px);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--color-grey-200);
+}
+
+.coverHint {
+  position: absolute;
+  bottom: 22px;
+  font-size: clamp(7px, calc(var(--page-w) * 0.032), 12px);
+  letter-spacing: 0.2em;
+  color: var(--color-grey-400);
+  animation: hint 2.4s ease-in-out infinite;
+}
+
+@keyframes hint {
+  50% {
+    opacity: 0.35;
+    translate: 4px 0;
+  }
+}
+
+.backMark {
+  font-family: var(--font-display);
+  font-size: calc(var(--page-w) * 0.16);
+  color: var(--color-grey-400);
+}
+
+/* ---------- title + end pages ---------- */
+
+.titlePage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 12%;
+  text-align: center;
+}
+
+.titleSmall {
+  max-width: 18em;
+  font-size: clamp(7px, calc(var(--page-w) * 0.034), 12px);
+  line-height: 1.6;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(42 35 38 / 0.6);
+}
+
+.titleName {
+  font-family: var(--font-display);
+  font-size: calc(var(--page-w) * 0.17);
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.titleRule {
+  width: 40%;
+  height: 1px;
+  background: rgb(42 35 38 / 0.3);
+}
+
+.endLink {
+  font-size: clamp(8px, calc(var(--page-w) * 0.036), 13px);
+  letter-spacing: 0.12em;
+  color: #2a2326;
+}
+
+.notes {
+  position: absolute;
+  inset: 10% 12%;
+}
+
+/* ---------- art ---------- */
+
+.art {
+  position: absolute;
+  inset: 9% 10% 13%;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 12px;
+  margin: 0;
+  rotate: var(--tilt);
+}
+
+.art img,
+.artPlaceholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.25));
+}
+
+.artPlaceholder {
+  background: rgb(42 35 38 / 0.05);
+}
+
+/* a strip of washi tape holding the piece down */
+.tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  z-index: 1;
+  width: 34%;
+  height: 24px;
+  translate: -50% 0;
+  rotate: -3deg;
+  background: rgb(207 208 212 / 0.55);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  -webkit-mask: linear-gradient(90deg, transparent 0 3px, #000 3px calc(100% - 3px), transparent calc(100% - 3px));
+  mask: linear-gradient(90deg, transparent 0 3px, #000 3px calc(100% - 3px), transparent calc(100% - 3px));
+}
+
+.art figcaption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.captionSeries {
+  font-family: var(--font-display);
+  font-size: clamp(13px, calc(var(--page-w) * 0.08), 38px);
+  line-height: 1;
+  color: #120d0f;
+  -webkit-text-stroke: 0.4px #120d0f;
+}
+
+.captionSub {
+  font-size: clamp(6px, calc(var(--page-w) * 0.03), 11px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(42 35 38 / 0.75);
+}
+
+/* ---------- controls ---------- */
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 18px 16px 28px;
+}
+
+.controls button {
+  padding: 10px 18px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-grey-100);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.controls button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.controls button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.progress {
+  position: relative;
+  width: min(240px, 30vw);
+  height: 1px;
+  background: var(--color-border-strong);
+}
+
+.progress i {
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent);
+  transform-origin: left;
+  transition: transform var(--turn-ms, 1s) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book,
+  .leaf {
+    transition-duration: 1ms;
+  }
+
+  .leaf.isTurning,
+  .coverHint {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    font-size: 11px;
+  }
+
+  .headerTitle {
+    font-size: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .art {
+    inset: 8% 8% 12%;
+    gap: 6px;
+  }
+
+  .tape {
+    top: -6px;
+    height: 12px;
+  }
+}

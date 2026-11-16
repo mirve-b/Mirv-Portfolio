@@ -1,123 +1,288 @@
+/* the hero pins for a stretch of scroll while the frame and strip move */
 .hero {
   position: relative;
   z-index: 0;
   width: 100%;
-  background: var(--color-bg);
+  height: 190vh;
+  height: 190svh;
+  /* slide up under the (transparent) navbar so the frame centres in the window */
+  margin-top: calc(var(--navbar-height) * -1);
+  /* the next section starts in the empty band below the frame instead of after it */
+  margin-bottom: calc(clamp(72px, 15svh, 140px) * -1 + 8px);
 }
 
-.imageWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 7;
+/* the frame's height: as tall as fits, keeping equal space above and below and a wide 2.05:1 shape */
+.pin {
+  --side: clamp(10px, 1.6vw, 24px);
+  --strip-a: clamp(64px, 10.5vw, 170px);
+  --strip-b: clamp(26px, 3.8vw, 60px);
+  --gap: clamp(2px, 0.25vw, 4px);
+  --row: min(
+    calc(100svh - 2 * clamp(72px, 15svh, 140px)),
+    calc((100vw - 2 * var(--side) - var(--strip-a) - var(--strip-b) - 2 * var(--gap)) / 2.05)
+  );
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--strip-a) var(--strip-b);
+  grid-template-rows: var(--row);
+  align-content: center;
+  gap: var(--gap);
+  height: 100vh;
+  height: 100svh;
+  padding: 0 var(--side);
   overflow: hidden;
 }
 
-/* Desktop: fill the first screen so the tagline sits right at the fold
-   (never shorter than the original 16:7 frame). */
-@media (min-width: 769px) {
-  .imageWrap {
-    aspect-ratio: auto;
-    height: max(
-      calc(100vw * 7 / 16),
-      calc(100svh - var(--navbar-height) - var(--hero-tagline-height, 3.75rem))
-    );
-  }
+.frameCell {
+  position: relative;
+  min-width: 0;
 }
 
-.image {
+.frame {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  overflow: hidden;
+  /* shrink toward the bottom edge, so no gap opens up below the frame */
+  transform-origin: 50% 100%;
+  background: #0b0b0b;
+}
+
+.filmWrap {
+  position: absolute;
+  inset: 0;
+}
+
+.film {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: 50% 22%;
+  /* the colour grade is baked into hero-main.mp4: a live CSS filter on a playing video is costly */
 }
 
-.overlay {
+
+/* a soft fade at the bottom so the copy reads */
+.frame::after {
+  content: '';
   position: absolute;
   inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.55));
   pointer-events: none;
 }
 
-.titles {
+.copy {
+  position: absolute;
+  left: 8.4%;
+  bottom: 7%;
+  z-index: 1;
+  color: var(--color-sand);
+}
+
+.year {
+  margin: 0 0 0.6em;
+  font-family: var(--font-display);
+  font-size: clamp(12px, 1.3vw, 21px);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+.line {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(10px, 1.1vw, 17px);
+  font-weight: 300;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(230, 216, 198, 0.85);
+}
+
+/* ---------- the strip ---------- */
+
+.strip {
   position: relative;
-  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  background: #0b0b0b;
+}
+
+.stripA,
+.stripB {
   height: 100%;
 }
 
-.titleAccent,
-.titleLight {
+/* the inner strip runs a touch past the frame, fading out at both ends */
+.stripA {
+  /* the tag inside sizes itself to this strip's width */
+  container-type: inline-size;
+  height: 112%;
+  margin-top: -6%;
+  background: #050404;
+  -webkit-mask: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+  mask: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* the wide slice is a dark, soft-focus smear of the film; the narrow one stays true */
+.filmSliceA {
+  object-position: 92% 30%;
+  /* dark, desaturated and soft-focus: baked into hero-slice-a.mp4 */
+  transform: scale(1.08);
+}
+
+.filmSliceB {
+  object-position: 100% 40%;
+  /* slightly dimmed and desaturated: baked into hero-slice-b.mp4 */
+}
+
+/* a single orchid resting in the dark strip, above the tag */
+/* ---------- the wordmark ---------- */
+
+.logo {
   position: absolute;
-  top: var(--hero-title-y, 50%);
+  z-index: 2;
+  top: 0;
+  left: 6.5%;
+  display: flex;
+  align-items: flex-start;
+  margin: 0;
+  /* sits across the frame's top edge, like the design */
+  translate: 0 -38%;
+  font-size: clamp(34px, 4.9vw, 88px);
+  line-height: 1;
+  color: var(--color-sand);
+  pointer-events: none;
+}
+
+.logoScript {
+  margin-right: -0.06em;
+  font-family: var(--font-script);
+  font-size: 2.15em;
+  line-height: 0.62;
+  translate: 0 0.02em;
+}
+
+.logoWord {
+  display: grid;
+  justify-items: end;
+}
+
+.logoName {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1em;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+}
+
+.logoSub {
+  margin-top: 0.08em;
   font-family: var(--font-display);
   font-weight: 400;
-  text-transform: uppercase;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.titleAccent {
-  left: var(--hero-title-left, 6%);
-  transform: translateY(-50%);
-  font-size: var(--text-hero-mirve);
-  font-weight: 600;
-  line-height: 0.82;
-  letter-spacing: 0.06em;
-  color: var(--color-accent);
-}
-
-.titleLight {
-  right: var(--hero-title-right, 20%);
-  transform: translateY(-50%);
-  font-size: var(--text-hero-portfolio);
+  font-size: 0.52em;
   line-height: 1;
-  letter-spacing: 0.14em;
-  color: var(--color-white);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.stripTag {
+  position: absolute;
+  left: 11%;
+  bottom: 11%;
+  font-family: var(--font-display);
+  /* "DESIGNER X" is ~6.4em wide: 12cqi keeps it inside the strip at any width */
+  font-size: 12cqi;
+  font-weight: 300;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-sand);
+}
+
+/* ---------- the opening: everything fades up, softly staggered ----------
+   Opacity only (plus the separate translate property on the wordmark), so the compositor runs
+   it on its own thread. `backwards` means that once it's done nothing is left behind, and the
+   scroll effects take over cleanly. */
+.frame,
+.strip,
+.logo {
+  /* a gentle ease-in-out, starting a beat after the page appears */
+  animation: heroFade 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.3s backwards;
+}
+
+.logo {
+  animation-name: heroFadeRise;
+  animation-delay: 0.55s;
+}
+
+.stripA {
+  animation-delay: 0.5s;
+}
+
+.stripB {
+  animation-delay: 0.65s;
+}
+
+@keyframes heroFade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes heroFadeRise {
+  from {
+    opacity: 0;
+    translate: 0 calc(-38% + 14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .strip,
+  .logo {
+    animation: none;
+  }
 }
 
 @media (max-width: 768px) {
-  .imageWrap {
-    aspect-ratio: 4 / 5;
+  /* phones: the strip is narrow, so the tag runs up it instead */
+  .stripTag {
+    left: 50%;
+    bottom: 12%;
+    translate: -50% 0;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.24em;
   }
 
-  .overlay {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding: 0 var(--container-padding) clamp(1.25rem, 5vw, 2rem);
+  .stripTag br {
+    display: none;
   }
 
-  .titles {
-    position: static;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.125rem;
+  /* same scroll length as desktop, so the wordmark doesn't vanish in one flick */
+  .hero {
+    height: 190vh;
+    height: 190svh;
   }
 
-  .titleAccent,
-  .titleLight {
-    position: static;
-    transform: none;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-family: var(--font-body);
+  .pin {
+    --strip-a: 52px;
+    --strip-b: 0px;
+    --row: calc(100svh - 2 * clamp(90px, 16svh, 140px));
+    grid-template-columns: minmax(0, 1fr) var(--strip-a);
   }
 
-  .titleAccent {
-    font-weight: 600;
+  .logo {
+    font-size: clamp(30px, 10vw, 46px);
+    left: 5%;
   }
 
-  .titleLight {
-    font-weight: 500;
-    letter-spacing: 0.08em;
+  .stripB {
+    display: none;
   }
-}
-
-/* Parallax: let the video breathe past its frame without exposing edges */
-.image {
-  transform-origin: 50% 50%;
-  will-change: transform;
 }

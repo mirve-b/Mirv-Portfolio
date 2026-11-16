@@ -1,1 +1,0 @@
-export { SplitText } from './SplitText'

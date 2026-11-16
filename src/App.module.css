@@ -32,7 +32,10 @@
   flex: 0 1 auto;
   width: 100%;
   min-height: 0;
-  overflow: hidden;
+  /* clip sideways only (page slides are horizontal): the hero wordmark can rise above this box,
+     and clip (not hidden) keeps pinned sections sticking to the viewport */
+  overflow-x: clip;
+  overflow-y: visible;
   isolation: isolate;
   display: grid;
   grid-template: minmax(0, auto) / 1fr;
@@ -65,8 +68,8 @@
 .pageLoadingSpinner {
   width: 1.75rem;
   height: 1.75rem;
-  border: 2px solid rgba(224, 44, 107, 0.2);
-  border-top-color: rgba(224, 44, 107, 0.85);
+  border: 2px solid rgba(217, 210, 199, 0.2);
+  border-top-color: rgba(217, 210, 199, 0.85);
   border-radius: 50%;
   animation: pageSpin 0.8s linear infinite;
 }

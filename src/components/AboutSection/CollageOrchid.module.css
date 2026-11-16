@@ -1,0 +1,46 @@
+/* COLLAGE ORCHID: the orchid branch standing at the collage's left, behind the note card */
+.orchid {
+  position: absolute;
+  top: 9%;
+  left: -28%;
+  z-index: 4;
+  /* a share of the collage's width, so it scales with the collage (≈240px on desktop) */
+  width: 47%;
+  height: auto;
+  transform: rotate(-45deg);
+  pointer-events: none;
+}
+
+/* intro: once the collage scrolls into view, the branch swings up into place
+   (the collage sets data-intro="play"; it animates the separate rotate/scale properties so
+   it never fights the transform above) */
+[data-intro='play'] > .orchid {
+  animation: bloomIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s backwards;
+}
+
+@keyframes bloomIn {
+  from {
+    opacity: 0;
+    translate: -14% 18%;
+    rotate: -22deg;
+    scale: 0.82;
+  }
+}
+
+/* phones: the collage gets smaller, so the orchid takes a bigger share of it (it reads better
+   big here); tapping it opens the folder too */
+@media (max-width: 768px) {
+  .orchid {
+    width: 75%;
+  }
+
+  [data-mobile] > .orchid {
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-intro] > .orchid {
+    animation: none;
+  }
+}

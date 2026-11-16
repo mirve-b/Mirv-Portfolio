@@ -1,90 +1,49 @@
 .splash {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 10000;
   display: grid;
   place-items: center;
   background: var(--color-bg);
-  pointer-events: none;
-  will-change: opacity;
 }
 
-.logo {
-  font-family: var(--font-display);
-  font-size: clamp(4rem, 14vw, 9rem);
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  color: var(--color-accent);
-  text-transform: uppercase;
+/* the wordmark, small and quiet: script M, then IRVÉ */
+.mark {
+  display: flex;
+  align-items: flex-start;
   margin: 0;
-  font-synthesis: none;
-  text-rendering: geometricPrecision;
+  font-size: clamp(22px, 2.6vw, 38px);
+  line-height: 1;
+  color: var(--color-sand);
+  will-change: filter, transform;
 }
 
-.letters {
+.script {
+  display: inline-block;
+  /* the script M's swash reaches right, so give it room before IRVÉ */
+  margin-right: 0.1em;
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: 2.15em;
+  line-height: 0.62;
+  translate: 0 0.02em;
+}
+
+.word {
+  display: grid;
+  justify-items: end;
+}
+
+.name {
   display: inline-flex;
-  align-items: baseline;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1em;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
 }
 
 .letter {
   display: inline-block;
-  text-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 45%, transparent);
-  will-change: transform, opacity, filter;
 }
 
-/* Untyped letters hold their space so the word types out in its final spot */
-.ghost {
-  visibility: hidden;
-}
-
-/* Terminal-style caret: zero-width anchor so it never nudges the letters */
-.caret {
-  position: relative;
-  display: inline-block;
-  width: 0;
-  height: 0.78em;
-  align-self: center;
-}
-
-.caret::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0.08em;
-  width: max(2px, 0.025em);
-  background: var(--color-accent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 70%, transparent);
-  animation: caretBlink 0.9s steps(1, end) infinite;
-}
-
-.caret[data-typing]::after {
-  animation: none;
-}
-
-@keyframes caretBlink {
-  0%,
-  50% {
-    opacity: 1;
-  }
-  50.01%,
-  100% {
-    opacity: 0;
-  }
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .caret::after {
-    animation: none;
-  }
-}

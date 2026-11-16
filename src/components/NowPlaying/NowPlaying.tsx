@@ -6,7 +6,10 @@ import {
 } from '../../lib/spotifyPlayback'
 import { PLAYLIST_LABEL, SPOTIFY_PLAYLIST_URI } from './constants'
 import { useSpotifyController } from './hooks/useSpotifyController'
-import { preloadSpotifyIframeApi, prefersFastSpotifyWarmup, scheduleSpotifyWarmup } from './spotifyPreload'
+import { preloadSpotifyIframeApi, scheduleSpotifyWarmup } from './spotifyPreload'
+
+/** How long after load to quietly create the Spotify player: after the intro has played. */
+const PLAYER_WARMUP_DELAY_MS = 6500
 import styles from './NowPlaying.module.css'
 import { SpotifyDrawer } from './SpotifyDrawer'
 import { Waveform } from './Waveform'
@@ -53,14 +56,19 @@ export function NowPlaying() {
   }, [isPlaying])
 
   useEffect(() => {
+    // the small iFrame API script loads straight away; the player itself (a whole Spotify web
+    // app in a hidden iframe) waits until the intro has finished — the splash, the hero and the
+    // mascot's drop-in — so it never competes with them. Opening the player (or a first tap on
+    // a phone) still creates it immediately.
     void preloadSpotifyIframeApi()
-
-    if (prefersFastSpotifyWarmup()) {
-      setEmbedActive(true)
-      return
+    let cancelIdle = () => {}
+    const timer = window.setTimeout(() => {
+      cancelIdle = scheduleSpotifyWarmup(() => setEmbedActive(true), 2000)
+    }, PLAYER_WARMUP_DELAY_MS)
+    return () => {
+      window.clearTimeout(timer)
+      cancelIdle()
     }
-
-    return scheduleSpotifyWarmup(() => setEmbedActive(true), 2000)
   }, [])
 
   useEffect(() => {
@@ -84,14 +92,11 @@ export function NowPlaying() {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-playlist-root="">
       <motion.button
         type="button"
         className={styles.root}
         data-fading={isFading ? '' : undefined}
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.98 }}
         aria-label={isPlaying ? `Pause ${PLAYLIST_LABEL}` : `Open ${PLAYLIST_LABEL}`}
@@ -117,7 +122,7 @@ export function NowPlaying() {
           )}
         </span>
         <span className={styles.labelRow}>
-          <span className={styles.label}>{PLAYLIST_LABEL}</span>
+          <span className={styles.label}>Playlist</span>
           <Waveform active={isPlaying} />
         </span>
       </motion.button>

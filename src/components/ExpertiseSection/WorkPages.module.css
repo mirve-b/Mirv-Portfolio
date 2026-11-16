@@ -1,0 +1,607 @@
+/* Work pages: Art (one collection per screen) and Development / Design (editorial rows). */
+
+.page {
+  /* one set of side margins for Art, Development and Design, so they line up on every screen */
+  --gutter: clamp(16px, 3.5vw, 64px);
+  --wide: 1840px;
+  width: 100%;
+  color: var(--color-sand);
+}
+
+/* ---------- page header ---------- */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vw, 24px);
+  max-width: calc(var(--wide) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: clamp(92px, 12vh, 130px) var(--gutter) clamp(28px, 5vh, 56px);
+}
+
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.22em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 1.5rem + 7vw, 9rem);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.light {
+  font-weight: 200;
+}
+
+.headerMeta {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(230, 216, 198, 0.16);
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.75vw, 11px);
+  font-weight: 300;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(230, 216, 198, 0.6);
+}
+
+/* ---------- explore button (matches the MABLE section) ---------- */
+
+.explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: clamp(10px, 0.8vw, 13px);
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--color-sand);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.exploreArrow {
+  display: grid;
+  place-items: center;
+  width: clamp(38px, 3vw, 50px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(230, 216, 198, 0.5);
+  border-radius: 50%;
+  transition:
+    background 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.exploreArrow svg {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.explore:hover .exploreArrow,
+.explore:focus-visible .exploreArrow {
+  background: var(--color-sand);
+  border-color: var(--color-sand);
+  color: #000;
+}
+
+.explore:hover .exploreArrow svg,
+.explore:focus-visible .exploreArrow svg {
+  transform: translateX(3px);
+}
+
+/* ---------- Art: grid sheets ---------- */
+
+.sheets {
+  --line: rgba(230, 216, 198, 0.16);
+  --dim: rgba(230, 216, 198, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 10vh, 120px);
+  max-width: calc(var(--wide) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter) clamp(80px, 12vh, 140px);
+}
+
+.sheet {
+  position: relative;
+}
+
+/* the hairline that draws across the top of each sheet */
+.sheetRule {
+  display: block;
+  height: 1px;
+  background: var(--line);
+  transform-origin: left;
+}
+
+.sheet[data-flip] .sheetRule {
+  transform-origin: right;
+}
+
+/* small spec strip: crosshairs, labels and a code */
+.sheetHead {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  padding: 14px 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.7vw, 11px);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.sheetHead > span:nth-child(4) {
+  justify-self: end;
+}
+
+.sheetHeadMid {
+  color: var(--color-sand);
+}
+
+/* a "+" crosshair */
+.cross {
+  position: relative;
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+}
+
+.cross::before,
+.cross::after {
+  content: '';
+  position: absolute;
+  background: var(--color-sand);
+}
+
+.cross::before {
+  left: 5px;
+  top: 0;
+  width: 1px;
+  height: 11px;
+}
+
+.cross::after {
+  left: 0;
+  top: 5px;
+  width: 11px;
+  height: 1px;
+}
+
+/* the name, huge, running edge to edge and sliding with the scroll */
+.sheetNameRow {
+  overflow: hidden;
+  /* the name runs right to the window's edges, past the margins */
+  margin-inline: calc(50% - 50vw);
+}
+
+.sheetName {
+  margin: 0;
+  padding: 0.04em 0 0.08em;
+  font-family: var(--font-display);
+  font-size: clamp(3.25rem, 10.5vw, 13rem);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--color-sand);
+  will-change: transform;
+}
+
+.sheetName sup {
+  margin-left: 0.15em;
+  font-size: 0.16em;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  vertical-align: 3.6em;
+}
+
+/* the cells: a 1px gap over the line colour draws the grid */
+.sheetGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.75fr) minmax(0, 1fr) minmax(0, 0.8fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 0.42fr);
+  grid-template-areas:
+    'meta cover pieceA pieceB'
+    'meta cover pieceA note';
+  gap: 1px;
+  height: clamp(480px, 72vh, 820px);
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.sheet[data-flip] .sheetGrid {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.75fr) minmax(0, 1fr);
+  grid-template-areas:
+    'pieceB pieceA cover meta'
+    'note pieceA cover meta';
+}
+
+.cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.cellMeta {
+  grid-area: meta;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(14px, 2vh, 22px);
+  padding: clamp(18px, 2vw, 30px);
+}
+
+.metaBig {
+  margin: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4.5vw, 5rem);
+  font-weight: 200;
+  line-height: 0.85;
+  color: var(--color-sand);
+}
+
+.metaTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 1.3vw, 20px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-sand);
+}
+
+.metaSub {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.metaSpec {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 18px;
+  font-family: var(--font-display);
+  font-size: clamp(8px, 0.62vw, 10px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.metaSpec span:nth-child(even) {
+  color: var(--color-sand);
+}
+
+.barcode {
+  width: clamp(90px, 8vw, 130px);
+  height: 30px;
+  fill: var(--color-sand);
+  opacity: 0.85;
+}
+
+.cellCover {
+  grid-area: cover;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.cellPieceA {
+  grid-area: pieceA;
+}
+
+.cellPieceB {
+  grid-area: pieceB;
+}
+
+/* pieces sit inside their cell with a margin, like prints on a contact sheet */
+.pieceFrame {
+  position: absolute;
+  inset: clamp(18px, 2.2vw, 34px) clamp(18px, 2.2vw, 34px) clamp(18px, 2.2vw, 34px) clamp(36px, 3.6vw, 56px);
+  overflow: hidden;
+}
+
+.cellPieceB .pieceFrame {
+  inset: clamp(14px, 1.6vw, 24px);
+}
+
+/* the running timecode, reading down the piece's left edge */
+.timecode {
+  position: absolute;
+  left: clamp(10px, 1vw, 16px);
+  top: clamp(18px, 2.2vw, 34px);
+  writing-mode: vertical-rl;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.7vw, 11px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.18em;
+  color: var(--color-sand);
+}
+
+.cellNote {
+  grid-area: note;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(14px, 1.4vw, 22px);
+}
+
+.cellNote p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.7vw, 11px);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-sand);
+}
+
+.cellNote p span {
+  color: var(--dim);
+}
+
+/* oversized so the drift never shows an edge */
+.parallax {
+  position: absolute;
+  inset: -12% 0;
+}
+
+.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cellCover:hover .fill,
+.cellCover:focus-visible .fill {
+  transform: scale(1.04);
+}
+
+/* corner brackets on the cover */
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  border-color: var(--color-sand);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+}
+
+.corner[data-pos='tl'] {
+  top: 12px;
+  left: 12px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.corner[data-pos='tr'] {
+  top: 12px;
+  right: 12px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+
+.corner[data-pos='bl'] {
+  bottom: 12px;
+  left: 12px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+
+.corner[data-pos='br'] {
+  bottom: 12px;
+  right: 12px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+/* ---------- Development & Design: simple grid sheets ---------- */
+
+.rows {
+  --line: rgba(230, 216, 198, 0.16);
+  --dim: rgba(230, 216, 198, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(48px, 8vh, 96px);
+  max-width: calc(var(--wide) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter) clamp(60px, 10vh, 120px);
+}
+
+.entry {
+  position: relative;
+}
+
+.entry[data-flip] .sheetRule {
+  transform-origin: right;
+}
+
+/* two cells; the 1px gap over the line colour draws the grid */
+.entryGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  grid-template-areas: 'media info';
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.entry[data-flip] .entryGrid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  grid-template-areas: 'info media';
+}
+
+/* at least 16:10, and it stretches to match the details cell, so no gap opens under the video */
+.entryMedia {
+  grid-area: media;
+}
+
+.entryMedia::before {
+  content: '';
+  display: block;
+  padding-top: 62.5%;
+}
+
+/* the preview sits inside the cell with a margin, like a print on the sheet */
+.entryMediaInner {
+  position: absolute;
+  inset: clamp(14px, 1.6vw, 26px);
+  overflow: hidden;
+  background: #0b0b0b;
+}
+
+.entryMediaInner > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.entryInfo {
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: clamp(14px, 2vh, 22px);
+  padding: clamp(18px, 1.8vw, 30px);
+}
+
+/* a little more compact in the sheet than on its own */
+.entryInfo .metaBig {
+  font-size: clamp(2rem, 3.2vw, 3.5rem);
+}
+
+.entryInfo .rowDescription {
+  margin-top: clamp(12px, 1.6vh, 18px);
+  font-size: clamp(0.8125rem, 0.74rem + 0.18vw, 0.9rem);
+  line-height: 1.6;
+}
+
+.rowImage {
+  object-fit: cover;
+}
+
+.rowTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.2rem + 2.6vw, 4rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.rowMark {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(230, 216, 198, 0.55);
+}
+
+.rowSubtitle {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(12px, 1vw, 15px);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(230, 216, 198, 0.8);
+}
+
+.rowDescription {
+  max-width: 34rem;
+  margin: clamp(18px, 2.6vh, 28px) 0 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.8125rem, 0.75rem + 0.2vw, 0.9375rem);
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(230, 216, 198, 0.68);
+}
+
+.rowStack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(230, 216, 198, 0.55);
+}
+
+/* ---------- smaller screens ---------- */
+
+@media (max-width: 900px) {
+  .sheetHead {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .sheetHeadMid,
+  .sheetHead > .cross:last-child {
+    display: none;
+  }
+
+  .sheetGrid,
+  .sheet[data-flip] .sheetGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'cover cover'
+      'pieceA pieceB'
+      'meta meta';
+    height: auto;
+  }
+
+  .cellCover {
+    aspect-ratio: 4 / 5;
+  }
+
+  .cellPieceA,
+  .cellPieceB {
+    aspect-ratio: 3 / 4;
+  }
+
+  .cellNote {
+    display: none;
+  }
+
+  .entryGrid,
+  .entry[data-flip] .entryGrid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'media'
+      'info';
+  }
+}

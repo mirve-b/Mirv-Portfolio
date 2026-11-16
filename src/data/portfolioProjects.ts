@@ -240,7 +240,3 @@ export function isProjectOpenable(project: PortfolioProjectMeta): boolean {
     project.detailType === 'art-suite'
   )
 }
-
-export function isVideoShowcase(project: PortfolioProjectMeta): boolean {
-  return project.detailType === 'video-showcase'
-}

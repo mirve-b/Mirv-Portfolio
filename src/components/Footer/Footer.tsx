@@ -1,16 +1,22 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ScrollPfp } from '../ScrollPfp'
-import { SplitText } from '../SplitText'
-import { staggerContainer } from '../../lib/motion'
 import { useIsMobile } from '../../lib/useIsMobile'
+import { useReducedMotion } from '../../lib/useReducedMotion'
 import { ContactForm } from './ContactForm'
 import { CONTACT_EMAIL, SOCIAL_LINKS } from './constants'
-import { EmailIcon, SocialIcon } from './SocialIcons'
 import styles from './Footer.module.css'
 
-const springBounce = { type: 'spring' as const, stiffness: 400, damping: 13 }
+const EASE = [0.16, 1, 0.3, 1] as const
 
+const rise = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+  transition: { duration: 1, ease: EASE, delay },
+})
+
+/** The sign-off: one statement, the email, a line of links, and the form. Nothing else. */
 export function Footer({
   scrollPfpEnabled = true,
   scrollPfpKey = 'default',
@@ -21,98 +27,54 @@ export function Footer({
 }) {
   const footerRef = useRef<HTMLElement>(null)
   const isMobile = useIsMobile()
-  const showPfp = scrollPfpEnabled
-  const pfp = showPfp ? (
+  const reduced = useReducedMotion()
+  const pfp = scrollPfpEnabled ? (
     <ScrollPfp key={`${scrollPfpKey}-${isMobile ? 'm' : 'd'}`} zoneRef={footerRef} />
   ) : null
+
+  const year = new Date().getFullYear()
 
   return (
     <footer ref={footerRef} className={styles.footer} aria-labelledby="footer-heading">
       <div className={styles.container}>
-        <motion.div
-          className={styles.connectCol}
-          variants={staggerContainer(0.08)}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-        >
-          <SplitText
-            as="h2"
-            id="footer-heading"
-            text="Let's connect"
-            className={styles.heading}
-            inView
-            stagger={0.05}
-          />
+        <div className={styles.connectCol}>
+          <motion.h2 id="footer-heading" className={styles.heading} {...rise()}>
+            <span className={styles.bold}>LET&apos;S</span> <span className={styles.light}>CREATE</span>
+          </motion.h2>
 
-          <motion.p className={styles.subtext} variants={springItem}>
-            Open to collaborations, freelance work, and creative projects.
-          </motion.p>
+          <motion.a className={styles.email} href={`mailto:${CONTACT_EMAIL}`} {...rise(0.1)}>
+            {CONTACT_EMAIL}
+          </motion.a>
 
-          <motion.ul className={styles.socialList} variants={springItem}>
+          <motion.ul className={styles.links} aria-label="Elsewhere" {...rise(0.18)}>
             {SOCIAL_LINKS.map(({ id, label, href }) => (
               <li key={id}>
-                <motion.a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.socialLink}
-                  aria-label={label}
-                  whileHover={{ scale: 1.14, y: -5, rotate: -3 }}
-                  whileTap={{ scale: 0.92 }}
-                  transition={springBounce}
-                >
-                  <SocialIcon id={id} />
-                </motion.a>
+                <a href={href} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                  {label}
+                </a>
               </li>
             ))}
-            <li>
-              <motion.a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className={styles.socialLink}
-                aria-label={`Email ${CONTACT_EMAIL}`}
-                whileHover={{ scale: 1.14, y: -5, rotate: -3 }}
-                whileTap={{ scale: 0.92 }}
-                transition={springBounce}
-              >
-                <EmailIcon />
-              </motion.a>
-            </li>
           </motion.ul>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className={styles.formCol}
-          initial={{ opacity: 0, x: 32 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ ...springBounce, delay: 0.1 }}
-        >
+        <motion.div className={styles.formCol} {...rise(0.1)}>
           <ContactForm scrollPfp={isMobile ? pfp : null} />
         </motion.div>
       </div>
 
-      {/* Desktop: fixed slide-out beside socials / from behind the form */}
+      {/* Desktop: the mascot slides out from behind the form */}
       {!isMobile ? pfp : null}
 
-      <motion.p
-        className={styles.copyright}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        © {new Date().getFullYear()} MIRVÉ. All rights reserved
-      </motion.p>
+      <div className={styles.bottomBar}>
+        <span>© {year} MIRVÉ</span>
+        <button
+          type="button"
+          className={styles.toTop}
+          onClick={() => window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })}
+        >
+          Back to top ↑
+        </button>
+      </div>
     </footer>
   )
-}
-
-const springItem = {
-  hidden: { opacity: 0, y: 22 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring' as const, stiffness: 380, damping: 16 },
-  },
 }

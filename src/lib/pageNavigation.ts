@@ -4,19 +4,13 @@ import {
   PORTFOLIO_PROJECTS,
 } from '../data/portfolioProjects'
 
-/** Expertise categories shown on the Expertise page tab bar. */
+/** The work pages: each category has its own page. */
 export type ExpertiseCategory = 'art' | 'ui-ux' | 'development'
 
 export type AppRoute =
   | { type: 'home' }
   | { type: 'expertise'; category: ExpertiseCategory }
   | { type: 'project'; projectId: string }
-
-export const EXPERTISE_TABS: { id: ExpertiseCategory; label: string }[] = [
-  { id: 'art', label: 'Art' },
-  { id: 'development', label: 'Development' },
-  { id: 'ui-ux', label: 'UI/UX' },
-]
 
 export const EXPERTISE_TAB_ORDER: ExpertiseCategory[] = [
   'art',
@@ -29,15 +23,6 @@ const PROJECT_PATH_CATEGORY_PREFIXES: ExpertiseCategory[] = [
   'development',
   'art',
 ]
-
-export function expertiseTabDirection(
-  from: ExpertiseCategory,
-  to: ExpertiseCategory,
-): number {
-  const fromIndex = EXPERTISE_TAB_ORDER.indexOf(from)
-  const toIndex = EXPERTISE_TAB_ORDER.indexOf(to)
-  return toIndex >= fromIndex ? 1 : -1
-}
 
 const ROUTE_KEY = 'mirve-active-route'
 const LEGACY_PAGE_KEY = 'mirve-active-page'
@@ -96,12 +81,19 @@ function projectRouteFromLegacySlug(slug: string): AppRoute | null {
   return { type: 'project', projectId: slug }
 }
 
+/** Each category is its own page, at its own address. */
+const CATEGORY_PATHS: Record<ExpertiseCategory, string> = {
+  art: '/art',
+  development: '/development',
+  'ui-ux': '/design',
+}
+
 export function routeToPath(route: AppRoute): string {
   if (route.type === 'home') return '/'
-  if (route.type === 'expertise') return '/expertise'
+  if (route.type === 'expertise') return CATEGORY_PATHS[route.category]
 
   const meta = getProjectMetaById(route.projectId)
-  if (!meta || !isProjectOpenable(meta)) return '/expertise'
+  if (!meta || !isProjectOpenable(meta)) return '/art'
 
   return `/expertise/${projectPathSegment(meta.category, route.projectId)}`
 }
@@ -110,6 +102,11 @@ export function pathToRoute(pathname: string): AppRoute | null {
   const path = pathname.replace(/\/+$/, '') || '/'
 
   if (path === '/') return { type: 'home' }
+
+  for (const [category, categoryPath] of Object.entries(CATEGORY_PATHS)) {
+    if (path === categoryPath) return { type: 'expertise', category: category as ExpertiseCategory }
+  }
+  if (path === '/ui-ux') return { type: 'expertise', category: 'ui-ux' }
 
   if (path === '/expertise') {
     return { type: 'expertise', category: 'art' }
