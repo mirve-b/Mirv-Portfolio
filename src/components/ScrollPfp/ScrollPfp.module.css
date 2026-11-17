@@ -91,16 +91,22 @@
   .rootMobile .bubble {
     left: auto;
     right: 0;
-    bottom: calc(100% + 0.5rem);
-    padding: 0.5rem 0.75rem;
-    max-width: min(9.5rem, calc(100vw - (var(--container-padding) * 2) - 1rem));
-    font-size: var(--text-xs);
+    bottom: calc(100% + 0.4rem);
+    /* small on phones, so it never runs into the LET'S CREATE heading beside it */
+    padding: 0.3rem 0.5rem;
+    max-width: min(8rem, calc(100vw - (var(--container-padding) * 2) - 1rem));
+    font-size: 9.5px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    gap: 0;
     transform: none;
   }
 
   .rootMobile .bubble::after {
     left: auto;
     right: 1.25rem;
-    transform: rotate(45deg) translateY(-5px);
+    width: 7px;
+    height: 7px;
+    transform: rotate(45deg) translateY(-3.5px);
   }
 }
