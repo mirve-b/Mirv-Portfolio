@@ -25,10 +25,25 @@ export function Navbar({ isHome, activeCategory, onNavigateHome, onSelectCategor
       setBarShown(true)
       return
     }
-    const update = () => setBarShown(window.scrollY > window.innerHeight * 0.35)
+    // checked at most once per frame, and React only hears about it when it actually flips
+    let frame = 0
+    let shown: boolean | null = null
+    const update = () => {
+      frame = 0
+      const next = window.scrollY > window.innerHeight * 0.35
+      if (next === shown) return
+      shown = next
+      setBarShown(next)
+    }
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update)
+    }
     update()
-    window.addEventListener('scroll', update, { passive: true })
-    return () => window.removeEventListener('scroll', update)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.cancelAnimationFrame(frame)
+    }
   }, [isHome])
 
   const handleBrandClick = useCallback(

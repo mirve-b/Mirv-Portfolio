@@ -1,7 +1,9 @@
+import type { SpotifyIframeApi } from './spotifyIframeApi.types'
+
 const IFRAME_API_SRC = 'https://open.spotify.com/embed/iframe-api/v1'
 
 let scriptRequested = false
-let apiReadyPromise: Promise<void> | null = null
+let apiReadyPromise: Promise<SpotifyIframeApi | null> | null = null
 
 function injectScript() {
   if (scriptRequested || typeof document === 'undefined') return
@@ -16,34 +18,28 @@ function injectScript() {
 }
 
 /** Phones and touch devices retry mounting the player a little faster. */
-export function prefersFastSpotifyWarmup(): boolean {
-  if (typeof window === 'undefined') return false
+/**
+ * Spotify's iFrame API has no global object: the ONLY way to get it is the one-time
+ * `window.onSpotifyIframeApiReady(api)` call it makes when its script loads. We catch that call
+ * here, as early as possible, and keep the API, so the player can be created at any moment
+ * later (on click, or after the intro) and still find it. Without this, a player created after
+ * the script had loaded waited forever on "Loading player…".
+ */
+let api: SpotifyIframeApi | null = null
 
-  return window.matchMedia('(max-width: 768px), (hover: none) and (pointer: coarse)').matches
-}
-
-/** Load Spotify iFrame API as early as possible */
-export function preloadSpotifyIframeApi(): Promise<void> {
-  if (typeof window === 'undefined') return Promise.resolve()
-
-  if (window.Spotify?.IframeApi) return Promise.resolve()
+export function preloadSpotifyIframeApi(): Promise<SpotifyIframeApi | null> {
+  if (typeof window === 'undefined') return Promise.resolve(null)
+  if (api) return Promise.resolve(api)
 
   if (!apiReadyPromise) {
     apiReadyPromise = new Promise((resolve) => {
-      const finish = () => resolve()
-
       const previousReady = window.onSpotifyIframeApiReady
-
-      window.onSpotifyIframeApiReady = (api) => {
-        previousReady?.(api)
-        finish()
+      window.onSpotifyIframeApiReady = (ready) => {
+        api = ready
+        previousReady?.(ready)
+        resolve(ready)
       }
-
       injectScript()
-
-      if (window.Spotify?.IframeApi) {
-        finish()
-      }
     })
   }
 

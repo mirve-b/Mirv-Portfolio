@@ -92,3 +92,77 @@
   }
 
 }
+
+/* ---------- scroll effects, run natively by the browser ----------
+   Where supported (see useNativeScrollAnimations), the section is a scroll timeline and each
+   piece is a plain CSS animation on its own stretch of it: no JavaScript per frame, so it stays
+   smooth on phones. Same ranges as the framer-motion version (offset 'start 85%' → 'center 45%'):
+   in "cover" terms that runs from 15vh to (50% + 5vh), and each piece's --s/--e (0–1) picks its
+   slice of that. */
+@supports (animation-timeline: view()) {
+  .section[data-css-scroll] {
+    view-timeline: --about block;
+  }
+
+  .section[data-css-scroll] .char,
+  .section[data-css-scroll] .line,
+  .section[data-css-scroll] .heading {
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-duration: auto;
+    animation-timeline: --about;
+  }
+
+  /* letters: rise, straighten and sharpen over [s, e]; fade in over [s, f] */
+  .section[data-css-scroll] .char {
+    animation-name: aboutLetterRise, aboutLetterFade;
+    animation-timeline: --about, --about;
+    animation-range:
+      cover calc(15vh + (50% - 10vh) * var(--s)) cover calc(15vh + (50% - 10vh) * var(--e)),
+      cover calc(15vh + (50% - 10vh) * var(--s)) cover calc(15vh + (50% - 10vh) * var(--f));
+  }
+
+  /* lines: wipe in from the left over [s, e] */
+  .section[data-css-scroll] .line {
+    animation-name: aboutLineWipe;
+    animation-range: cover calc(15vh + (50% - 10vh) * var(--s)) cover calc(15vh + (50% - 10vh) * var(--e));
+  }
+
+  /* the heading drifts in sideways over the whole stretch */
+  .section[data-css-scroll] .heading {
+    animation-name: aboutHeadingDrift;
+    animation-range: cover 15vh cover calc(50% + 5vh);
+  }
+
+  @keyframes aboutLetterRise {
+    from {
+      transform: translateY(110%) rotate(18deg);
+      filter: blur(10px);
+    }
+    to {
+      transform: none;
+      filter: blur(0px);
+    }
+  }
+
+  @keyframes aboutLetterFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes aboutLineWipe {
+    from {
+      clip-path: inset(0 100% 0 0);
+      transform: translateX(-24px);
+    }
+    to {
+      clip-path: inset(0 0% 0 0);
+      transform: none;
+    }
+  }
+
+  @keyframes aboutHeadingDrift {
+    from { transform: translateX(18%); }
+    to { transform: none; }
+  }
+}

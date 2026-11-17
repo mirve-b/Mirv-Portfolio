@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useScroll, useTransform } from 'framer-motion'
+import { useNativeScrollAnimations } from '../../lib/useNativeScrollAnimations'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 // the MABLE film and its two strip slices, each with its grade baked in (no live CSS filters)
 import introMp4 from '../../assets/mable-main.mp4'
@@ -18,13 +19,21 @@ export function FounderSection() {
   const ref = useRef<HTMLElement>(null)
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
   const reduced = useReducedMotion()
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end end'] })
-  const p = useSpring(scrollYProgress, { stiffness: 110, damping: 28, mass: 0.5 })
+  // native scroll timeline where supported (see FounderSection.module.css); framer-motion otherwise
+  const native = useNativeScrollAnimations()
+  const js = !native
+  const { scrollYProgress } = useScroll(js ? { target: ref, offset: ['start end', 'end end'] } : undefined)
+  // driven straight by the scroll (no spring), like the hero
+  // natively animated: the JS formulas get a fixed value, so they never recompute while scrolling
+  const idle = useMotionValue(1)
+  const p = js ? scrollYProgress : idle
   const r = <T,>(from: T, to: T): [T, T] => (reduced ? [to, to] : [from, to])
 
   // the frame slides up into place and unveils, like the hero's opening
   const frameY = useTransform(p, [0, 0.5], r('18%', '0%'))
-  const frameClip = useTransform(p, [0.05, 0.45], r('inset(100% 0 0 0)', 'inset(0% 0 0 0)'))
+  // the unveil: a black cover slides up off the film (a transform, so the playing film isn't
+  // repainted every frame the way an animated clip-path would)
+  const coverY = useTransform(p, [0.05, 0.45], r('0%', '-101%'))
   const filmScale = useTransform(p, [0, 1], r(1.25, 1.05))
   // the strips rise past and settle level with the frame, so it ends as a clean contact sheet
   const stripA = useTransform(p, [0.1, 0.75], r('34%', '0%'))
@@ -66,29 +75,37 @@ export function FounderSection() {
   )
 
   return (
-    <section ref={ref} className={styles.section} aria-labelledby="founder-heading">
+    <section
+      ref={ref}
+      className={styles.section}
+      data-css-scroll={native ? '' : undefined}
+      aria-labelledby="founder-heading"
+    >
       <div className={styles.pin}>
         <div className={styles.media}>
-          <motion.div className={styles.frame} style={{ y: frameY, clipPath: frameClip }}>
-            <motion.div className={styles.filmWrap} style={{ scale: filmScale }}>
+          <motion.div className={styles.frame} style={js ? { y: frameY } : undefined}>
+            <motion.div className={styles.filmWrap} style={js ? { scale: filmScale } : undefined}>
               {film(0, styles.film, introMp4)}
             </motion.div>
+            <motion.div className={styles.cover} style={js ? { y: coverY } : undefined} aria-hidden="true" />
           </motion.div>
-          <motion.div className={`${styles.strip} ${styles.stripA}`} style={{ y: stripA, opacity: stripOpacity }} aria-hidden="true">
+          <motion.div className={`${styles.strip} ${styles.stripA}`} style={js ? { y: stripA, opacity: stripOpacity } : undefined} aria-hidden="true">
             {film(1, `${styles.film} ${styles.sliceA}`, sliceAMp4)}
           </motion.div>
-          <motion.div className={`${styles.strip} ${styles.stripB}`} style={{ y: stripB, opacity: stripOpacity }} aria-hidden="true">
+          <motion.div className={`${styles.strip} ${styles.stripB}`} style={js ? { y: stripB, opacity: stripOpacity } : undefined} aria-hidden="true">
             {film(2, `${styles.film} ${styles.sliceB}`, sliceBMp4)}
           </motion.div>
         </div>
 
-        <motion.div className={styles.text} style={{ y: textY, opacity: textOpacity }}>
+        <motion.div className={styles.text} style={js ? { y: textY, opacity: textOpacity } : undefined}>
           <p className={styles.label}>
-            <span>Founder of</span>
             <span>Coming soon</span>
+            <span>Founder of</span>
           </p>
           <h2 id="founder-heading" className={styles.heading}>
-            <span className={styles.bold}>MABLE</span> <span className={styles.light}>STUDIO</span>
+            <span className={styles.fit}>
+              <span className={styles.bold}>MABLE</span> <span className={styles.light}>STUDIO</span>
+            </span>
           </h2>
           <p className={styles.tag}>Design x code studio</p>
           <a className={styles.explore} href="https://mable.cc" target="_blank" rel="noopener noreferrer">

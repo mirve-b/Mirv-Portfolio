@@ -25,3 +25,28 @@
     bottom: calc(24px - var(--orchid-w) * 0.56);
   }
 }
+
+/* native scroll version (see AboutIntro.module.css): drifts in, turns and fades up as the About
+   section scrolls in — the same values and ranges as the framer-motion version */
+@supports (animation-timeline: view()) {
+  [data-css-scroll] > .orchid {
+    animation-name: orchidDrift, orchidFade;
+    animation-duration: auto, auto;
+    animation-timing-function: linear, linear;
+    animation-fill-mode: both, both;
+    animation-timeline: --about, --about;
+    animation-range:
+      cover 15vh cover calc(50% + 5vh),
+      cover calc(15vh + (50% - 10vh) * 0.1) cover calc(15vh + (50% - 10vh) * 0.5);
+  }
+
+  @keyframes orchidDrift {
+    from { transform: translateX(22%) rotate(-62deg); }
+    to { transform: translateX(0) rotate(-74deg); }
+  }
+
+  @keyframes orchidFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

@@ -38,6 +38,24 @@
   background: #0b0b0b;
 }
 
+/* the unveil cover (see FounderSection.tsx): same black as the page, slides up off the film */
+.cover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--color-bg);
+  pointer-events: none;
+}
+
+/* moving pieces get their own GPU layers, so scrolling never repaints the films */
+.frame,
+.filmWrap,
+.strip,
+.cover,
+.text {
+  will-change: transform, opacity;
+}
+
 .filmWrap {
   position: absolute;
   inset: 0;
@@ -110,6 +128,20 @@
   letter-spacing: 0.02em;
   color: var(--color-sand);
   white-space: nowrap;
+}
+
+/* above phones the name fills its column exactly, so "STUDIO" always ends on the right margin:
+   the heading is a container and the name is sized to its width ("MABLE STUDIO" is 8.14em wide) */
+@media (min-width: 901px) {
+  .heading {
+    container-type: inline-size;
+    justify-self: stretch;
+  }
+
+  .fit {
+    display: block;
+    font-size: calc(100cqi / 8.16);
+  }
 }
 
 .bold {
@@ -201,8 +233,6 @@
   .heading {
     grid-row: 2;
     grid-column: 2;
-    /* "MABLE STUDIO" is ~8.15em wide; the label beside it takes ~11rem */
-    font-size: clamp(2rem, calc((100cqi - 12rem) / 8.4), 10rem);
   }
 
   .tag {
@@ -257,9 +287,105 @@
   .heading {
     font-size: clamp(2.25rem, 11vw, 3.5rem);
   }
+}
 
-  /* phones: "Coming soon" reads first */
-  .label {
-    flex-direction: column-reverse;
+/* ---------- scroll effects, run natively by the browser ----------
+   Where supported (see useNativeScrollAnimations), each piece is a CSS animation on the
+   section's scroll timeline: no JavaScript per frame, smooth on phones. Same ranges as the
+   framer-motion version (offset 'start end' → 'end end'): in "cover" terms 0 → (100% − 100vh);
+   each slice below is that span times the 0–1 points from the JS version. */
+@supports (animation-timeline: view()) {
+  .section[data-css-scroll] {
+    view-timeline: --founder block;
+  }
+
+  .section[data-css-scroll] .frame,
+  .section[data-css-scroll] .filmWrap,
+  .section[data-css-scroll] .cover,
+  .section[data-css-scroll] .strip,
+  .section[data-css-scroll] .text {
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --founder;
+  }
+
+  /* frame slides up into place over [0, 0.5] */
+  .section[data-css-scroll] .frame {
+    animation-name: founderFrameUp;
+    animation-range: cover 0% cover calc((100% - 100vh) * 0.5);
+  }
+
+  /* the film eases back over the whole stretch */
+  .section[data-css-scroll] .filmWrap {
+    animation-name: founderFilmScale;
+    animation-range: cover 0% cover calc(100% - 100vh);
+  }
+
+  /* the black cover slides up off the film over [0.05, 0.45] */
+  .section[data-css-scroll] .cover {
+    animation-name: founderCoverUp;
+    animation-range: cover calc((100% - 100vh) * 0.05) cover calc((100% - 100vh) * 0.45);
+  }
+
+  /* strips rise and settle (A over [0.1, 0.75], B over [0.1, 0.85]) and fade in over [0.12, 0.4] */
+  .section[data-css-scroll] .stripA {
+    animation-name: founderStripA, founderFadeIn;
+    animation-timeline: --founder, --founder;
+    animation-range:
+      cover calc((100% - 100vh) * 0.1) cover calc((100% - 100vh) * 0.75),
+      cover calc((100% - 100vh) * 0.12) cover calc((100% - 100vh) * 0.4);
+  }
+
+  .section[data-css-scroll] .stripB {
+    animation-name: founderStripB, founderFadeIn;
+    animation-timeline: --founder, --founder;
+    animation-range:
+      cover calc((100% - 100vh) * 0.1) cover calc((100% - 100vh) * 0.85),
+      cover calc((100% - 100vh) * 0.12) cover calc((100% - 100vh) * 0.4);
+  }
+
+  /* the words rise over [0.3, 0.7] and fade in over [0.3, 0.6] */
+  .section[data-css-scroll] .text {
+    animation-name: founderTextUp, founderFadeIn;
+    animation-timeline: --founder, --founder;
+    animation-range:
+      cover calc((100% - 100vh) * 0.3) cover calc((100% - 100vh) * 0.7),
+      cover calc((100% - 100vh) * 0.3) cover calc((100% - 100vh) * 0.6);
+  }
+
+  @keyframes founderFrameUp {
+    from { transform: translateY(18%); }
+    to { transform: none; }
+  }
+
+  @keyframes founderFilmScale {
+    from { transform: scale(1.25); }
+    to { transform: scale(1.05); }
+  }
+
+  @keyframes founderCoverUp {
+    from { transform: translateY(0); }
+    to { transform: translateY(-101%); }
+  }
+
+  @keyframes founderStripA {
+    from { transform: translateY(34%); }
+    to { transform: none; }
+  }
+
+  @keyframes founderStripB {
+    from { transform: translateY(68%); }
+    to { transform: none; }
+  }
+
+  @keyframes founderTextUp {
+    from { transform: translateY(40px); }
+    to { transform: none; }
+  }
+
+  @keyframes founderFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }

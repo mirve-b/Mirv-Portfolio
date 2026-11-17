@@ -21,9 +21,7 @@ export type SpotifyIframeApi = {
 
 declare global {
   interface Window {
+    /** Spotify calls this once when its iFrame API script has loaded (there's no global API object). */
     onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void
-    Spotify?: {
-      IframeApi?: SpotifyIframeApi
-    }
   }
 }

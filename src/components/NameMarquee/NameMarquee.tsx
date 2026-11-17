@@ -1,14 +1,5 @@
-import { useRef } from 'react'
-import {
-  motion,
-  useAnimationFrame,
-  useInView,
-  useMotionValue,
-  useScroll,
-  useSpring,
-  useTransform,
-  useVelocity,
-} from 'framer-motion'
+import { useEffect, useRef } from 'react'
+import { motion, useInView, useMotionValue, useTransform } from 'framer-motion'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 import styles from './NameMarquee.module.css'
 
@@ -28,30 +19,45 @@ export function NameMarquee() {
   const reduced = useReducedMotion()
   const dots = useMotionValue(0)
   const name = useMotionValue(0)
-  const direction = useRef(1)
   // only animate while the tapes are on screen
   const sectionRef = useRef<HTMLElement>(null)
   const inView = useInView(sectionRef, { margin: '200px 0px' })
 
-  const { scrollY } = useScroll()
-  const scrollVelocity = useVelocity(scrollY)
-  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 })
-  const boost = useTransform(smoothVelocity, [-2000, 0, 2000], [-8, 0, 8], { clamp: false })
-
-  useAnimationFrame((_, delta) => {
+  // the drift loop runs only while the tapes are on screen (nothing per frame otherwise). Scroll
+  // speed is measured inside it and eased, so the tapes still speed up and flip with the scroll.
+  useEffect(() => {
     if (reduced || !inView) return
-    const b = boost.get()
-    if (b < -0.01) direction.current = -1
-    else if (b > 0.01) direction.current = 1
-    const speed = direction.current * (1 + Math.abs(b)) * (delta / 1000)
+    let raf = 0
+    let last = performance.now()
+    let lastY = window.scrollY
+    let velocity = 0 // eased scroll speed, px/s
+    let direction = 1
 
-    dots.set((((dots.get() - speed * DOT_SPEED) % TILE) + TILE) % TILE)
-    // the name runs the other way; the track holds two copies, so wrap at one copy
-    let next = name.get() + speed * NAME_SPEED
-    if (next > 0) next -= 100
-    if (next <= -100) next += 100
-    name.set(next)
-  })
+    const tick = (now: number) => {
+      const dt = Math.min(0.1, (now - last) / 1000)
+      last = now
+      const y = window.scrollY
+      const raw = dt > 0 ? (y - lastY) / dt : 0
+      lastY = y
+      velocity += (raw - velocity) * (1 - Math.exp(-dt * 14))
+
+      const boost = (velocity / 2000) * 8
+      if (boost < -0.01) direction = -1
+      else if (boost > 0.01) direction = 1
+      const speed = direction * (1 + Math.abs(boost)) * dt
+
+      dots.set((((dots.get() - speed * DOT_SPEED) % TILE) + TILE) % TILE)
+      // the name runs the other way; the track holds two copies, so wrap at one copy
+      let next = name.get() + speed * NAME_SPEED
+      if (next > 0) next -= 100
+      if (next <= -100) next += 100
+      name.set(next)
+
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [reduced, inView, dots, name])
 
   // the dots drift by moving a layer (transform only: no repaint), wrapping every tile
   const dotsX = useTransform(dots, (v) => v - TILE)

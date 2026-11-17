@@ -7,7 +7,7 @@ import styles from './AboutOrchid.module.css'
  * window's right edge. As the section scrolls in (`progress` 0 → 1) it drifts in from the
  * right, turns a little and fades up. Position and size live in AboutOrchid.module.css.
  */
-export function AboutOrchid({ progress }: { progress: MotionValue<number> }) {
+export function AboutOrchid({ progress, native = false }: { progress: MotionValue<number>; native?: boolean }) {
   const x = useTransform(progress, [0, 1], ['22%', '0%'])
   const rotate = useTransform(progress, [0, 1], [-62, -74])
   const opacity = useTransform(progress, [0.1, 0.5], [0, 1])
@@ -20,7 +20,7 @@ export function AboutOrchid({ progress }: { progress: MotionValue<number> }) {
       aria-hidden="true"
       draggable={false}
       decoding="async"
-      style={{ x, rotate, opacity }}
+      style={native ? undefined : { x, rotate, opacity }}
     />
   )
 }

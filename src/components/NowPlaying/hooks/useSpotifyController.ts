@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { SMOOTH_PAUSE_MS } from '../../../lib/spotifyPlayback'
 import type { SpotifyEmbedController, SpotifyIframeApi } from '../spotifyIframeApi.types'
-import { preloadSpotifyIframeApi, prefersFastSpotifyWarmup } from '../spotifyPreload'
+import { preloadSpotifyIframeApi } from '../spotifyPreload'
 
 const EMBED_HEIGHT = '152'
 
@@ -94,59 +94,18 @@ export function useSpotifyController(
   useEffect(() => {
     if (!playlistUri || !enabled) return
 
+    // the API is cached by spotifyPreload, so this resolves straight away if Spotify's script
+    // has already loaded, or as soon as it does
     let cancelled = false
-    let retryTimer = 0
-
-    const tryMount = () => {
-      if (cancelled || !hostRef.current || controllerRef.current) return false
-      const api = window.Spotify?.IframeApi
-      if (!api) return false
+    void preloadSpotifyIframeApi().then((api) => {
+      if (cancelled || !api) return
       mountController(api)
-      return true
-    }
-
-    const onApiReady = (api: SpotifyIframeApi) => {
-      if (cancelled) return
-      mountController(api)
-    }
-
-    const previousReady = window.onSpotifyIframeApiReady
-    window.onSpotifyIframeApiReady = (api) => {
-      previousReady?.(api)
-      onApiReady(api)
-    }
-
-    const startMountAttempts = () => {
-      if (tryMount()) return
-
-      let attempt = 0
-      const fastWarmup = prefersFastSpotifyWarmup()
-
-      const scheduleRetry = () => {
-        const delay = fastWarmup
-          ? Math.min(40 * 2 ** attempt, 320)
-          : Math.min(80 * 2 ** attempt, 640)
-        attempt += 1
-        retryTimer = window.setTimeout(() => {
-          if (tryMount()) return
-          if (attempt < 12) scheduleRetry()
-        }, delay)
-      }
-
-      scheduleRetry()
-    }
-
-    void preloadSpotifyIframeApi().then(() => {
-      if (cancelled) return
-      startMountAttempts()
     })
 
     return () => {
       cancelled = true
-      window.clearTimeout(retryTimer)
-      window.onSpotifyIframeApiReady = previousReady
     }
-  }, [hostRef, mountController, playlistUri, enabled])
+  }, [mountController, playlistUri, enabled])
 
   const pause = useCallback(() => {
     if (fadeTimerRef.current) {

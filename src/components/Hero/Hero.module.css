@@ -137,7 +137,6 @@
   /* slightly dimmed and desaturated: baked into hero-slice-b.mp4 */
 }
 
-/* a single orchid resting in the dark strip, above the tag */
 /* ---------- the wordmark ---------- */
 
 .logo {
@@ -208,12 +207,16 @@
    scroll effects take over cleanly. */
 .frame,
 .strip,
-.logo {
+.logoScript,
+.logoWord {
   /* a gentle ease-in-out, starting a beat after the page appears */
   animation: heroFade 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.3s backwards;
 }
 
-.logo {
+/* the wordmark's two parts rise in (on the parts, so the scroll fade on the whole wordmark
+   never competes with it) */
+.logoScript,
+.logoWord {
   animation-name: heroFadeRise;
   animation-delay: 0.55s;
 }
@@ -235,14 +238,15 @@
 @keyframes heroFadeRise {
   from {
     opacity: 0;
-    translate: 0 calc(-38% + 14px);
+    translate: 0 14px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .frame,
   .strip,
-  .logo {
+  .logoScript,
+  .logoWord {
     animation: none;
   }
 }
@@ -284,5 +288,112 @@
 
   .stripB {
     display: none;
+  }
+}
+
+/* everything that moves with the scroll gets its own GPU layer, so scrolling only moves layers
+   (no repainting of the playing films) */
+.frame,
+.filmWrap,
+.strip,
+.copy,
+.logo {
+  will-change: transform, opacity;
+}
+
+/* ---------- scroll effects, run natively by the browser ----------
+   Where the browser supports scroll-driven animations (Chrome/Android, Safari 26+), the hero's
+   scroll effects are plain CSS animations on a scroll timeline: the browser runs them alongside
+   the scroll itself, with no JavaScript per frame, so they stay smooth on phones. Hero.tsx turns
+   this on (data-css-scroll) only where it's supported; elsewhere the same effects run through
+   framer-motion. Ranges and values match the JS version exactly. */
+@supports (animation-timeline: view()) {
+  /* the timeline: from the hero's top reaching the top of the window to its bottom reaching the
+     bottom (the whole pinned stretch) */
+  .hero[data-css-scroll] {
+    view-timeline: --hero block;
+  }
+
+  /* keep the opening fade, add the scroll effect alongside it */
+  .hero[data-css-scroll] .frame,
+  .hero[data-css-scroll] .strip {
+    animation-duration: 1.6s, auto;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1), linear;
+    animation-delay: 0.3s, 0s;
+    animation-fill-mode: backwards, both;
+    animation-timeline: auto, --hero;
+    animation-range: normal, contain 0% contain 100%;
+  }
+
+  .hero[data-css-scroll] .frame {
+    animation-name: heroFade, heroScrollFrame;
+  }
+
+  .hero[data-css-scroll] .stripA {
+    animation-name: heroFade, heroScrollStripA;
+    animation-delay: 0.5s, 0s;
+  }
+
+  .hero[data-css-scroll] .stripB {
+    animation-name: heroFade, heroScrollStripB;
+    animation-delay: 0.65s, 0s;
+  }
+
+  .hero[data-css-scroll] .filmWrap,
+  .hero[data-css-scroll] .copy,
+  .hero[data-css-scroll] .logo {
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --hero;
+    animation-range: contain 0% contain 100%;
+  }
+
+  .hero[data-css-scroll] .filmWrap {
+    animation-name: heroScrollFilm;
+  }
+
+  .hero[data-css-scroll] .copy {
+    animation-name: heroScrollCopy;
+  }
+
+  .hero[data-css-scroll] .logo {
+    animation-name: heroScrollLogo;
+  }
+
+  @keyframes heroScrollFrame {
+    from { transform: scale(1); }
+    to { transform: scale(0.9); }
+  }
+
+  @keyframes heroScrollFilm {
+    from { transform: translateY(0) scale(1.08); }
+    to { transform: translateY(-6%) scale(1.32); }
+  }
+
+  @keyframes heroScrollStripA {
+    from { transform: translateY(0); }
+    to { transform: translateY(-38%); }
+  }
+
+  @keyframes heroScrollStripB {
+    from { transform: translateY(0); }
+    to { transform: translateY(-72%); }
+  }
+
+  /* copy: moves 10% → 70% of the way, fades 18% → 55% */
+  @keyframes heroScrollCopy {
+    0%, 10% { transform: translateY(0); }
+    0%, 18% { opacity: 1; }
+    55%, 100% { opacity: 0; }
+    70%, 100% { transform: translateY(-60%); }
+  }
+
+  /* wordmark: rises 10% → 100%, fades 14% → 40% */
+  @keyframes heroScrollLogo {
+    0%, 10% { transform: translateY(0); }
+    0%, 14% { opacity: 1; }
+    40%, 100% { opacity: 0; }
+    100% { transform: translateY(-140%); }
   }
 }
