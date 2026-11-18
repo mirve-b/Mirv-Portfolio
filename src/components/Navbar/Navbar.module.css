@@ -238,3 +238,17 @@
     );
   }
 }
+
+/* phones and tablets (touch, no mouse): no live blur. Blurring whatever is behind the bar means re-blurring
+   the playing film underneath every single frame while scrolling, which a phone can't afford.
+   A near-solid black bar looks the same at that size and costs nothing. */
+@media (hover: none) and (pointer: coarse) {
+  .topBar {
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  .topBar[data-shown] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

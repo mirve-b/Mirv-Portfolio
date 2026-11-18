@@ -156,11 +156,16 @@
 }
 
 .logoScript {
-  margin-right: -0.06em;
   font-family: var(--font-script);
   font-size: 2.15em;
   line-height: 0.62;
   translate: 0 0.02em;
+  /* the M's swash rises well above its short line and reaches right past it. While it fades in,
+     Safari draws it on its own layer cut to its box, which cropped the top of the M until the
+     animation ended. Padding grows the box around the whole glyph; the negative margins keep the
+     layout exactly as it was (the right margin was -0.06em before) */
+  padding: 0.35em 0.35em 0.35em 0;
+  margin: -0.35em -0.41em -0.35em 0;
 }
 
 .logoWord {
@@ -396,4 +401,74 @@
     40%, 100% { opacity: 0; }
     100% { transform: translateY(-140%); }
   }
+}
+
+/* ---------- follow mode: Safari / iPhone ----------
+   Safari runs scroll-linked animations on the main thread, apart from the scroll itself, so they
+   update in steps and the hero trembles. Here Hero.tsx writes the scroll progress (0 → 1 over the
+   pinned stretch) to --p, and each piece *transitions* to where that progress puts it. Transitions
+   run on the GPU between updates, so the motion is continuous: it glides a beat behind the finger
+   instead of stepping. Same values and ranges as the effects above. */
+.hero[data-follow] {
+  --p: 0;
+  /* copy: moves 10% → 70%, fades 18% → 55%. Wordmark: rises 10% → 100%, fades 14% → 40% */
+  --copy-y: clamp(0, (var(--p) - 0.1) / 0.6, 1);
+  --copy-fade: clamp(0, (var(--p) - 0.18) / 0.37, 1);
+  --logo-y: clamp(0, (var(--p) - 0.1) / 0.9, 1);
+  --logo-fade: clamp(0, (var(--p) - 0.14) / 0.26, 1);
+  --glide: 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero[data-follow] .frame {
+  transform: scale(calc(1 - 0.1 * var(--p)));
+  transition: transform var(--glide);
+}
+
+.hero[data-follow] .filmWrap {
+  transform: translateY(calc(-6% * var(--p))) scale(calc(1.08 + 0.24 * var(--p)));
+  transition: transform var(--glide);
+}
+
+.hero[data-follow] .stripA {
+  transform: translateY(calc(-38% * var(--p)));
+  transition: transform var(--glide);
+}
+
+.hero[data-follow] .stripB {
+  transform: translateY(calc(-72% * var(--p)));
+  transition: transform var(--glide);
+}
+
+.hero[data-follow] .copy {
+  transform: translateY(calc(-60% * var(--copy-y)));
+  opacity: calc(1 - var(--copy-fade));
+  transition:
+    transform var(--glide),
+    opacity var(--glide);
+}
+
+.hero[data-follow] .logo {
+  transform: translateY(calc(-140% * var(--logo-y)));
+  opacity: calc(1 - var(--logo-fade));
+  transition:
+    transform var(--glide),
+    opacity var(--glide);
+}
+
+/* ---------- still: phones and low-powered devices ----------
+   No scroll effects at all: the film plays in its frame, the wordmark and caption stay put, and
+   the hero scrolls away like any other block (no pinned stretch). */
+.hero[data-still] {
+  height: auto;
+  /* not tucked up under the bar: the bar is showing from the start here */
+  margin-top: 0;
+}
+
+.hero[data-still] .pin {
+  position: relative;
+}
+
+/* the film's resting push-in, the same as the top of the scroll effect elsewhere */
+.hero[data-still] .filmWrap {
+  transform: scale(1.08);
 }

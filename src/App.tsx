@@ -22,6 +22,7 @@ import { CURTAIN_COVER_S, CURTAIN_HOLD_MS, PageCurtain, type CurtainPhase } from
 import { Navbar } from './components/Navbar'
 import { AboutIntro } from './components/AboutIntro'
 import { FounderSection } from './components/FounderSection'
+import { warmExpertisePage } from './components/ExpertiseSection/thumbnails'
 import { hasSeenIntro, markIntroSeen } from './lib/introStorage'
 import { pageSlideTween } from './lib/motion'
 import { preloadSpotifyIframeApi } from './components/NowPlaying/spotifyPreload'
@@ -55,6 +56,8 @@ function isSuiteDetail(detailType: string | undefined) {
 }
 
 const instantTransition = { duration: 0 }
+/** Longest the page-switch curtain waits for the next page's pictures before fading anyway. */
+const CURTAIN_READY_MAX_MS = 1500
 
 const pageVariants = {
   initial: (direction: number) => ({
@@ -213,6 +216,8 @@ function App() {
   const curtainBusy = useRef(false)
   const curtainPending = useRef<(() => void) | null>(null)
   const curtainFallback = useRef(0)
+  /** What the next page needs before it's shown (its pictures), if anything. */
+  const curtainReady = useRef<Promise<void> | null>(null)
 
   const flushCurtain = useCallback(() => {
     window.clearTimeout(curtainFallback.current)
@@ -220,13 +225,20 @@ function App() {
     if (!run) return
     curtainPending.current = null
     run()
-    // Hold the black frame a beat so the wordmark registers, then part the bars.
-    window.setTimeout(() => setCurtainPhase('reveal'), CURTAIN_HOLD_MS)
+    // Stay black until the new page is ready (its first pictures decoded), never more than
+    // CURTAIN_READY_MAX_MS, then hold a beat so the wordmark registers, and fade away. The page then
+    // appears complete, all at once, instead of frames first and pictures after.
+    const ready = curtainReady.current ?? Promise.resolve()
+    curtainReady.current = null
+    const cap = new Promise<void>((resolve) => window.setTimeout(resolve, CURTAIN_READY_MAX_MS))
+    void Promise.race([ready, cap]).then(() => {
+      window.setTimeout(() => setCurtainPhase('reveal'), CURTAIN_HOLD_MS)
+    })
     // Same safety net for the reveal, so the overlay can never trap clicks.
     curtainFallback.current = window.setTimeout(() => {
       curtainBusy.current = false
       setCurtainPhase('idle')
-    }, 1600 + CURTAIN_HOLD_MS)
+    }, 1600 + CURTAIN_HOLD_MS + CURTAIN_READY_MAX_MS)
   }, [])
 
   /**
@@ -269,15 +281,16 @@ function App() {
 
   const navigateToExpertise = useCallback(
     (category: ExpertiseCategory) => {
+      // start fetching the page's pictures now, while the black fades in
+      curtainReady.current = warmExpertisePage(category)
       withCurtain(() => {
-        beginAnimatedNavigation(1)
-        setExpertiseEntrancePending(true)
-        expertiseEntrancePendingRef.current = true
-
+        // the swap happens behind the black, so it's instant: the page is simply there, whole,
+        // when the black fades (no hidden slide, no cards held back until it ends)
+        setTransitionInstant(true)
         navigate({ type: 'expertise', category })
       })
     },
-    [beginAnimatedNavigation, navigate, withCurtain],
+    [navigate, withCurtain],
   )
 
   const navigateHome = useCallback(() => {

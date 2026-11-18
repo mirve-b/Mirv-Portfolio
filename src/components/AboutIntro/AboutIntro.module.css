@@ -166,3 +166,42 @@
     to { transform: none; }
   }
 }
+
+/* ---------- staged: phones and low-powered devices ----------
+   Nothing tied to the scroll (iPhones can't keep that in step with the finger). As the section
+   comes up the screen, AboutIntro.tsx sets data-stage="in" and the words play their entrance once,
+   as GPU transitions (transform and opacity only: no blur or clip, which would repaint): the
+   letters climb in one after another (--s staggers them), the heading drifts into place and the
+   lines slide in. Scrolling back above it resets it. */
+.section[data-staged] {
+  --stage-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.section[data-staged] .heading {
+  transform: translateX(18%);
+  transition: transform 1.6s var(--stage-ease);
+}
+
+.section[data-staged] .char {
+  transform: translateY(110%) rotate(18deg);
+  opacity: 0;
+  will-change: transform, opacity;
+  transition:
+    transform 1s var(--stage-ease) calc(var(--s) * 1.2s),
+    opacity 0.6s ease calc(var(--s) * 1.2s);
+}
+
+.section[data-staged] .line {
+  transform: translateX(-24px);
+  opacity: 0;
+  transition:
+    transform 1s var(--stage-ease) calc(var(--s) * 1.2s),
+    opacity 0.9s ease calc(var(--s) * 1.2s);
+}
+
+.section[data-staged][data-stage='in'] .heading,
+.section[data-staged][data-stage='in'] .char,
+.section[data-staged][data-stage='in'] .line {
+  transform: none;
+  opacity: 1;
+}

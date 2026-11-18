@@ -15,18 +15,27 @@
   font-size: clamp(22px, 2.6vw, 38px);
   line-height: 1;
   color: var(--color-sand);
+  /* Safari crops a blurred element to its box, and the script M's swash rises well above its line:
+     padding grows the box around the whole glyph (the negative margin keeps the layout the same) */
+  padding: 0.6em;
+  margin: -0.6em;
   will-change: filter, transform;
 }
 
 .script {
   display: inline-block;
   /* the script M's swash reaches right, so give it room before IRVÉ */
-  margin-right: 0.1em;
+  /* (written as padding + a negative margin, so the box also covers the swash: see below) */
+  padding-right: 0.35em;
+  margin-right: -0.25em;
   font-family: var(--font-script);
   font-weight: 400;
   font-size: 2.15em;
   line-height: 0.62;
   translate: 0 0.02em;
+  /* the same for the M's own blur-in: its box covers the full swash, top, bottom and right */
+  padding-block: 0.35em;
+  margin-block: -0.35em;
 }
 
 .word {

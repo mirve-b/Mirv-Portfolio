@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
-import { loadCategoryThumbnails, loadProjectAssets } from '../../data/projectAssets'
+import { loadProjectAssets } from '../../data/projectAssets'
+import { useCategoryThumbnails } from './thumbnails'
 import { getDevSuiteMedia } from '../../data/devSuites'
 import {
   getArtSuiteProjects,
@@ -27,39 +28,6 @@ const PAGE_TITLES: Record<ExpertiseCategory, { bold: string; light: string; labe
   art: { bold: 'ART', light: 'WORK', label: 'Collections' },
   development: { bold: 'DEVELOP', light: 'MENT', label: 'Products & builds' },
   'ui-ux': { bold: 'DESIGN', light: 'UI/UX', label: 'Interfaces' },
-}
-
-const thumbnailCache = new Map<ExpertiseCategory, Record<string, string>>()
-
-function useCategoryThumbnails(category: ExpertiseCategory) {
-  const [thumbnails, setThumbnails] = useState<Record<string, string>>(() => thumbnailCache.get(category) ?? {})
-  const [loading, setLoading] = useState(() => !thumbnailCache.has(category))
-
-  useEffect(() => {
-    const cached = thumbnailCache.get(category)
-    if (cached) {
-      setThumbnails(cached)
-      setLoading(false)
-      return
-    }
-    let cancelled = false
-    setLoading(true)
-    loadCategoryThumbnails(category)
-      .then((next) => {
-        if (cancelled) return
-        thumbnailCache.set(category, next)
-        setThumbnails(next)
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [category])
-
-  return { thumbnails, loading }
 }
 
 function LoopVideo({ src, className }: { src: string; className: string }) {
@@ -107,8 +75,8 @@ function PageHeader({ category, count }: { category: ExpertiseCategory; count: n
     <header className={styles.header}>
       <motion.h1
         className={styles.title}
-        initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1, ease: EASE }}
       >
         <span className={styles.bold}>{bold}</span>
@@ -185,19 +153,10 @@ function Barcode({ seed }: { seed: string }) {
   )
 }
 
-/** Hairline that draws itself across when it scrolls into view. */
+/** A hairline across the sheet. It arrives with the rest of its card (no separate draw-in), so a
+ *  card never shows its lines before its picture. */
 function Rule({ className }: { className: string }) {
-  const reduced = useReducedMotion()
-  return (
-    <motion.span
-      className={className}
-      aria-hidden="true"
-      initial={reduced ? false : { scaleX: 0 }}
-      whileInView={{ scaleX: 1 }}
-      viewport={{ once: true, margin: '-5% 0px' }}
-      transition={{ duration: 1.4, ease: EASE }}
-    />
-  )
+  return <span className={className} aria-hidden="true" />
 }
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -382,15 +341,9 @@ function WorkRow({
           <span className={styles.corner} data-pos="tr" aria-hidden="true" />
           <span className={styles.corner} data-pos="bl" aria-hidden="true" />
           <span className={styles.corner} data-pos="br" aria-hidden="true" />
-          <motion.div
-            className={styles.entryMediaInner}
-            initial={reduced ? false : { clipPath: 'inset(0 0 100% 0)' }}
-            whileInView={{ clipPath: 'inset(0 0 0% 0)' }}
-            viewport={{ once: true, margin: '-8% 0px' }}
-            transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1], delay: 0.1 }}
-          >
-            {media}
-          </motion.div>
+          {/* the picture is part of the card's own fade-in (no separate wipe), so the card and its
+              picture appear together as one piece */}
+          <div className={styles.entryMediaInner}>{media}</div>
         </div>
 
         <div className={`${styles.cell} ${styles.entryInfo}`}>

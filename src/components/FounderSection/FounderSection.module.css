@@ -389,3 +389,27 @@
     to { opacity: 1; }
   }
 }
+
+/* ---------- still: phones and tablets ----------
+   All three films play, as one still group: the frame (unveiled, settled) and its strip sit level
+   like a contact sheet, nothing moves on its own with the scroll, and the section scrolls past
+   like any other block (no pinned stretch). */
+.section[data-still] {
+  height: auto;
+}
+
+.section[data-still] .pin {
+  position: relative;
+  height: auto;
+  padding-block: clamp(56px, 10svh, 96px);
+}
+
+/* the film's settled push-in, as at the end of the effect elsewhere */
+.section[data-still] .filmWrap {
+  transform: scale(1.05);
+}
+
+/* the unveil cover isn't needed: the film is simply there */
+.section[data-still] .cover {
+  display: none;
+}

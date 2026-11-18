@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import { motion, useMotionValue, useScroll, useTransform } from 'framer-motion'
 import { useNativeScrollAnimations } from '../../lib/useNativeScrollAnimations'
 import { useReducedMotion } from '../../lib/useReducedMotion'
+import { useLiteMedia } from '../../lib/useLiteMedia'
+import { pauseBackground, playBackground, prepareAutoplay } from '../../lib/autoplay'
 // the MABLE film and its two strip slices, each with its grade baked in (no live CSS filters)
 import introMp4 from '../../assets/mable-main.mp4'
 import sliceAMp4 from '../../assets/mable-slice-a.mp4'
@@ -19,9 +21,15 @@ export function FounderSection() {
   const ref = useRef<HTMLElement>(null)
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
   const reduced = useReducedMotion()
+  // phones and tablets: the section is still (see below)
+  const lite = useLiteMedia()
   // native scroll timeline where supported (see FounderSection.module.css); framer-motion otherwise
-  const native = useNativeScrollAnimations()
-  const js = !native
+  // phones and tablets: all three films play, but as one still group. Nothing moves on its own
+  // with the scroll and nothing pins: the frame and its strip scroll past together, like a picture
+  // ("still" in FounderSection.module.css)
+  const still = lite
+  const native = useNativeScrollAnimations() && !still
+  const js = !native && !still
   const { scrollYProgress } = useScroll(js ? { target: ref, offset: ['start end', 'end end'] } : undefined)
   // driven straight by the scroll (no spring), like the hero
   // natively animated: the JS formulas get a fixed value, so they never recompute while scrolling
@@ -47,7 +55,7 @@ export function FounderSection() {
     const videos = videoRefs.current.filter((v): v is HTMLVideoElement => !!v)
     if (!section || !videos.length) return
     const observer = new IntersectionObserver(
-      ([entry]) => videos.forEach((v) => (entry.isIntersecting ? void v.play().catch(() => {}) : v.pause())),
+      ([entry]) => videos.forEach((v) => (entry.isIntersecting ? playBackground(v) : pauseBackground(v))),
       { threshold: 0.1 },
     )
     observer.observe(section)
@@ -58,6 +66,7 @@ export function FounderSection() {
     <video
       ref={(el) => {
         videoRefs.current[i] = el
+        if (el) prepareAutoplay(el)
       }}
       className={className}
       poster={i === 0 ? introPoster : undefined}
@@ -79,6 +88,7 @@ export function FounderSection() {
       ref={ref}
       className={styles.section}
       data-css-scroll={native ? '' : undefined}
+      data-still={still ? '' : undefined}
       aria-labelledby="founder-heading"
     >
       <div className={styles.pin}>

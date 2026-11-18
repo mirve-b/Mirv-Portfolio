@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type MouseEvent } from 'react'
 import { NowPlaying } from '../NowPlaying'
 import type { ExpertiseCategory } from '../../lib/pageNavigation'
+import { useLiteMedia } from '../../lib/useLiteMedia'
 import styles from './Navbar.module.css'
 
 type NavbarProps = {
@@ -18,10 +19,13 @@ const LINKS: { label: string; category: ExpertiseCategory }[] = [
 ]
 
 export function Navbar({ isHome, activeCategory, onNavigateHome, onSelectCategory }: NavbarProps) {
-  // the top bar slides in once the hero wordmark has scrolled away (always on, off the home page)
-  const [barShown, setBarShown] = useState(!isHome)
+  // the top bar slides in once the hero wordmark has scrolled away. Always on off the home page,
+  // and on phones and low-powered devices, where the hero is still and the bar is there from the start
+  const lite = useLiteMedia()
+  const alwaysShown = !isHome || lite
+  const [barShown, setBarShown] = useState(alwaysShown)
   useEffect(() => {
-    if (!isHome) {
+    if (alwaysShown) {
       setBarShown(true)
       return
     }
@@ -44,7 +48,7 @@ export function Navbar({ isHome, activeCategory, onNavigateHome, onSelectCategor
       window.removeEventListener('scroll', onScroll)
       window.cancelAnimationFrame(frame)
     }
-  }, [isHome])
+  }, [alwaysShown])
 
   const handleBrandClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {

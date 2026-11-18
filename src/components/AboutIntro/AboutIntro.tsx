@@ -2,6 +2,8 @@ import { useRef } from 'react'
 import { motion, useMotionValue, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import { useNativeScrollAnimations } from '../../lib/useNativeScrollAnimations'
 import { useReducedMotion } from '../../lib/useReducedMotion'
+import { useLiteMedia } from '../../lib/useLiteMedia'
+import { useStageTrigger } from '../../lib/useStageTrigger'
 import { AboutOrchid } from './AboutOrchid'
 import styles from './AboutIntro.module.css'
 
@@ -50,12 +52,18 @@ export function AboutIntro() {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
   // native scroll timeline where supported (see AboutIntro.module.css); framer-motion otherwise
-  const native = useNativeScrollAnimations()
-  const { scrollYProgress } = useScroll(native ? undefined : { target: ref, offset: ['start 85%', 'center 45%'] })
+  // phones and low-powered devices: nothing tied to the scroll; the words play their entrance once
+  // as the section comes up ("staged" in AboutIntro.module.css), smooth on the GPU
+  const staged = useLiteMedia() && !reduced
+  const native = useNativeScrollAnimations() && !staged
+  // CSS runs the motion (native timeline or staged): framer stays out of it
+  const css = native || staged
+  useStageTrigger(ref, staged, 0.8)
+  const { scrollYProgress } = useScroll(css ? undefined : { target: ref, offset: ['start 85%', 'center 45%'] })
   // driven straight by the scroll (no spring), so it tracks the finger on phones
   // natively animated: the JS formulas get a fixed value, so they never recompute while scrolling
   const idle = useMotionValue(1)
-  const progress = useTransform(native ? idle : scrollYProgress, (v) => (reduced ? 1 : v))
+  const progress = useTransform(css ? idle : scrollYProgress, (v) => (reduced ? 1 : v))
   const drift = useTransform(progress, [0, 1], ['18%', '0%'])
 
   const bold = 'ABOUT'
@@ -67,29 +75,30 @@ export function AboutIntro() {
       ref={ref}
       className={styles.section}
       data-css-scroll={native ? '' : undefined}
+      data-staged={staged ? '' : undefined}
       aria-labelledby="about-heading"
     >
-      <motion.h2 id="about-heading" className={styles.heading} style={native ? undefined : { x: drift }} aria-label="About me">
+      <motion.h2 id="about-heading" className={styles.heading} style={css ? undefined : { x: drift }} aria-label="About me">
         <span className={styles.bold} aria-hidden="true">
           {Array.from(bold).map((c, i) => (
-            <Letter key={`b${i}`} char={c} progress={progress} index={i} total={total} native={native} />
+            <Letter key={`b${i}`} char={c} progress={progress} index={i} total={total} native={css} />
           ))}
         </span>
         <span className={styles.light} aria-hidden="true">
           {Array.from(light).map((c, i) => (
-            <Letter key={`l${i}`} char={c} progress={progress} index={bold.length + 1 + i} total={total} native={native} />
+            <Letter key={`l${i}`} char={c} progress={progress} index={bold.length + 1 + i} total={total} native={css} />
           ))}
         </span>
       </motion.h2>
 
       {/* ABOUT ORCHID — its own file: AboutOrchid.tsx */}
-      <AboutOrchid progress={progress} native={native} />
+      <AboutOrchid progress={progress} native={css} />
 
       <div className={styles.copy}>
-        <Line progress={progress} from={0.45} native={native}>
+        <Line progress={progress} from={0.45} native={css}>
           Somewhere between art and engineering.
         </Line>
-        <Line progress={progress} from={0.6} native={native}>
+        <Line progress={progress} from={0.6} native={css}>
           Making the internet a little less boring. Design, code,
           <br />
           and whatever comes next.
