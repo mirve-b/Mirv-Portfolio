@@ -72,6 +72,14 @@ type SkillsCollageProps = {
 function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
   const collageRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
+  // tap to open, not hover, on any touch screen (an iPad's width gets the desktop layout, but it
+  // has no mouse: its tap fakes a hover that opened the folder and then hit a note underneath)
+  const [touch] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches,
+  )
+  const tapMode = isMobile || touch
+  // a tap that opens the folder must never also pick a note
+  const openedAt = useRef(0)
   const [folderPhase, setFolderPhase] = useState<FolderPhase>('idle')
   // the pieces wait off-stage until the collage scrolls into view, then lay themselves down
   const reducedMotion = useReducedMotion()
@@ -93,6 +101,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
   }, [])
 
   const openFolder = useCallback(() => {
+    openedAt.current = performance.now()
     setFolderPhase('open')
   }, [])
 
@@ -102,15 +111,16 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
 
   const handleAssetTap = useCallback(
     (event: React.MouseEvent | React.KeyboardEvent) => {
-      if (!isMobile || folderPhase !== 'idle') return
+      if (!tapMode || folderPhase !== 'idle') return
       event.stopPropagation()
       openFolder()
     },
-    [folderPhase, isMobile, openFolder],
+    [folderPhase, tapMode, openFolder],
   )
 
   const handleNoteSelect = useCallback(
     (category: ExpertiseCategory) => {
+      if (performance.now() - openedAt.current < 450) return
       onSelectCategory(category)
       closeFolder()
     },
@@ -143,7 +153,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
   }, [isHomeActive])
 
   useEffect(() => {
-    if (!isMobile || folderPhase !== 'open') return
+    if (!tapMode || folderPhase !== 'open') return
 
     const handleOutside = (event: Event) => {
       if (!collageRef.current?.contains(event.target as Node)) {
@@ -161,10 +171,10 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
       document.removeEventListener('touchstart', handleOutside)
       document.removeEventListener('click', handleOutside)
     }
-  }, [closeFolder, folderPhase, isMobile])
+  }, [closeFolder, folderPhase, tapMode])
 
   const mobileTapProps =
-    isMobile && folderPhase === 'idle'
+    tapMode && folderPhase === 'idle'
       ? {
           role: 'button' as const,
           tabIndex: 0,
@@ -178,7 +188,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
         }
       : {}
 
-  const tapTarget = isMobile && folderPhase === 'idle' ? styles.mobileTapTarget : undefined
+  const tapTarget = tapMode && folderPhase === 'idle' ? styles.mobileTapTarget : undefined
   const tapClass = (baseClass: string) => (tapTarget ? `${baseClass} ${tapTarget}` : baseClass)
 
   return (
@@ -191,9 +201,9 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
       data-mobile={isMobile ? '' : undefined}
       data-intro={intro}
       aria-label="Skills collage. Hover folder front to reveal navigation notes"
-      onMouseLeave={isMobile ? undefined : closeFolder}
+      onMouseLeave={tapMode ? undefined : closeFolder}
       onBlur={(event) => {
-        if (isMobile) return
+        if (tapMode) return
         if (!collageRef.current?.contains(event.relatedTarget as Node | null)) {
           closeFolder()
         }
@@ -202,7 +212,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
       <AnimatePresence mode="wait">
         {folderPhase === 'idle' ? (
           <motion.div
-            key={isMobile ? 'tap-bubble' : 'hover-bubble'}
+            key={tapMode ? 'tap-bubble' : 'hover-bubble'}
             className={`${styles.collageBubbleAnchor} ${styles.collageBubbleTap}`}
             aria-hidden="true"
             initial={exploreBubbleMotion.initial}
@@ -212,14 +222,14 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
             style={{ transformOrigin: '50% 100%' }}
           >
             <div className={`${styles.collageBubble} ${styles.collageBubbleVibrate}`}>
-              {isMobile ? 'TAP!!' : 'Hover to explore'}
+              {tapMode ? 'TAP!!' : 'Hover to explore'}
             </div>
           </motion.div>
         ) : null}
 
         {folderPhase === 'open' ? (
           <motion.div
-            key={isMobile ? 'pick-bubble' : 'select-bubble'}
+            key={tapMode ? 'pick-bubble' : 'select-bubble'}
             className={`${styles.collageBubbleAnchor} ${styles.collageBubblePick}`}
             aria-hidden="true"
             initial={selectBubbleMotion.initial}
@@ -229,7 +239,7 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
             style={{ transformOrigin: '50% 100%' }}
           >
             <div className={styles.collageBubble}>
-              {isMobile ? 'Pick one!!' : 'Select one'}
+              {tapMode ? 'Pick one!!' : 'Select one'}
             </div>
           </motion.div>
         ) : null}
@@ -308,8 +318,8 @@ function SkillsCollage({ onSelectCategory, isHomeActive }: SkillsCollageProps) {
           draggable={false}
           loading="lazy"
           decoding="async"
-          onMouseEnter={isMobile ? undefined : openFolder}
-          onFocus={isMobile ? undefined : openFolder}
+          onMouseEnter={tapMode ? undefined : openFolder}
+          onFocus={tapMode ? undefined : openFolder}
           {...mobileTapProps}
         />
       </div>

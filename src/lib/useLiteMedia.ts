@@ -1,16 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 /**
- * True on phones and tablets only, i.e. touch-screen devices with no mouse: the film sections
- * then play just their one main film (the side strips are plain dark panels) and the hero is
- * still, since decoding three videos at once is what makes a phone stutter.
+ * Touch-screen devices (no mouse) in their phone layout: phones, and tablets held upright (iPad
+ * portrait, up to 834px wide), plus phones turned sideways (short screens). The film sections
+ * then play lighter and stay still, since iPhones and iPads can't keep scroll-linked motion in
+ * step with the finger.
  *
- * Desktops and laptops never get this, whatever the window size, core count or memory: they keep
- * the full design (the zoom and the three-part strip). Decided once on load.
+ * Desktops and laptops never get this, whatever the window size. An iPad in landscape gets the
+ * full desktop design. It follows the device as it's rotated.
  */
+const LITE_MQ =
+  '(hover: none) and (pointer: coarse) and (max-width: 834px), (hover: none) and (pointer: coarse) and (max-height: 500px)'
+
 export function useLiteMedia(): boolean {
-  const [lite] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches,
-  )
+  const [lite, setLite] = useState(() => typeof window !== 'undefined' && window.matchMedia(LITE_MQ).matches)
+
+  useEffect(() => {
+    const media = window.matchMedia(LITE_MQ)
+    const sync = () => setLite(media.matches)
+    sync()
+    media.addEventListener('change', sync)
+    return () => media.removeEventListener('change', sync)
+  }, [])
+
   return lite
 }

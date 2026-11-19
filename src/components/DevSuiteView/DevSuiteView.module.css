@@ -247,7 +247,7 @@
   border-right-width: 1px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .specHead {
     grid-template-columns: auto 1fr auto;
   }

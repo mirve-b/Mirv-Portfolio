@@ -187,7 +187,7 @@
   color: rgba(230, 216, 198, 0.4);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .drawer {
     z-index: 1;
     width: min(20rem, calc(100vw - (var(--container-padding) * 2)));

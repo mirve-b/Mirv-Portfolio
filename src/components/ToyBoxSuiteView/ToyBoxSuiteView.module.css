@@ -78,7 +78,7 @@
   padding-top: clamp(0.75rem, 2vw, 1.25rem);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .section {
     padding-top: calc(var(--navbar-height) + 1.5rem);
   }

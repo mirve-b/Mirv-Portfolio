@@ -310,7 +310,7 @@
 
 /* ── Mobile ── */
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .section {
     padding-top: clamp(1rem, 3.5vw, 1.5rem);
   }
@@ -569,13 +569,13 @@
   transform-origin: 50% 100%;
 }
 
-@media (max-width: 768px) and (pointer: coarse) {
+@media (max-width: 834px) and (pointer: coarse) {
   .collage {
     transform: translateX(-28%);
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 835px) and (max-width: 1024px) {
   .noteLink {
     width: 20%;
     min-width: 4.75rem;

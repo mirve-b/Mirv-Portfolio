@@ -162,7 +162,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .root {
     gap: 0;
     width: 2.25rem;

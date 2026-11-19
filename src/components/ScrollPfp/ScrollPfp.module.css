@@ -72,7 +72,7 @@
   transform: translateX(-50%) rotate(45deg) translateY(-5px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   /* Mobile-only: feet sit on the top edge of the NAME input */
   .rootMobile {
     position: absolute;

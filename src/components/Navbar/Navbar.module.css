@@ -38,7 +38,7 @@
 
 /* ── Mobile (phone) ── */
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .navbar {
     position: absolute;
     top: 0;
@@ -221,7 +221,7 @@
 }
 
 /* desktop: the playlist sits centred over the hero's dark strip (same sizes as Hero .pin) */
-@media (min-width: 769px) {
+@media (min-width: 835px) {
   .nowPlayingWrap {
     right: calc(
       clamp(10px, 1.6vw, 24px) + clamp(26px, 3.8vw, 60px) + clamp(2px, 0.25vw, 4px) +

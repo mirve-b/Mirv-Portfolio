@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
-const MOBILE_MQ = '(max-width: 768px)'
+// phones, and tablets held upright (iPad portrait is 744–834px wide)
+const MOBILE_MQ = '(max-width: 834px)'
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() =>

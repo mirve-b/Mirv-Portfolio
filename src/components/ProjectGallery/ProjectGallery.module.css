@@ -329,7 +329,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .section {
     padding-top: calc(var(--navbar-height) + 1.5rem);
   }

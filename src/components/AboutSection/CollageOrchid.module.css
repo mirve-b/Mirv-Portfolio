@@ -29,7 +29,7 @@
 
 /* phones: the collage gets smaller, so the orchid takes a bigger share of it (it reads better
    big here); tapping it opens the folder too */
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .orchid {
     width: 75%;
   }

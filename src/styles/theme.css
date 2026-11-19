@@ -52,7 +52,7 @@
   --blur-glass: 16px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   :root {
     --container-padding: 1rem;
     --navbar-height: 7rem;
