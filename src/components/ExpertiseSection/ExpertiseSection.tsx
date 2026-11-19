@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
 import { loadProjectAssets } from '../../data/projectAssets'
 import { useCategoryThumbnails } from './thumbnails'
 import { getDevSuiteMedia } from '../../data/devSuites'
@@ -11,6 +11,7 @@ import {
 } from '../../data/portfolioProjects'
 import { startMutedPreview } from '../../lib/mediaUtils'
 import { useReducedMotion } from '../../lib/useReducedMotion'
+import { useLiteMedia } from '../../lib/useLiteMedia'
 import type { ExpertiseCategory } from '../../lib/pageNavigation'
 import { DevSuitePreviewVideo } from '../DevSuiteView/DevSuitePreviewVideo'
 import { MediaLoader } from './ShowcaseVideoCard'
@@ -182,10 +183,16 @@ function ArtSheet({
 }) {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
+  // phones and tablets: the sheet is still (iPhones can't keep scroll-linked motion in step with
+  // the finger, so it would tremble). The name, pictures and timecode rest in place.
+  const still = useLiteMedia() || reduced
   const pieces = useCollectionPieces(project)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
-  const p = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.35 })
-  const r = <T,>(from: T, to: T): [T, T] => (reduced ? [from, from] : [from, to])
+  const { scrollYProgress } = useScroll(still ? undefined : { target: ref, offset: ['start end', 'end start'] })
+  const spring = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.35 })
+  // still: everything reads a fixed value, so nothing (the timecode included) updates while scrolling
+  const idle = useMotionValue(0)
+  const p = still ? idle : spring
+  const r = <T,>(from: T, to: T): [T, T] => (still ? [from, from] : [from, to])
 
   const flip = index % 2 === 1
   const nameX = useTransform(p, [0, 1], flip ? r('-14%', '4%') : r('4%', '-14%'))

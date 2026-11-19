@@ -84,3 +84,32 @@
   background: var(--color-sand);
   opacity: 0.6;
 }
+
+/* phones and tablets: a steady drift, run by the GPU on its own (nothing measured per frame).
+   The same speeds as the JS loop at rest: the dots move one tile every 26/18 s to the left, the
+   name one copy per minute to the right. */
+.section[data-drift] .dots {
+  animation: dotsDrift 1.444s linear infinite;
+}
+
+.section[data-drift] .track {
+  animation: nameDrift 60s linear infinite;
+}
+
+@keyframes dotsDrift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-1 * var(--tile)));
+  }
+}
+
+@keyframes nameDrift {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

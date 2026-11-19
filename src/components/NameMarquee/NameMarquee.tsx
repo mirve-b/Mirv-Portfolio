@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { motion, useInView, useMotionValue, useTransform } from 'framer-motion'
 import { useReducedMotion } from '../../lib/useReducedMotion'
+import { useLiteMedia } from '../../lib/useLiteMedia'
 import styles from './NameMarquee.module.css'
 
 /** One dot tile, in px. The pattern loops every tile, so the drift wraps seamlessly. */
@@ -17,6 +18,10 @@ const NAMES = Array.from({ length: 16 }, () => 'MIRVÉ')
  */
 export function NameMarquee() {
   const reduced = useReducedMotion()
+  // phones and tablets: the tapes just drift at a steady pace as a CSS animation the GPU runs on
+  // its own (see NameMarquee.module.css), with nothing measured per frame while scrolling
+  const lite = useLiteMedia()
+  const loop = !reduced && !lite
   const dots = useMotionValue(0)
   const name = useMotionValue(0)
   // only animate while the tapes are on screen
@@ -26,7 +31,7 @@ export function NameMarquee() {
   // the drift loop runs only while the tapes are on screen (nothing per frame otherwise). Scroll
   // speed is measured inside it and eased, so the tapes still speed up and flip with the scroll.
   useEffect(() => {
-    if (reduced || !inView) return
+    if (!loop || !inView) return
     let raf = 0
     let last = performance.now()
     let lastY = window.scrollY
@@ -57,7 +62,7 @@ export function NameMarquee() {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [reduced, inView, dots, name])
+  }, [loop, inView, dots, name])
 
   // the dots drift by moving a layer (transform only: no repaint), wrapping every tile
   const dotsX = useTransform(dots, (v) => v - TILE)
@@ -74,12 +79,17 @@ export function NameMarquee() {
   )
 
   return (
-    <section ref={sectionRef} className={styles.section} aria-hidden="true">
+    <section
+      ref={sectionRef}
+      className={styles.section}
+      data-drift={lite && !reduced ? '' : undefined}
+      aria-hidden="true"
+    >
       <div className={styles.polka}>
-        <motion.div className={styles.dots} style={reduced ? undefined : { x: dotsX }} />
+        <motion.div className={styles.dots} style={loop ? { x: dotsX } : undefined} />
       </div>
       <div className={styles.nameTape}>
-        <motion.div className={styles.track} style={reduced ? undefined : { x: nameX }}>
+        <motion.div className={styles.track} style={loop ? { x: nameX } : undefined}>
           {copy('a')}
           {copy('b')}
         </motion.div>

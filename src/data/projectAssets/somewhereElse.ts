@@ -1,7 +1,7 @@
 import { createProjectAssetLoader } from './types'
 
 const loadThumbnail = () =>
-  import('../../assets/ART/SOMEWHERE ELSE/thumbnail.png').then((m) => m.default)
+  import('../../assets/ART/SOMEWHERE ELSE/thumbnail.webp').then((m) => m.default)
 
 const loadGallery = () =>
   Promise.all([

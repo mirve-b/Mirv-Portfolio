@@ -56,7 +56,9 @@ export function FounderSection() {
     if (!section || !videos.length) return
     const observer = new IntersectionObserver(
       ([entry]) => videos.forEach((v) => (entry.isIntersecting ? playBackground(v) : pauseBackground(v))),
-      { threshold: 0.1 },
+      // start half a screen ahead, so the films are already playing when the section scrolls in (and
+      // nothing downloads while it's far away)
+      { rootMargin: '50% 0px' },
     )
     observer.observe(section)
     return () => observer.disconnect()
@@ -70,11 +72,13 @@ export function FounderSection() {
       }}
       className={className}
       poster={i === 0 ? introPoster : undefined}
-      autoPlay
+      // no autoPlay attribute: it would make the browser fetch the films at once; the observer
+      // above starts them when the section is near
       loop
       muted
       playsInline
-      preload={i === 0 ? 'metadata' : 'none'}
+      // nothing downloads until the section is near (see the observer above)
+      preload="none"
       aria-hidden={i !== 0}
       aria-label={i === 0 ? 'MABLE studio intro film' : undefined}
       draggable={false}
