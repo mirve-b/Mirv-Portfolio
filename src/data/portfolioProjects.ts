@@ -161,6 +161,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProjectMeta[] = [
     ctaLabel: 'MABLE',
   },
   {
+    id: 'flip-n-grill',
+    category: 'development',
+    title: 'FLIP & GRILL',
+    subtitle: 'Smash burger website',
+    description:
+      'A website bringing Flip N Grill’s personality, story, and menu to life.',
+    detailType: 'dev-suite',
+    externalUrl: 'https://flip-n-grill.vercel.app/',
+    ctaLabel: 'FLIP & GRILL',
+  },
+  {
     id: 'tethr',
     category: 'development',
     title: 'TETHR',

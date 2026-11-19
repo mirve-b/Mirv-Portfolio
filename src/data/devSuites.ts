@@ -1,6 +1,8 @@
 import kaelThumbnailVideo from '../assets/DEV/KAEL/kael_thumbnail.mp4'
 import mableThumbnailVideo from '../assets/DEV/MABLE/thumbnail.mp4'
 import tethrThumbnail from '../assets/DEV/TETHR/thumbnail.webp'
+// a real recording of the live site: the hero, the story and the menu
+import flipNGrillThumbnailVideo from '../assets/DEV/FLIP N GRILL/thumbnail.mp4'
 
 export type DevSuiteMedia = {
   previewVideoSrc?: string
@@ -14,6 +16,10 @@ const DEV_SUITE_MEDIA: Record<string, DevSuiteMedia> = {
   },
   mable: {
     previewVideoSrc: mableThumbnailVideo,
+    previewOnly: true,
+  },
+  'flip-n-grill': {
+    previewVideoSrc: flipNGrillThumbnailVideo,
     previewOnly: true,
   },
   tethr: {
